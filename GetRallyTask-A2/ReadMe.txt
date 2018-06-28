@@ -1,0 +1,1 @@
+Uses AngularJS v2 + RequireJS

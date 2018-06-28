@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{30B6752B-0EBE-48F6-88CE-F93FB55FF2FC}"
+	ProjectSection(SolutionItems) = preProject
+		app.js = app.js
+		GetRallyWorks.html = GetRallyWorks.html
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{D59AD904-FB72-4DE7-8CF6-CE77F3BD5696}"
+	ProjectSection(SolutionItems) = preProject
+		services\rallyAuthService.js = services\rallyAuthService.js
+		services\rallyTaskQueryService.js = services\rallyTaskQueryService.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "directives", "directives", "{33B735E3-B1AD-4FD1-B911-3B25A95E8FB6}"
+	ProjectSection(SolutionItems) = preProject
+		directives\rallyLoginDirective.js = directives\rallyLoginDirective.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "controllers", "controllers", "{2E8FC235-2C24-46D0-AE22-23ED35EAF4FC}"
+	ProjectSection(SolutionItems) = preProject
+		controllers\rallyTaskController.js = controllers\rallyTaskController.js
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D59AD904-FB72-4DE7-8CF6-CE77F3BD5696} = {30B6752B-0EBE-48F6-88CE-F93FB55FF2FC}
+		{33B735E3-B1AD-4FD1-B911-3B25A95E8FB6} = {30B6752B-0EBE-48F6-88CE-F93FB55FF2FC}
+		{2E8FC235-2C24-46D0-AE22-23ED35EAF4FC} = {30B6752B-0EBE-48F6-88CE-F93FB55FF2FC}
+	EndGlobalSection
+EndGlobal
