@@ -1,0 +1,20 @@
+https://rally1.rallydev.com/slm/webservice/v2.0/task?query=((AcceptedDate >= "2018-01-01") and ((Owner.Name = joe.zhang@carestream.com) and ((ScheduleState = Accepted) OR (ScheduleState = Completed))))&order=Iteration,LastUpdateDate&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration&pagesize=1999
+
+https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=((AcceptedDate >= "2018-01-01") and ((Owner.Name = joe.zhang@carestream.com) and ((ScheduleState = Accepted) OR (ScheduleState = Completed))))&order=Iteration,LastUpdateDate&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration&pagesize=1999
+
+https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=((AcceptedDate >= "2018-01-01") and ((Owner.Name = joe.zhang@carestream.com) and ((ScheduleState = Accepted) OR (ScheduleState = Completed))))&order=Iteration,LastUpdateDate&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration&pagesize=1999
+
+https://rally1.rallydev.com/slm/webservice/v2.0/defect/152883574396
+https://rally1.rallydev.com/#/90211740268ud/detail/defect/152883574396
+
+
+https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=(((AcceptedDate >= "2018-01-01") OR (InProgressDate >= "2018-01-01")) and ((Owner.Name = joe.zhang@carestream.com) and ((ScheduleState = Accepted) OR (ScheduleState = Completed))))&order=Iteration,LastUpdateDate&fetch=*&pagesize=1999
+
+// Get task info
+https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Tasks?query=(State = Completed) &fetch=TimeSpent&pagesize=1999
+
+
+Dates:
+CloseDate: The date that Defect state changed to Closed
+AcceptedDate: The date that Schedule state changed to Accepted
+InProgressDate: The date that Schedule state changed to InProgress

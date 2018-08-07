@@ -67,13 +67,30 @@ app.controller('RallyTaskController', [
 			if (clearDataFirst) { $scope.TaskList = []; }
 
 			$scope.inQuerying = true;
+			var tasks = [];
 			var token = rallyAuthService.getAuthenticationToken();
 			q.all([
 					rallyTaskQueryService.getTasksFromRally(owner, sprint, 'hierarchicalrequirement', true, token),
 					rallyTaskQueryService.getTasksFromRally(owner, sprint, 'defect', true, token)
 			])
 				.then(function (lists) {
-					$scope.TaskList = _.union($scope.TaskList, lists[0], lists[1]);
+					// If directly Complete the user story or defect under which still contains incompleted tasks
+					// the SpentTime of those taks would not be counted any more. So need to accumulate all task hours
+					tasks = _.union(lists[0], lists[1]);
+					q.all(rallyTaskQueryService.reCalculateTaskSpentTime(tasks, token))
+						.then(function (updatedTasks) {
+							$scope.TaskList = _.union($scope.TasksList, updatedTasks);
+						}, function (error) {
+							console.error(error.statusText);
+							if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
+								$scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
+							} else {
+								$scope.ErrorMsg = error.statusText;
+							}
+						})
+					.finally(function () {
+						$scope.inQuerying = false;
+					});
 				}, function (error) {
 					console.error(error.statusText);
 					if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
@@ -81,9 +98,6 @@ app.controller('RallyTaskController', [
 					} else {
 						$scope.ErrorMsg = error.statusText;
 					}
-				})
-				.finally(function () {
-					$scope.inQuerying = false;
 				});
 		};
 	}]);
@@ -91,7 +105,7 @@ app.controller('RallyTaskController', [
 app.directive('directiveScope', function () {
 	return {
 		restrict: 'EA',
-		scope: { name:"=" },
+		scope: { name: "=" },
 		template: '<div><label>Child name: {{name}}</label><input type=""text" ng-model="name" /></div>'
 	};
 });

@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Tasks?&fetch=true&pagesize=1999
+https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Tasks?query=(State = Completed) &fetch=TimeSpent&pagesize=1999
+-->
+<root>
+   <QueryResult>
+      <Errors />
+      <PageSize>1999</PageSize>
+      <Results>
+         <element>
+            <Actuals null="true" />
+            <Attachments>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243870717572/Attachments</_ref>
+               <_type>Attachment</_type>
+            </Attachments>
+            <Blocked>false</Blocked>
+            <BlockedReason null="true" />
+            <Changesets>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243870717572/Changesets</_ref>
+               <_type>Changeset</_type>
+            </Changesets>
+            <Connections>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243870717572/Connections</_ref>
+               <_type>Connection</_type>
+            </Connections>
+            <CreatedBy>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/user/28130106840</_ref>
+               <_refObjectName>Ryan Zhang</_refObjectName>
+               <_refObjectUUID>900fac33-53b8-4bf5-9e59-b036f031ab6a</_refObjectUUID>
+               <_type>User</_type>
+            </CreatedBy>
+            <CreationDate>2018-08-06T03:12:54.946Z</CreationDate>
+            <Description />
+            <Discussion>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243870717572/Discussion</_ref>
+               <_type>ConversationPost</_type>
+            </Discussion>
+            <DisplayColor>#848689</DisplayColor>
+            <DragAndDropRank>P!-({O~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</DragAndDropRank>
+            <Estimate null="true" />
+            <Expedite>false</Expedite>
+            <FormattedID>TA168101</FormattedID>
+            <Iteration>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/iteration/231663885992</_ref>
+               <_refObjectName>Sprint 29</_refObjectName>
+               <_refObjectUUID>fc455c3e-9799-4290-b057-db477e2e99e0</_refObjectUUID>
+               <_type>Iteration</_type>
+            </Iteration>
+            <LastUpdateDate>2018-08-06T05:36:47.162Z</LastUpdateDate>
+            <LatestDiscussionAgeInMinutes null="true" />
+            <Milestones>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243870717572/Milestones</_ref>
+               <_tagsNameArray />
+               <_type>Milestone</_type>
+            </Milestones>
+            <Name>test only</Name>
+            <Notes />
+            <ObjectID>243870717572</ObjectID>
+            <ObjectUUID>7a62f581-e9bb-4a8b-af71-d0c42694f18c</ObjectUUID>
+            <Owner>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/user/28130106840</_ref>
+               <_refObjectName>Ryan Zhang</_refObjectName>
+               <_refObjectUUID>900fac33-53b8-4bf5-9e59-b036f031ab6a</_refObjectUUID>
+               <_type>User</_type>
+            </Owner>
+            <Project>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/project/202659940144</_ref>
+               <_refObjectName>MiddleTier</_refObjectName>
+               <_refObjectUUID>45953b06-8d18-4ea6-9df3-b646d48512cc</_refObjectUUID>
+               <_type>Project</_type>
+            </Project>
+            <Ready>false</Ready>
+            <Recycled>false</Recycled>
+            <Release>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/release/220647849392</_ref>
+               <_refObjectName>Common 1.4 Release</_refObjectName>
+               <_refObjectUUID>6016d51a-6b8d-4e3d-a774-a47593516dbe</_refObjectUUID>
+               <_type>Release</_type>
+            </Release>
+            <RevisionHistory>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/revisionhistory/243870717576</_ref>
+               <_refObjectUUID>7227f54d-ffb1-4f96-94cb-12b2bac5d529</_refObjectUUID>
+               <_type>RevisionHistory</_type>
+            </RevisionHistory>
+            <State>Completed</State>
+            <Subscription>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/subscription/3520341995</_ref>
+               <_refObjectName>Carestream Health</_refObjectName>
+               <_refObjectUUID>4782a2bc-b2b4-40a1-b3c9-867d8276fc60</_refObjectUUID>
+               <_type>Subscription</_type>
+            </Subscription>
+            <Tags>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243870717572/Tags</_ref>
+               <_tagsNameArray />
+               <_type>Tag</_type>
+            </Tags>
+            <TaskIndex>0</TaskIndex>
+            <TimeSpent>3.0</TimeSpent>
+            <ToDo>0.0</ToDo>
+            <VersionId>3</VersionId>
+            <WorkProduct>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement/243870717020</_ref>
+               <_refObjectName>Test for time estimate</_refObjectName>
+               <_refObjectUUID>68cc2137-f2cb-4d7c-8060-d4eb98fd6622</_refObjectUUID>
+               <_type>HierarchicalRequirement</_type>
+            </WorkProduct>
+            <Workspace>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/workspace/3520344223</_ref>
+               <_refObjectName>Carestream</_refObjectName>
+               <_refObjectUUID>801288fb-5345-406e-a5ef-a78ecafb1dd4</_refObjectUUID>
+               <_type>Workspace</_type>
+            </Workspace>
+            <_CreatedAt>yesterday at 11:12 pm</_CreatedAt>
+            <_objectVersion>3</_objectVersion>
+            <_rallyAPIMajor>2</_rallyAPIMajor>
+            <_rallyAPIMinor>0</_rallyAPIMinor>
+            <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/task/243870717572</_ref>
+            <_refObjectName>test only</_refObjectName>
+            <_refObjectUUID>7a62f581-e9bb-4a8b-af71-d0c42694f18c</_refObjectUUID>
+            <_type>Task</_type>
+            <c_DueDate null="true" />
+            <c_NeedsReview>false</c_NeedsReview>
+            <c_TaskType null="true" />
+            <c_UIScreen null="true" />
+         </element>
+         <element>
+            <Actuals null="true" />
+            <Attachments>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243902518652/Attachments</_ref>
+               <_type>Attachment</_type>
+            </Attachments>
+            <Blocked>false</Blocked>
+            <BlockedReason null="true" />
+            <Changesets>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243902518652/Changesets</_ref>
+               <_type>Changeset</_type>
+            </Changesets>
+            <Connections>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243902518652/Connections</_ref>
+               <_type>Connection</_type>
+            </Connections>
+            <CreatedBy>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/user/28130106840</_ref>
+               <_refObjectName>Ryan Zhang</_refObjectName>
+               <_refObjectUUID>900fac33-53b8-4bf5-9e59-b036f031ab6a</_refObjectUUID>
+               <_type>User</_type>
+            </CreatedBy>
+            <CreationDate>2018-08-06T06:25:19.521Z</CreationDate>
+            <Description />
+            <Discussion>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243902518652/Discussion</_ref>
+               <_type>ConversationPost</_type>
+            </Discussion>
+            <DisplayColor>#848689</DisplayColor>
+            <DragAndDropRank>P!-({O~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</DragAndDropRank>
+            <Estimate null="true" />
+            <Expedite>false</Expedite>
+            <FormattedID>TA168102</FormattedID>
+            <Iteration>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/iteration/231663885992</_ref>
+               <_refObjectName>Sprint 29</_refObjectName>
+               <_refObjectUUID>fc455c3e-9799-4290-b057-db477e2e99e0</_refObjectUUID>
+               <_type>Iteration</_type>
+            </Iteration>
+            <LastUpdateDate>2018-08-06T06:25:19.592Z</LastUpdateDate>
+            <LatestDiscussionAgeInMinutes null="true" />
+            <Milestones>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243902518652/Milestones</_ref>
+               <_tagsNameArray />
+               <_type>Milestone</_type>
+            </Milestones>
+            <Name>test2</Name>
+            <Notes />
+            <ObjectID>243902518652</ObjectID>
+            <ObjectUUID>d044d9d5-be6f-488a-b8c6-41352682d7f4</ObjectUUID>
+            <Owner>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/user/28130106840</_ref>
+               <_refObjectName>Ryan Zhang</_refObjectName>
+               <_refObjectUUID>900fac33-53b8-4bf5-9e59-b036f031ab6a</_refObjectUUID>
+               <_type>User</_type>
+            </Owner>
+            <Project>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/project/202659940144</_ref>
+               <_refObjectName>MiddleTier</_refObjectName>
+               <_refObjectUUID>45953b06-8d18-4ea6-9df3-b646d48512cc</_refObjectUUID>
+               <_type>Project</_type>
+            </Project>
+            <Ready>false</Ready>
+            <Recycled>false</Recycled>
+            <Release>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/release/220647849392</_ref>
+               <_refObjectName>Common 1.4 Release</_refObjectName>
+               <_refObjectUUID>6016d51a-6b8d-4e3d-a774-a47593516dbe</_refObjectUUID>
+               <_type>Release</_type>
+            </Release>
+            <RevisionHistory>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/revisionhistory/243902518656</_ref>
+               <_refObjectUUID>7450f861-a8c3-465a-9f34-b425cbf51db9</_refObjectUUID>
+               <_type>RevisionHistory</_type>
+            </RevisionHistory>
+            <State>Completed</State>
+            <Subscription>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/subscription/3520341995</_ref>
+               <_refObjectName>Carestream Health</_refObjectName>
+               <_refObjectUUID>4782a2bc-b2b4-40a1-b3c9-867d8276fc60</_refObjectUUID>
+               <_type>Subscription</_type>
+            </Subscription>
+            <Tags>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/Task/243902518652/Tags</_ref>
+               <_tagsNameArray />
+               <_type>Tag</_type>
+            </Tags>
+            <TaskIndex>1</TaskIndex>
+            <TimeSpent>0.0</TimeSpent>
+            <ToDo>0.0</ToDo>
+            <VersionId>1</VersionId>
+            <WorkProduct>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement/243870717020</_ref>
+               <_refObjectName>Test for time estimate</_refObjectName>
+               <_refObjectUUID>68cc2137-f2cb-4d7c-8060-d4eb98fd6622</_refObjectUUID>
+               <_type>HierarchicalRequirement</_type>
+            </WorkProduct>
+            <Workspace>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/workspace/3520344223</_ref>
+               <_refObjectName>Carestream</_refObjectName>
+               <_refObjectUUID>801288fb-5345-406e-a5ef-a78ecafb1dd4</_refObjectUUID>
+               <_type>Workspace</_type>
+            </Workspace>
+            <_CreatedAt>4 minutes ago</_CreatedAt>
+            <_objectVersion>1</_objectVersion>
+            <_rallyAPIMajor>2</_rallyAPIMajor>
+            <_rallyAPIMinor>0</_rallyAPIMinor>
+            <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/task/243902518652</_ref>
+            <_refObjectName>test2</_refObjectName>
+            <_refObjectUUID>d044d9d5-be6f-488a-b8c6-41352682d7f4</_refObjectUUID>
+            <_type>Task</_type>
+            <c_DueDate null="true" />
+            <c_NeedsReview>false</c_NeedsReview>
+            <c_TaskType null="true" />
+            <c_UIScreen null="true" />
+         </element>
+      </Results>
+      <StartIndex>1</StartIndex>
+      <TotalResultCount>2</TotalResultCount>
+      <Warnings />
+      <_rallyAPIMajor>2</_rallyAPIMajor>
+      <_rallyAPIMinor>0</_rallyAPIMinor>
+   </QueryResult>
+</root>

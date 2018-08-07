@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=(((AcceptedDate%20%3E=%20%222018-08-04%22)%20OR%20(InProgressDate%20%3E=%20%222018-08-04%22))%20and%20((Owner.Name%20=%20dameng.zhang@carestream.com)%20and%20((ScheduleState%20=%20Accepted)%20OR%20(ScheduleState%20=%20Completed))))&order=Iteration,LastUpdateDate&fetch=true,Iteration&pagesize=1999
+-->
+<root>
+   <QueryResult>
+      <Errors />
+      <PageSize>1999</PageSize>
+      <Results>
+         <element>
+            <AcceptedDate null="true" />
+            <Attachments>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Attachments</_ref>
+               <_type>Attachment</_type>
+            </Attachments>
+            <Blocked>false</Blocked>
+            <BlockedReason null="true" />
+            <Blocker null="true" />
+            <Changesets>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Changesets</_ref>
+               <_type>Changeset</_type>
+            </Changesets>
+            <Children>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Children</_ref>
+               <_type>HierarchicalRequirement</_type>
+            </Children>
+            <Connections>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Connections</_ref>
+               <_type>Connection</_type>
+            </Connections>
+            <CreatedBy>
+               <_objectVersion>1078</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/user/28130106840</_ref>
+               <_refObjectName>Ryan Zhang</_refObjectName>
+               <_refObjectUUID>900fac33-53b8-4bf5-9e59-b036f031ab6a</_refObjectUUID>
+               <_type>User</_type>
+            </CreatedBy>
+            <CreationDate>2018-08-06T03:12:27.137Z</CreationDate>
+            <DefectStatus>NONE</DefectStatus>
+            <Defects>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Defects</_ref>
+               <_type>Defect</_type>
+            </Defects>
+            <Description>test only</Description>
+            <DirectChildrenCount>0</DirectChildrenCount>
+            <Discussion>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Discussion</_ref>
+               <_type>ConversationPost</_type>
+            </Discussion>
+            <DisplayColor>#21a2e0</DisplayColor>
+            <DragAndDropRank>P!-({O~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</DragAndDropRank>
+            <Expedite>false</Expedite>
+            <Feature>
+               <_objectVersion>26</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/portfolioitem/feature/220649544596</_ref>
+               <_refObjectName>Design For IV 1.4</_refObjectName>
+               <_refObjectUUID>43df0ea7-67d5-43c4-94e3-e7fdd0b1b493</_refObjectUUID>
+               <_type>PortfolioItem/Feature</_type>
+            </Feature>
+            <FlowState>
+               <_objectVersion>1</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/flowstate/202659940184</_ref>
+               <_refObjectName>Completed</_refObjectName>
+               <_refObjectUUID>162a6727-8c0c-4f31-9581-47d15f68c9c0</_refObjectUUID>
+               <_type>FlowState</_type>
+            </FlowState>
+            <FlowStateChangedDate>2018-08-06T03:14:07.934Z</FlowStateChangedDate>
+            <FormattedID>US48769</FormattedID>
+            <HasParent>false</HasParent>
+            <InProgressDate>2018-08-06T03:13:29.882Z</InProgressDate>
+            <Iteration>
+               <_objectVersion>1</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/iteration/231663885992</_ref>
+               <_refObjectName>Sprint 29</_refObjectName>
+               <_refObjectUUID>fc455c3e-9799-4290-b057-db477e2e99e0</_refObjectUUID>
+               <_type>Iteration</_type>
+            </Iteration>
+            <LastBuild null="true" />
+            <LastRun null="true" />
+            <LastUpdateDate>2018-08-06T05:36:47.163Z</LastUpdateDate>
+            <LatestDiscussionAgeInMinutes null="true" />
+            <Milestones>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Milestones</_ref>
+               <_tagsNameArray />
+               <_type>Milestone</_type>
+            </Milestones>
+            <Name>Test for time estimate</Name>
+            <Notes />
+            <ObjectID>243870717020</ObjectID>
+            <ObjectUUID>68cc2137-f2cb-4d7c-8060-d4eb98fd6622</ObjectUUID>
+            <Owner>
+               <_objectVersion>1078</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/user/28130106840</_ref>
+               <_refObjectName>Ryan Zhang</_refObjectName>
+               <_refObjectUUID>900fac33-53b8-4bf5-9e59-b036f031ab6a</_refObjectUUID>
+               <_type>User</_type>
+            </Owner>
+            <Package null="true" />
+            <Parent null="true" />
+            <PassingTestCaseCount>0</PassingTestCaseCount>
+            <PlanEstimate>2.0</PlanEstimate>
+            <PortfolioItem>
+               <_objectVersion>26</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/portfolioitem/feature/220649544596</_ref>
+               <_refObjectName>Design For IV 1.4</_refObjectName>
+               <_refObjectUUID>43df0ea7-67d5-43c4-94e3-e7fdd0b1b493</_refObjectUUID>
+               <_type>PortfolioItem/Feature</_type>
+            </PortfolioItem>
+            <Predecessors>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Predecessors</_ref>
+               <_type>HierarchicalRequirement</_type>
+            </Predecessors>
+            <Project>
+               <_objectVersion>9</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/project/202659940144</_ref>
+               <_refObjectName>MiddleTier</_refObjectName>
+               <_refObjectUUID>45953b06-8d18-4ea6-9df3-b646d48512cc</_refObjectUUID>
+               <_type>Project</_type>
+            </Project>
+            <Ready>false</Ready>
+            <Recycled>false</Recycled>
+            <Release>
+               <_objectVersion>1</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/release/220647849392</_ref>
+               <_refObjectName>Common 1.4 Release</_refObjectName>
+               <_refObjectUUID>6016d51a-6b8d-4e3d-a774-a47593516dbe</_refObjectUUID>
+               <_type>Release</_type>
+            </Release>
+            <RevisionHistory>
+               <_objectVersion>1</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/revisionhistory/243870717024</_ref>
+               <_refObjectUUID>f2053ca1-f072-4a34-ab5e-9bf47dbac2a3</_refObjectUUID>
+               <_type>RevisionHistory</_type>
+            </RevisionHistory>
+            <ScheduleState>Completed</ScheduleState>
+            <ScheduleStatePrefix>C</ScheduleStatePrefix>
+            <Subscription>
+               <_objectVersion>511</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/subscription/3520341995</_ref>
+               <_refObjectName>Carestream Health</_refObjectName>
+               <_refObjectUUID>4782a2bc-b2b4-40a1-b3c9-867d8276fc60</_refObjectUUID>
+               <_type>Subscription</_type>
+            </Subscription>
+            <Successors>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Successors</_ref>
+               <_type>HierarchicalRequirement</_type>
+            </Successors>
+            <Tags>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Tags</_ref>
+               <_tagsNameArray />
+               <_type>Tag</_type>
+            </Tags>
+            <TaskActualTotal>0.0</TaskActualTotal>
+            <TaskEstimateTotal>0.0</TaskEstimateTotal>
+            <TaskRemainingTotal>0.0</TaskRemainingTotal>
+            <TaskStatus>COMPLETED</TaskStatus>
+            <Tasks>
+               <Count>1</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Tasks</_ref>
+               <_type>Task</_type>
+            </Tasks>
+            <TestCaseCount>0</TestCaseCount>
+            <TestCaseStatus>NONE</TestCaseStatus>
+            <TestCases>
+               <Count>0</Count>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/TestCases</_ref>
+               <_type>TestCase</_type>
+            </TestCases>
+            <VersionId>5</VersionId>
+            <Workspace>
+               <_objectVersion>104</_objectVersion>
+               <_rallyAPIMajor>2</_rallyAPIMajor>
+               <_rallyAPIMinor>0</_rallyAPIMinor>
+               <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/workspace/3520344223</_ref>
+               <_refObjectName>Carestream</_refObjectName>
+               <_refObjectUUID>801288fb-5345-406e-a5ef-a78ecafb1dd4</_refObjectUUID>
+               <_type>Workspace</_type>
+            </Workspace>
+            <_CreatedAt>yesterday at 11:12 pm</_CreatedAt>
+            <_objectVersion>5</_objectVersion>
+            <_rallyAPIMajor>2</_rallyAPIMajor>
+            <_rallyAPIMinor>0</_rallyAPIMinor>
+            <_ref>https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement/243870717020</_ref>
+            <_refObjectName>Test for time estimate</_refObjectName>
+            <_refObjectUUID>68cc2137-f2cb-4d7c-8060-d4eb98fd6622</_refObjectUUID>
+            <_type>HierarchicalRequirement</_type>
+            <c_AcceptanceCriteria null="true" />
+            <c_ActualBeginDate null="true" />
+            <c_ActualCloseDate null="true" />
+            <c_Approval null="true" />
+            <c_AutomationAssignTo null="true" />
+            <c_BusinessValue null="true" />
+            <c_CPEKanban null="true" />
+            <c_CRDLink null="true" />
+            <c_CSProduct null="true" />
+            <c_Complies null="true" />
+            <c_Component null="true" />
+            <c_CreatedReason null="true" />
+            <c_DentalCommercializationProject null="true" />
+            <c_DueDate null="true" />
+            <c_Estimable null="true" />
+            <c_Group null="true" />
+            <c_Independent null="true" />
+            <c_IntegrationTestQCID null="true" />
+            <c_InvestmentThemeAlignment null="true" />
+            <c_IsBeta>false</c_IsBeta>
+            <c_KANOType null="true" />
+            <c_KanbanQueue null="true" />
+            <c_Negotiable null="true" />
+            <c_NonComplianceReason null="true" />
+            <c_ObjectIDCustomized null="true" />
+            <c_ObjectType null="true" />
+            <c_OriginalPlanEstimate null="true" />
+            <c_PlannedBeginDate null="true" />
+            <c_PlannedCloseDate null="true" />
+            <c_Priority null="true" />
+            <c_RROE null="true" />
+            <c_RallyCommonExternalId null="true" />
+            <c_ReadyDeprecated>false</c_ReadyDeprecated>
+            <c_ReadyForSync>false</c_ReadyForSync>
+            <c_ReleaseNote null="true" />
+            <c_ReleaseNotes null="true" />
+            <c_RequirementType>User Story (PRS)</c_RequirementType>
+            <c_ServiceClass null="true" />
+            <c_Size null="true" />
+            <c_Small null="true" />
+            <c_Source null="true" />
+            <c_TOCKanban null="true" />
+            <c_Testable null="true" />
+            <c_TimeValue null="true" />
+            <c_Valuable null="true" />
+            <c_WSJF null="true" />
+            <c_XXXCompliesDepricate null="true" />
+            <c_ZZZHierarchy>false</c_ZZZHierarchy>
+            <c_xxxCRDID>false</c_xxxCRDID>
+         </element>
+      </Results>
+      <StartIndex>1</StartIndex>
+      <TotalResultCount>1</TotalResultCount>
+      <Warnings />
+      <_rallyAPIMajor>2</_rallyAPIMajor>
+      <_rallyAPIMinor>0</_rallyAPIMinor>
+   </QueryResult>
+</root>
