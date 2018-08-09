@@ -70,18 +70,30 @@ define(['app', 'underscore'],
 					rallyTaskQueryService.getTasksFromRally(owner, sprint, 'defect', true, token)
 					])
 						.then(function (lists) {
-							$scope.TaskList = _.union($scope.TaskList, lists[0], lists[1]);
+							// If directly Complete the user story or defect under which still contains incompleted tasks
+							// the SpentTime of those taks would not be counted any more. So need to accumulate all task hours
+							var tasks = _.union(lists[0], lists[1]);
+							q.all(rallyTaskQueryService.reCalculateTaskSpentTime(tasks, token))
+								.then(function (updatedTasks) {
+									$scope.TaskList = _.union($scope.TaskList, updatedTasks);
+								}, function (error) {
+									reportError(error);
+								})
+							.finally(function () {
+								$scope.inQuerying = false;
+							});
 						}, function (error) {
-							console.error(error.statusText);
-							if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
-								$scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
-							} else {
-								$scope.ErrorMsg = error.statusText;
-							}
-						})
-						.finally(function () {
-							$scope.inQuerying = false;
+							reportError(error);
 						});
 				};
+
+				function reportError(error) {
+					console.error(error.statusText);
+					if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
+						$scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
+					} else {
+						$scope.ErrorMsg = error.statusText;
+					}
+				}
 			}]);
 	});

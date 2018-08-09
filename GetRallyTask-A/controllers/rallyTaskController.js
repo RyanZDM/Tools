@@ -46,7 +46,7 @@ app.controller('RallyTaskController', [
 
 		$scope.clearError = function () {
 			$scope.ErrorMsg = '';
-		}
+		};
 
 		$scope.refreshTaskList = function () {
 			$scope.clearError();
@@ -80,25 +80,24 @@ app.controller('RallyTaskController', [
 						.then(function (updatedTasks) {
 							$scope.TaskList = _.union($scope.TaskList, updatedTasks);
 						}, function (error) {
-							console.error(error.statusText);
-							if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
-								$scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
-							} else {
-								$scope.ErrorMsg = error.statusText;
-							}
+							reportError(error);
 						})
 					.finally(function () {
 						$scope.inQuerying = false;
 					});
 				}, function (error) {
-					console.error(error.statusText);
-					if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
-						$scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
-					} else {
-						$scope.ErrorMsg = error.statusText;
-					}
+					reportError(error);
 				});
 		};
+
+		function reportError(error) {
+			console.error(error.statusText);
+			if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
+				$scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
+			} else {
+				$scope.ErrorMsg = error.statusText;
+			}
+		}
 	}]);
 
 app.directive('directiveScope', function () {

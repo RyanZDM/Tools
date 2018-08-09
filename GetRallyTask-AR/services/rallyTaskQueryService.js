@@ -103,6 +103,7 @@ define(['jquery', 'app'], function ($, app) {
 			this.TimeSpent = (jsonObj['TaskEstimateTotal']) ? jsonObj['TaskEstimateTotal'] : 0;
 			this.Owner = '';
 			this.Iteration = '';
+			this.TaskLink = '';
 
 			(function (that) {
 				if (jsonObj['Owner'] && jsonObj.Owner['_refObjectName']) {
@@ -113,7 +114,38 @@ define(['jquery', 'app'], function ($, app) {
 					var sprint = jsonObj.Iteration._refObjectName.split(' ').pop();
 					that.Iteration = parseInt(sprint, 10);
 				}
+
+				if (jsonObj['Tasks'] && jsonObj.Tasks.Count > 0) {
+					that.TaskLink = jsonObj.Tasks._ref;
+				}
 			})(this);
+		}
+
+		function reCalculateTaskSpentTime(taskList, authToken) {
+			var promises = [];
+			taskList.forEach(function (task) {
+				if (task.TaskLink !== '') {
+					var deferred = $.Deferred();
+					$http.get(getTaskApiUrl(task.TaskLink), { headers: { "Authorization": "Basic " + authToken } })
+						.then(function (data) {
+							var timeSpent = 0;
+							// accumulate the totoal time spent hours
+							data.data.QueryResult.Results.forEach(function (subTask) {
+								if ($.isNumeric(subTask.TimeSpent)) { timeSpent = timeSpent + subTask.TimeSpent; }
+							})
+
+							if (timeSpent > 0) { task.TimeSpent = timeSpent; }
+							deferred.resolve(task);
+						},
+							function (error) {
+								console.error(error.statusText);
+								deferred.reject(error);
+							});
+					promises.push(deferred.promise());
+				};
+			});
+
+			return promises;
 		}
 
 		function getActualApiUrl(owner, sprint, target) {
@@ -126,7 +158,11 @@ define(['jquery', 'app'], function ($, app) {
 			return actualApiUrl;
 		}
 
-		function getDateCondition(sprint) {		
+		function getTaskApiUrl(taskUrl) {
+			return taskUrl + "?query=(State = Completed) &fetch=TimeSpent&pagesize=1999";
+		}
+
+		function getDateCondition(sprint) {
 			var dateCondition = '((AcceptedDate >= "2018-01-01") OR (InProgressDate >= "2018-01-01")) and ';
 			if (sprint > 0) {
 				dateCondition = '(Iteration.Name = "Sprint ' + sprint + '") and ';
@@ -142,7 +178,7 @@ define(['jquery', 'app'], function ($, app) {
 						 and ((ScheduleState = Accepted) OR (ScheduleState = Completed))\
 						))\
 					&order=Iteration,LastUpdateDate\
-					&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Iteration\
+					&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration\
 					&pagesize=1999';
 
 		return {
@@ -152,7 +188,9 @@ define(['jquery', 'app'], function ($, app) {
 
 			getTasksFromRallyJQuery: function (owner, sprint, target, async, token) {
 				return jQueryGet(getActualApiUrl(owner, sprint, target), token, async);
-			}
+			},
+
+			reCalculateTaskSpentTime: reCalculateTaskSpentTime
 		}
 	}]);
 });
