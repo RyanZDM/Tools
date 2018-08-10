@@ -75,13 +75,15 @@ define(['app', 'underscore'],
 							var tasks = _.union(lists[0], lists[1]);
 							q.all(rallyTaskQueryService.reCalculateTaskSpentTime(tasks, token))
 								.then(function (updatedTasks) {
-									$scope.TaskList = _.union($scope.TaskList, updatedTasks);
+									// A user story or defect may contains some tasks assigned to different developer, need to filter out
+									var otherOwnerTasks = _.flatten(_.filter(_.pluck(updatedTasks, "OtherOwnerTasks"), function (other) { return other !== undefined }));
+									$scope.TaskList = _.union($scope.TaskList, updatedTasks, otherOwnerTasks);
 								}, function (error) {
 									reportError(error);
 								})
-							.finally(function () {
-								$scope.inQuerying = false;
-							});
+					.finally(function () {
+						$scope.inQuerying = false;
+					});
 						}, function (error) {
 							reportError(error);
 						});

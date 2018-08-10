@@ -127,12 +127,45 @@ app.service('rallyTaskQueryService', ['$http', function ($http) {
 			if (task.TaskLink !== '') {
 				var deferred = $.Deferred();
 				$http.get(getTaskApiUrl(task.TaskLink), { headers: { "Authorization": "Basic " + authToken } })
-					.then(function (data) {
+					.then(function (data) {						
 						var timeSpent = 0;
 						// accumulate the totoal time spent hours
 						data.data.QueryResult.Results.forEach(function (subTask) {
-							if ($.isNumeric(subTask.TimeSpent)) { timeSpent = timeSpent + subTask.TimeSpent; }
+							if ($.isNumeric(subTask.TimeSpent) && subTask.TimeSpent > 0) {
+								if (task.Owner === subTask.Owner._refObjectName) {
+									timeSpent = timeSpent + subTask.TimeSpent;
+								} else {	// Found the task with the different owner, create a new Task for it
+									var anotherTask = { Owner: subTask.Owner._refObjectName, TimeSpent: subTask.TimeSpent };
+									if (task["OtherOwnerTasks"]) {
+										task.OtherOwnerTasks.push(anotherTask);
+									} else {
+										task["OtherOwnerTasks"] = [anotherTask];
+									}
+								}
+							}
 						})
+
+						if (task["OtherOwnerTasks"]) { // Contains at least one task which belong to the different owner
+							var groupTasks = _.groupBy(task.OtherOwnerTasks, function (element) { return element.Owner; });
+							var mergedTasks = _.map(groupTasks, function (value, key) {
+								var totalTimeSpent = _.reduce(task.OtherOwnerTasks, function (result, current) {
+									return result + ((current.Owner === key) ? current.TimeSpent : 0);
+								}, 0);
+
+								var otherTask = new Task({});
+								otherTask.id = task.id;
+								otherTask.Link = task.Link;
+								otherTask.Description = task.Description;
+								otherTask.Iteration = task.Iteration;
+								otherTask.Owner = key;
+								otherTask.TimeSpent = totalTimeSpent;
+								otherTask.Estimate = totalTimeSpent / 6;	// Assume 6 working hours a day
+								return otherTask;
+							});
+
+							// Reformat the other owner tasks
+							task.OtherOwnerTasks = Array.from(mergedTasks.values());
+						}
 
 						if (timeSpent > 0) { task.TimeSpent = timeSpent; }
 						deferred.resolve(task);
@@ -159,7 +192,7 @@ app.service('rallyTaskQueryService', ['$http', function ($http) {
 	}
 
 	function getTaskApiUrl(taskUrl) {
-		return taskUrl + "?query=(State = Completed) &fetch=TimeSpent&pagesize=1999";
+		return taskUrl + "?query=(State = Completed) &fetch=Owner,TimeSpent&pagesize=1999";
 	}
 
 	function getDateCondition(sprint) {
