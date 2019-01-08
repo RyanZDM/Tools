@@ -13,8 +13,19 @@ https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=(((AcceptedDate >= 
 // Get task info
 https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement/243870717020/Tasks?query=(State = Completed) &fetch=Owner,TimeSpent&pagesize=1999
 
+// Get feature list
+https://rally1.rallydev.com/slm/webservice/v2.0/PortfolioItem/Feature?query=(((Release.Name = "RPS1 1.4 Release") OR (Release.Name = "Common 1.4A Release")) OR (Release.Name = "Transportable 1.4 Release")) &fetch=FormattedID,Name,Owner,Release,Project,StoryCount,PlanEstimateTotal,PercentDoneByStoryCount,PercentDoneByStoryPlanEstimate &pagesize=1999
+
+LeafStoryCount, LeafStoryPlanEstimateTotal, PercentDoneByStoryCount, PercentDoneByStoryPlanEstimate
+
+Project:
+https//rally1.rallydev.com/#/<project id>/detail/...
+- MiddleTier		202659940144ud
+- ImageView Software	88538884208ud
+- The A Team		90211740268ud
 
 Dates:
 CloseDate: The date that Defect state changed to Closed
 AcceptedDate: The date that Schedule state changed to Accepted
 InProgressDate: The date that Schedule state changed to InProgress
+

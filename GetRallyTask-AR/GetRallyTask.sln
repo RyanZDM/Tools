@@ -8,14 +8,36 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		app.js = app.js
 		GetRallyWorks.html = GetRallyWorks.html
 		main.js = main.js
-		services\rallyAuthService.js = services\rallyAuthService.js
-		directives\rallyLoginDirective.js = directives\rallyLoginDirective.js
+		RallyWorkStatitics.html = RallyWorkStatitics.html
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "controllers", "controllers", "{F6EC5B66-3CD6-49F9-886D-3CDBC5D9A0EE}"
+	ProjectSection(SolutionItems) = preProject
+		controllers\rallyFeatureController.js = controllers\rallyFeatureController.js
 		controllers\rallyTaskController.js = controllers\rallyTaskController.js
-		services\rallyTaskQueryService.js = services\rallyTaskQueryService.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "directives", "directives", "{A3B54627-9A49-4DAB-BA9E-7763F28DA423}"
+	ProjectSection(SolutionItems) = preProject
+		directives\rallyLoginDirective.js = directives\rallyLoginDirective.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{AA64C870-D4CA-485A-A848-73D3FD3BDD43}"
+	ProjectSection(SolutionItems) = preProject
+		services\rallyAuthService.js = services\rallyAuthService.js
+		services\rallyFeature.js = services\rallyFeature.js
+		services\rallyQueryService.js = services\rallyQueryService.js
+		services\rallyRestApi.js = services\rallyRestApi.js
+		services\rallyTask.js = services\rallyTask.js
 	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F6EC5B66-3CD6-49F9-886D-3CDBC5D9A0EE} = {34E10FAC-2FFB-415D-9751-AF2A824242CA}
+		{A3B54627-9A49-4DAB-BA9E-7763F28DA423} = {34E10FAC-2FFB-415D-9751-AF2A824242CA}
+		{AA64C870-D4CA-485A-A848-73D3FD3BDD43} = {34E10FAC-2FFB-415D-9751-AF2A824242CA}
 	EndGlobalSection
 EndGlobal

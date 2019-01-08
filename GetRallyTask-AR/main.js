@@ -18,10 +18,14 @@ require.config({
 
 require(['jquery']);
 require(['app']);
+require(['services/rallyRestApi']);
+require(['services/rallyTask']);
+require(['services/rallyFeature']);
 require(['services/rallyAuthService']);
-require(['services/rallyTaskQueryService']);
+require(['services/rallyQueryService']);
 require(['directives/rallyLoginDirective']);
 require(['controllers/rallyTaskController']);
+require(['controllers/rallyWorkStatController']);
 
 /* If need to do some extra initialization when loaded the lib
 require(['jquery'], function ($) {

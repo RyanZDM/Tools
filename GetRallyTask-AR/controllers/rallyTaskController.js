@@ -8,9 +8,9 @@ define(['app', 'underscore'],
 			'$http',
 			'$q',
 			'rallyAuthService',
-			'rallyTaskQueryService',
+			'rallyQueryService',
 
-			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyTaskQueryService) {
+			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService) {
 				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
 				$scope.TaskList = [];
 				$scope.UserId = '';
@@ -31,8 +31,6 @@ define(['app', 'underscore'],
 									, 'yao.jiaxin@carestream.com'
 									, 'xianjun.zhan@carestream.com'
 									, 'lili.jiang@carestream.com'
-									, 'yong.han@carestream.com'
-									, 'jason.wang@carestream.com'
 									, 'changzheng.feng@carestream.com'
 									, 'cheng.luo@carestream.com'
 									, 'lei.liu@carestream.com'
@@ -51,7 +49,6 @@ define(['app', 'underscore'],
 				};
 
 				$scope.refreshAll = function () {
-					$scope.typicalQuery = false;
 					$scope.clearError();
 					$scope.TaskList = [];
 
@@ -66,27 +63,23 @@ define(['app', 'underscore'],
 					$scope.inQuerying = true;
 					var token = rallyAuthService.getAuthenticationToken();
 					q.all([
-					rallyTaskQueryService.getTasksFromRally(owner, sprint, 'hierarchicalrequirement', true, token),
-					rallyTaskQueryService.getTasksFromRally(owner, sprint, 'defect', true, token)
+					rallyQueryService.getTasksFromRally(owner, sprint, 'hierarchicalrequirement', true, token),
+					rallyQueryService.getTasksFromRally(owner, sprint, 'defect', true, token)
 					])
 						.then(function (lists) {
 							// If directly Complete the user story or defect under which still contains incompleted tasks
 							// the SpentTime of those taks would not be counted any more. So need to accumulate all task hours
 							var tasks = _.union(lists[0], lists[1]);
-							q.all(rallyTaskQueryService.reCalculateTaskSpentTime(tasks, token))
+							q.all(rallyQueryService.reCalculateTaskSpentTime(tasks, token))
 								.then(function (updatedTasks) {
 									// A user story or defect may contains some tasks assigned to different developer, need to filter out
 									var otherOwnerTasks = _.flatten(_.filter(_.pluck(updatedTasks, "OtherOwnerTasks"), function (other) { return other !== undefined }));
 									$scope.TaskList = _.union($scope.TaskList, updatedTasks, otherOwnerTasks);
-								}, function (error) {
-									reportError(error);
 								})
-					.finally(function () {
-						$scope.inQuerying = false;
-					});
-						}, function (error) {
-							reportError(error);
-						});
+								.catch(function (error) { reportError(error); })
+								.finally(function () { $scope.inQuerying = false; });
+						})
+						.catch(function (error) { reportError(error); });
 				};
 
 				function reportError(error) {

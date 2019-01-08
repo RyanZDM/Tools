@@ -1,0 +1,36 @@
+https://rally1.rallydev.com/slm/webservice/v2.0/PortfolioItem/Feature?query=(((Release.Name = "RPS1 1.4 Release") OR (Release.Name = "Common 1.4A Release")) OR (Release.Name = "Transportable 1.4 Release"))&order=FormattedID&fetch=FormattedID,Name,Owner,Release,Project,StoryCount,PlanEstimateTotal,PercentDoneByStoryCount,PercentDoneByStoryPlanEstimate&pagesize=1999
+
+
+
+// USER STORIES IN A SPRINT THAT HAVE NO RELEASE (SHOULD HAVE A RELEASE)
+https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=((Iteration != null) AND (Release = null)) &order=Owner&fetch=FormattedID,Name,Owner,Iteration
+
+https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=((Iteration != null) AND (Release = null)) &order=Owner&fetch=FormattedID,Name,Owner,Iteration
+
+// USER STORIES OR DEFECTS IN A SPRINT THAT DON'T HAVE A PLAN ESTIMATE (SHOULD HAVE A PLAN ESTIMATE)
+https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=(((Release.Name contains "1.4") AND (ScheduleState > "Defined")) AND (PlanEstimate = null))
+
+https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=(((Release.Name contains "1.4") AND (ScheduleState > "Defined")) AND (PlanEstimate = null))
+
+// USER STORIES THAT ARE NOT ASSOCIATED WITH A FEATURE (ALL USER STORIES SHOULD BE UNDER A FEATURE)
+https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=((Release.Name contains "1.4") AND (Feature = null))
+
+// USER STORIES IN A SPRINT THAT DON'T HAVE ANY TASK ESTIMATES (Or HAVE NO TASK CREATED)
+https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=(((Release.Name contains "1.4") AND (ScheduleState > "Defined")) AND (TaskEstimateTotal = 0))
+
+https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=(((Release.Name contains "1.4") AND (ScheduleState > "Defined")) AND (TaskEstimateTotal = 0))
+
+// INCOMPLETE TASKS UNDER A COMPLETED USER STORY OR DEFECT
+// TODO: tasks!!!
+https://rally1.rallydev.com/slm/webservice/v2.0/task?query=((State != "Complted") AND (WorkProdct.ScheduleState >= "Completed"))
+
+// COMPLETED OR ACCEPTED USER STORIES WITH NO SPECIFIED ACCEPTANCE CRITERIA (ALL USER STORIES SHOULD HAVE ACCEPTANCE CRITERIA BEFORE THEY ARE ACCEPTED BY EET)
+https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=(((Release.Name contains "1.4") AND (ScheduleState >= "Completed")) AND (c_AcceptanceCriteria = null))
+
+// TASKS THAT ARE BLOCKED WITHOUT A BLOCKED REASON
+https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=(((Release.Name contains "1.4") AND (Blocked = true)) AND (BlockedReason = null))
+
+https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=(((Release.Name contains "1.4") AND (Blocked = true)) AND (BlockedReason = null))
+
+// TASKS THAT ARE IN PROCESS OR COMPLETED, BUT THERE IS NO TIME SPENT TRACKED (UPDATE TIME SPENT THROUGH TIMESHEET)
+--https://rally1.rallydev.com/slm/webservice/v2.0/task?query=((State > "Defined") AND (TimeSpent = 0))

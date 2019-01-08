@@ -1,1 +1,1 @@
-Uses AngularJS + Webpack
+Uses AngularJS + RequireJS + Webpack
