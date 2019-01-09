@@ -15,8 +15,28 @@ define(['app'], function (app) {
 							&order=Iteration,LastUpdateDate\
 							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration\
 							&pagesize=1999';
+		var ownerEmailMapping = {
+			"Ryan Zhang": "dameng.zhang@carestream.com",
+			"Joe Z": "joe.zhang@carestream.com",
+			"Peter Y": "qinqiang.yan@carestream.com",
+			"Mark Gu": "jiandong.gu@carestream.com",
+			"Qi Wang": "qi.wang@carestream.com",
+			"Gary Liu": "gary.liu@carestream.com",
+			"Lyman M": "liang.ma@carestream.com",
+			"Jun Sun": "jun.sun@carestream.com",
+			"Zhe S": "zhe.sun@carestream.com",
+			"Jiaxin Yao": "yao.jiaxin@carestream.com",
+			"Xianjun Z": "xianjun.zhan@carestream.com",
+			"Iris J": "lili.jiang@carestream.com",
+			"Forrest Feng": "changzheng.feng@carestream.com",
+			"Cheng Luo": "cheng.luo@carestream.com",
+			"Benny Liu": "lei.liu@carestream.com",
+			"Dean Peng": "dean.peng@carestream.com"
+		};
 
 		return {
+			OwnerEmailMapping: ownerEmailMapping,
+
 			UrlFeature: urlFeature,
 
 			// <target> must be either 'defect' or 'hierarchicalrequirement', the blank spack befor and operator are MUST

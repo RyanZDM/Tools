@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "controllers", "controllers", "{F6EC5B66-3CD6-49F9-886D-3CDBC5D9A0EE}"
 	ProjectSection(SolutionItems) = preProject
-		controllers\rallyFeatureController.js = controllers\rallyFeatureController.js
+		controllers\rallyWorkStatController.js = controllers\rallyWorkStatController.js
 		controllers\rallyTaskController.js = controllers\rallyTaskController.js
 	EndProjectSection
 EndProject

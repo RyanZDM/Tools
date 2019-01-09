@@ -60,16 +60,34 @@ define(['app', 'underscore'],
 						$scope.ErrorMsg = error.statusText;
 					}
 				};
+
+				function GetReportData(data) {
+					var total = 0;
+					var nameList = {};
+					var iv14Members = rallyRestApi.OwnerEmailMapping;
+					_.each(data, function (category) {
+						category.Data = _.reject(category.Data, function (item) {
+							return !(iv14Members[item.Owner]);
+						});
+
+						total = total + category.Data.length;
+
+						var names = _.chain(category.Data).map(function (item) { return item.Owner }).uniq().value().join(",");
+						nameList[category.Category] = names;
+					});
+
+					return { Total: total, NameList: nameList, Data: data };
+				};
 				
 				$scope.getWarningReport = function () {
 					$scope.inQuerying = true;
 					var token = rallyAuthService.getAuthenticationToken();
 					rallyQueryService.getWarningReport(token)
 										.then(function (data) {
-											//
+											$scope.WarningReport = GetReportData(data);
 										})
 										.catch(function (error) { reportError(error); })
-										.finally(function () { $sceope.inQuerying = false; });
+										.finally(function () { $scope.inQuerying = false; });
 				}
 			}]);
 	});
