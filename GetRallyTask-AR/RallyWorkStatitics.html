@@ -148,7 +148,8 @@
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<div class="row">
-								<div class="col-md-2 pull-right">
+								<div class="col-md-6"></div>
+								<div class="col-md-2">
 									<button class="btn btn-md btn-block"
 											id="btnExportWarningReport"
 											ng-disabled="inQuerying"
@@ -157,6 +158,18 @@
 											data-placement="top"
 											title="Export warning report">
 										Export Warning Report
+									</button>
+								</div>
+								<div class="col-md-2">
+									<button class="btn btn-md btn-block"
+											id="btnGetEmailList"
+											ng-disabled="inQuerying"
+											onclick="prompt(this.getAttribute('emails'), this.getAttribute('emails'))"
+											data-toggle="tooltip"
+											data-placement="top"
+											emails="{{WarningReport.EmailList}}"
+											title="Export warning report">
+										Show Email List
 									</button>
 								</div>
 								<div class="col-md-2 pull-right">
@@ -177,7 +190,7 @@
 							<div class="row">
 								<div ng-repeat="category in WarningReport.Data">
 									<div class="bg-primary" id="{{category.Category}}"><h4>#{{$index + 1}}. &nbsp {{category.Desc}} &nbsp -- &nbsp (Total: &nbsp {{category.Data.length}})</h4></div>
-									<div class="text-success"><h5><b>Name List:</b> &nbsp {{WarningReport.NameList[category.Category]}}</h5></div>
+									<div class="text-success"><h5><b>Name List:</b> &nbsp {{WarningReport.NameListByCategory[category.Category]}}</h5></div>
 									<table class="table table-hover table-bordered table-responsive" border="1">
 										<thead>
 											<tr>
@@ -211,8 +224,8 @@
 <script>
 	function exportWarningReport() {
 		var bodyHtml = document.getElementById('warningReportDetail').innerHTML
-		var html = '<html lang="en" xmlns="http://www.w3.org/1999/xhtml">\
-						<head>meta charset="utf-8"/>\
+		var html = '<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml">\
+						<head><meta charset="utf-8"/>\
 							<style>\
 								table th {\
 									text-align: center;\

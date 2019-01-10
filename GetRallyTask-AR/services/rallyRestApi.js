@@ -94,7 +94,7 @@ define(['app'], function (app) {
 			 */
 			getApiUrlFeature: function (release) {
 				var qry = (release !== '') ? 'Release.Name = "' + release + '"'
-											: '((Release.Name = "RPS1 1.4 Release") OR (Release.Name = "Common 1.4A Release")) OR (Release.Name = "Transportable 1.4 Release")';
+											: '((Release.Name = "Revo Plus 1.4 Release") OR (Release.Name = "Common 1.4A Release")) OR (Release.Name = "Transportable 1.4 Release")';
 				var url = urlFeature.replace('<QueryString>', qry)
 									.replace(/\t/g, '');
 				return url;

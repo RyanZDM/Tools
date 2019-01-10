@@ -13,7 +13,7 @@ define(['app', 'underscore'],
 
 			function ($scope, $rootScope, $http, $q, rallyRestApi, rallyAuthService, rallyQueryService) {
 				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
-				$scope.ReleaseList = ['RPS1 1.4 Release', 'Common 1.4A Release', 'Transportable 1.4 Release'];
+				$scope.ReleaseList = ['Common 1.4A Release', 'Transportable 1.4 Release', 'Revo Plus 1.4 Release'];
 				$scope.FeatureList = [];
 				$scope.Release = '';
 				$scope.UserId = '';
@@ -63,7 +63,8 @@ define(['app', 'underscore'],
 
 				function GetReportData(data) {
 					var total = 0;
-					var nameList = {};
+					var nameListByCategory = {};
+					var fullNameList = {};
 					var iv14Members = rallyRestApi.OwnerEmailMapping;
 					_.each(data, function (category) {
 						category.Data = _.reject(category.Data, function (item) {
@@ -72,11 +73,17 @@ define(['app', 'underscore'],
 
 						total = total + category.Data.length;
 
-						var names = _.chain(category.Data).map(function (item) { return item.Owner }).uniq().value().join(",");
-						nameList[category.Category] = names;
+						var names = _.chain(category.Data).map(function (item) { return item.Owner }).uniq().value();
+						fullNameList = _.union(fullNameList, names);
+						nameListByCategory[category.Category] = names.join(",");
 					});
 
-					return { Total: total, NameList: nameList, Data: data };
+					var emailList = [];
+					_.each(fullNameList, function (name) {
+						if (iv14Members[name]) { emailList.push(iv14Members[name]) };
+					});
+
+					return { Total: total, NameListByCategory: nameListByCategory, EmailList: emailList.join(";"), Data: data };
 				};
 				
 				$scope.getWarningReport = function () {
