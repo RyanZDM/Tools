@@ -1,7 +1,7 @@
 'use strict';
 
-define(['app', 'underscore'],
-	function (app, _) {
+define(['app', 'underscore', 'moment'],
+	function (app, _, moment) {
 		app.controller('rallyWorkStatController', [
 			'$scope',
 			'$rootScope',
@@ -61,7 +61,7 @@ define(['app', 'underscore'],
 					}
 				};
 
-				function GetReportData(data) {
+				function getReportData(data) {
 					var total = 0;
 					var nameListByCategory = {};
 					var fullNameList = {};
@@ -85,16 +85,63 @@ define(['app', 'underscore'],
 
 					return { Total: total, NameListByCategory: nameListByCategory, EmailList: emailList.join(";"), Data: data };
 				};
+
+				function getReportFilename() {
+					return ("RallyWarningReport-" + moment().format("YYYYMMDD") + ".html");
+				};
 				
 				$scope.getWarningReport = function () {
 					$scope.inQuerying = true;
 					var token = rallyAuthService.getAuthenticationToken();
 					rallyQueryService.getWarningReport(token)
 										.then(function (data) {
-											$scope.WarningReport = GetReportData(data);
+											$scope.WarningReport = getReportData(data);
 										})
 										.catch(function (error) { reportError(error); })
 										.finally(function () { $scope.inQuerying = false; });
+				}
+
+				/**
+				 *name exportWarningReport 
+				 *description Exports the generated warning report as a individual HTML file, would pop up a dialog for the downloading
+				 */
+				$scope.exportWarningReport = function() {
+					var bodyHtml = document.getElementById('warningReportDetail').innerHTML
+					var html = '<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml">\
+						<head><meta charset="utf-8"/>\
+							<style>\
+								table th {\
+									text-align: center;\
+								}\
+								table, th, td {\
+									border: 1px solid grey;\
+									border-collapse: collapse;\
+									padding: 5px;\
+								}\
+								table tr:nth-child(odd) {\
+									background-color: #f1f1f1;\
+								}\
+								table tr:nth-child(even) {\
+									background-color: #ffffff;\
+								}\
+								.bg-primary {\
+									color: #fff;\
+									background-color: #337ab7;\
+								}\
+								.text-success {\
+										color: #3c763d;\
+								}\
+							</style>\
+						</head>\
+						<body>' +
+									bodyHtml +
+									'</body></html>'
+
+					var file = new Blob([html], { type: "text/html" });
+					var link = document.createElement("a");
+					link.download = getReportFilename();
+					link.href = URL.createObjectURL(file);
+					link.click();
 				}
 			}]);
 	});

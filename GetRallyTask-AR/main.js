@@ -7,6 +7,7 @@ require.config({
 		"domReady": "libs/require-domready/2.0.1/domReady",
 		"bootstrap": "libs/bootstrap/3.3.7/bootstrap",
 		"underscore": "libs/underscore/1.8.3/underscore",
+		"moment": "libs/momentjs/2.23.0/moment.min",
 		"app": "app"
 	},
 	shim: {
