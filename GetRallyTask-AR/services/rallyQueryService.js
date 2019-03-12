@@ -304,15 +304,6 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 			return promises;
 		}
 
-		function getDateCondition(sprint) {
-			var dateCondition = '((AcceptedDate >= "2018-01-01") OR (InProgressDate >= "2018-01-01")) and ';
-			if (sprint > 0) {
-				dateCondition = '(Iteration.Name = "Sprint ' + sprint + '") and ';
-			}
-
-			return dateCondition;
-		}
-
 		return {
 			getTasksFromRally: function (owner, sprint, target, async, token) {
 				return angularJsGet("task", $http, rallyRestApi.getApiUrlTask(owner, sprint, target), token, async);

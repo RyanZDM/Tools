@@ -15,6 +15,7 @@ define(['app', 'underscore', 'moment'],
 				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
 				$scope.ReleaseList = ['Common 1.4A Release', 'Transportable 1.4 Release', 'Revo Plus 1.4 Release'];
 				$scope.FeatureList = [];
+				$scope.WarningReport = { Total: 0, NameListByCategory: {}, EmailList: '', Data: [] };
 				$scope.Release = '';
 				$scope.UserId = '';
 				$scope.UserPwd = '';
@@ -83,7 +84,7 @@ define(['app', 'underscore', 'moment'],
 						if (iv14Members[name]) { emailList.push(iv14Members[name]) };
 					});
 
-					return { Total: total, NameListByCategory: nameListByCategory, EmailList: emailList.join(";"), Data: data };
+					return { Total: total, NameListByCategory: nameListByCategory, EmailList: emailList.join(","), Data: data };
 				};
 
 				function getReportFilename() {
@@ -93,19 +94,32 @@ define(['app', 'underscore', 'moment'],
 				$scope.getWarningReport = function () {
 					$scope.inQuerying = true;
 					var token = rallyAuthService.getAuthenticationToken();
+					$scope.WarningReport = { Total: 0, NameListByCategory: {}, EmailList: '', Data: [] };
 					rallyQueryService.getWarningReport(token)
 										.then(function (data) {
 											$scope.WarningReport = getReportData(data);
 										})
 										.catch(function (error) { reportError(error); })
 										.finally(function () { $scope.inQuerying = false; });
-				}
+				};
+
+				$scope.sendEmail = function () {
+					if ($scope.WarningReport.EmailList.length < 1) {
+						alert("No need to send email since no warning record.");
+						return;
+					}
+					var cc = 'kris.zhang@carestream.com;jiandong.gu@carestream.com';
+					var subject = 'Weekly Rally Warning Report - ' + moment().format("YYYYMMDD") + '  <!!!ACTION!!!> Please update the Rally task status per report ASAP!';
+					var body = 'Dear All, %0A%0APease update the Rally task satus ASAP!%0A';
+					var attach = '"D:\\WarningReport-20190115.html"';
+					window.open('mailto:' + $scope.WarningReport.EmailList + '?cc=' + cc + '&subject=' + subject + '&body=' + body + '&attach=' + attach + '');
+				};
 
 				/**
 				 *name exportWarningReport 
 				 *description Exports the generated warning report as a individual HTML file, would pop up a dialog for the downloading
 				 */
-				$scope.exportWarningReport = function() {
+				$scope.exportWarningReport = function () {
 					var bodyHtml = document.getElementById('warningReportDetail').innerHTML
 					var html = '<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml">\
 						<head><meta charset="utf-8"/>\

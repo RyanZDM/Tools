@@ -34,6 +34,15 @@ define(['app'], function (app) {
 			"Dean Peng": "dean.peng@carestream.com"
 		};
 
+		function getDateCondition(sprint) {
+			var dateCondition = '((AcceptedDate >= "2018-01-01") OR (InProgressDate >= "2018-01-01")) and ';
+			if (sprint > 0) {
+				dateCondition = '(Iteration.Name = "Sprint ' + sprint + '") and ';
+			}
+
+			return dateCondition;
+		};
+
 		return {
 			OwnerEmailMapping: ownerEmailMapping,
 
@@ -108,10 +117,10 @@ define(['app'], function (app) {
 			 *return		Url used for Ajax call for getting defect and user story list from Rally 
 			 */
 			getApiUrlTask: function (owner, sprint, target) {
-				var actualApiUrl = rallyRestApi.UrlTask.replace('<target>', target)
-														.replace('<owner>', owner)
-														.replace('<dateCondition>', getDateCondition(sprint))
-														.replace(/\t/g, '');
+				var actualApiUrl = urlTask.replace('<target>', target)
+											.replace('<owner>', owner)
+											.replace('<dateCondition>', getDateCondition(sprint))
+											.replace(/\t/g, '');
 				return actualApiUrl;
 			},
 

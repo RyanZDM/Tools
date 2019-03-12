@@ -162,14 +162,13 @@
 								</div>
 								<div class="col-md-2">
 									<button class="btn btn-md btn-block"
-											id="btnGetEmailList"
+											id="btnSendEmail"
 											ng-disabled="inQuerying"
-											onclick="prompt(this.getAttribute('emails'), this.getAttribute('emails'))"
+											ng-click="sendEmail()"
 											data-toggle="tooltip"
 											data-placement="top"
-											emails="{{WarningReport.EmailList}}"
-											title="Export warning report">
-										Show Email List
+											title="Send email">
+										Send Email
 									</button>
 								</div>
 								<div class="col-md-2 pull-right">
