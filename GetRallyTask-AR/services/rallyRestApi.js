@@ -13,29 +13,32 @@ define(['app'], function (app) {
 								 and ((ScheduleState = Accepted) OR (ScheduleState = Completed))\
 								))\
 							&order=Iteration,LastUpdateDate\
-							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration\
+							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription\
 							&pagesize=1999';
 		var ownerEmailMapping = {
 			"Ryan Zhang": "dameng.zhang@carestream.com",
-			"Joe Z": "joe.zhang@carestream.com",
-			"Peter Y": "qinqiang.yan@carestream.com",
+			// "Joe Z": "joe.zhang@carestream.com",
+			// "Peter Y": "qinqiang.yan@carestream.com",
 			"Mark Gu": "jiandong.gu@carestream.com",
 			"Qi Wang": "qi.wang@carestream.com",
 			"Gary Liu": "gary.liu@carestream.com",
-			"Lyman M": "liang.ma@carestream.com",
-			"Jun Sun": "jun.sun@carestream.com",
-			"Zhe S": "zhe.sun@carestream.com",
+			// "Lyman M": "liang.ma@carestream.com",
+			// "Jun Sun": "jun.sun@carestream.com",
+			// "Zhe S": "zhe.sun@carestream.com",
 			"Jiaxin Yao": "yao.jiaxin@carestream.com",
-			"Xianjun Z": "xianjun.zhan@carestream.com",
+			// "Xianjun Z": "xianjun.zhan@carestream.com",
 			"Iris J": "lili.jiang@carestream.com",
 			"Forrest Feng": "changzheng.feng@carestream.com",
 			"Cheng Luo": "cheng.luo@carestream.com",
 			"Benny Liu": "lei.liu@carestream.com",
-			"Dean Peng": "dean.peng@carestream.com"
+			"Dean Peng": "dean.peng@carestream.com",
+			"DongXiao Liu": "dongxiao.liu@carestream.com",
+			"Taylor Tao": "lian.tao@carestream.com",
+			"Song Zhao": "song.zhao@carestream.com"
 		};
 
 		function getDateCondition(sprint) {
-			var dateCondition = '((AcceptedDate >= "2018-01-01") OR (InProgressDate >= "2018-01-01")) and ';
+			var dateCondition = '((AcceptedDate >= "2019-01-01") OR (InProgressDate >= "2019-01-01")) and ';
 			if (sprint > 0) {
 				dateCondition = '(Iteration.Name = "Sprint ' + sprint + '") and ';
 			}
@@ -44,6 +47,10 @@ define(['app'], function (app) {
 		};
 
 		return {
+			// The id 88538884208ud means ImageView Software project
+			// The id 278792303760ud means Software project in new workspace
+			CurrentWorkspace: '278792303760ud',
+
 			OwnerEmailMapping: ownerEmailMapping,
 
 			UrlFeature: urlFeature,
@@ -102,8 +109,8 @@ define(['app'], function (app) {
 			 *return		Url used for Ajax call for getting feature list from Rally 
 			 */
 			getApiUrlFeature: function (release) {
-				var qry = (release !== '') ? 'Release.Name = "' + release + '"'
-											: '((Release.Name = "Revo Plus 1.4 Release") OR (Release.Name = "Common 1.4A Release")) OR (Release.Name = "Transportable 1.4 Release")';
+				var qry = (release !== '') ? 'Release.Name Contains "' + release + '"'
+											: 'Release.Name Contains "1.4"';
 				var url = urlFeature.replace('<QueryString>', qry)
 									.replace(/\t/g, '');
 				return url;

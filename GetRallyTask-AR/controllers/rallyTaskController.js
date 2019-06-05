@@ -20,21 +20,24 @@ define(['app', 'underscore'],
 				$scope.ErrorMsg = '';
 				$scope.sprint = 0;
 				$scope.emailList = ['dameng.zhang@carestream.com'
-									, 'joe.zhang@carestream.com'
-									, 'qinqiang.yan@carestream.com'
+									//, 'joe.zhang@carestream.com'
+									//, 'qinqiang.yan@carestream.com'
 									, 'jiandong.gu@carestream.com'
 									, 'qi.wang@carestream.com'
 									, 'gary.liu@carestream.com'
-									, 'liang.ma@carestream.com'
-									, 'jun.sun@carestream.com'
-									, 'zhe.sun@carestream.com'
+									//, 'liang.ma@carestream.com'
+									//, 'jun.sun@carestream.com'
+									//, 'zhe.sun@carestream.com'
 									, 'yao.jiaxin@carestream.com'
-									, 'xianjun.zhan@carestream.com'
+									//, 'xianjun.zhan@carestream.com'
 									, 'lili.jiang@carestream.com'
 									, 'changzheng.feng@carestream.com'
 									, 'cheng.luo@carestream.com'
 									, 'lei.liu@carestream.com'
 									, 'dean.peng@carestream.com'
+									, 'dongxiao.liu@carestream.com'
+									, 'lian.tao@carestream.com'
+									, 'song.zhao@carestream.com'
 				];
 
 				$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;

@@ -8,8 +8,9 @@
 function RallyFeature(jsonObj) {
 	this.Id = ('FormattedID' in jsonObj) ? jsonObj['FormattedID'] : '';
 	// The id 88538884208ud means ImageView Software project
+	// The id 278792303760ud means Software project in new workspace
 	this.Link = ('_ref' in jsonObj) ? jsonObj['_ref'].toLowerCase()
-													.replace('slm/webservice/v2.0', '#/88538884208ud/detail') : '';
+													.replace('slm/webservice/v2.0', '#/278792303760ud/detail') : '';
 	
 	this.Description = ('Name' in jsonObj) ? jsonObj['Name'] : '';
 	this.StoryCount = (jsonObj['LeafStoryCount']) ? jsonObj['LeafStoryCount'] : 0;

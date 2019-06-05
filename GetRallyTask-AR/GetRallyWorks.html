@@ -81,7 +81,7 @@
 								<span class="input-group-addon"
 									  data-toggle="tooltip"
 									  data-placement="top"
-									  title="0 means get all tasks after 2018-01-01; >0 means just get the tasks belong to the specified sprint">Sprint</span>
+									  title="0 means get all tasks after 2019-01-01; >0 means just get the tasks belong to the specified sprint">Sprint</span>
 								<input class="form-control"
 									   type="number" min="0" max="999"
 									   id="sprint"
@@ -128,6 +128,11 @@
 										<th>TimeSpent<br />(Hour)</th>
 										<th>Owner</th>
 										<th>Iteration</th>
+										<th>Reject</th>
+										<th>Ever Failed</th>
+										<th>UT Need</th>
+										<th>Testable</th>
+										<!--<th>AC</th>-->
 									</tr>
 								</thead>
 								<tbody>
@@ -139,6 +144,11 @@
 										<td>{{task.TimeSpent}}</td>
 										<td>{{task.Owner}}</td>
 										<td>{{task.Iteration}}</td>
+										<td>{{task.Reject}}</td>
+										<td>{{task.EverFailed}}</td>
+										<td>{{task.UTNeed}}</td>
+										<td>{{task.Testable}}</td>
+										<!--<td>{{task.AC}}</td>-->
 									</tr>
 								</tbody>
 							</table>

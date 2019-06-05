@@ -13,7 +13,7 @@ define(['app', 'underscore', 'moment'],
 
 			function ($scope, $rootScope, $http, $q, rallyRestApi, rallyAuthService, rallyQueryService) {
 				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
-				$scope.ReleaseList = ['Common 1.4A Release', 'Transportable 1.4 Release', 'Revo Plus 1.4 Release'];
+				$scope.ReleaseList = ['ImageView 1.4A', 'ImageView 1.4B'];
 				$scope.FeatureList = [];
 				$scope.WarningReport = { Total: 0, NameListByCategory: {}, EmailList: '', Data: [] };
 				$scope.Release = '';
