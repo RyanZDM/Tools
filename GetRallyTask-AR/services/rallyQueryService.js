@@ -255,14 +255,16 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 							// accumulate the totoal time spent hours
 							data.data.QueryResult.Results.forEach(function (subTask) {
 								if ($.isNumeric(subTask.Actuals) && subTask.Actuals > 0) {
-									if (task.Owner === subTask.Owner._refObjectName) {
-										actuals = actuals + subTask.Actuals;
-									} else {	// Found the task with the different owner, create a new Task for it
-										var anotherTask = { Owner: subTask.Owner._refObjectName, Actuals: subTask.Actuals };
-										if (task["OtherOwnerTasks"]) {
-											task.OtherOwnerTasks.push(anotherTask);
-										} else {
-											task["OtherOwnerTasks"] = [anotherTask];
+									if (subTask["Owner"]) {
+										if (task.Owner === subTask.Owner._refObjectName) {
+											actuals = actuals + subTask.Actuals;
+										} else {	// Found the task with the different owner, create a new Task for it
+											var anotherTask = { Owner: subTask.Owner._refObjectName, Actuals: subTask.Actuals };
+											if (task["OtherOwnerTasks"]) {
+												task.OtherOwnerTasks.push(anotherTask);
+											} else {
+												task["OtherOwnerTasks"] = [anotherTask];
+											}
 										}
 									}
 								}

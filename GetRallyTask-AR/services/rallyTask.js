@@ -62,6 +62,8 @@ function RallyTask(jsonObj) {
 				that.UTNeed = 'Y';
 			} else if (rootCause.indexOf('[utno]') != -1) {
 				that.UTNeed = 'N';
+			} else {
+				that.UTNeed = '';
 			}
 		}
 	})(this);
