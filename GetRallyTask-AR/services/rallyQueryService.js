@@ -238,7 +238,7 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		/**
 		 *name				reCalculateTaskSpentTime
 		 *
-		 *description		Calculate the totoal time spent of a defect or user story by cumulate the TimeSpent of all the sub tasks.
+		 *description		Calculate the totoal time spent of a defect or user story by cumulate the Actuals of all the sub tasks.
 		 *					Those sub tasks would be excluded if the owner is the other one
 		 *
 		 *param taskList	The collection of Rally defects and/or user stories
@@ -251,14 +251,14 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 					var deferred = $.Deferred();
 					$http.get(rallyRestApi.getApiUrlSubTask(task.TaskLink), { headers: { "Authorization": "Basic " + authToken } })
 						.then(function (data) {
-							var timeSpent = 0;
+							var actuals = 0;
 							// accumulate the totoal time spent hours
 							data.data.QueryResult.Results.forEach(function (subTask) {
-								if ($.isNumeric(subTask.TimeSpent) && subTask.TimeSpent > 0) {
+								if ($.isNumeric(subTask.Actuals) && subTask.Actuals > 0) {
 									if (task.Owner === subTask.Owner._refObjectName) {
-										timeSpent = timeSpent + subTask.TimeSpent;
+										actuals = actuals + subTask.Actuals;
 									} else {	// Found the task with the different owner, create a new Task for it
-										var anotherTask = { Owner: subTask.Owner._refObjectName, TimeSpent: subTask.TimeSpent };
+										var anotherTask = { Owner: subTask.Owner._refObjectName, Actuals: subTask.Actuals };
 										if (task["OtherOwnerTasks"]) {
 											task.OtherOwnerTasks.push(anotherTask);
 										} else {
@@ -272,7 +272,7 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 								var groupTasks = _.groupBy(task.OtherOwnerTasks, function (element) { return element.Owner; });
 								var mergedTasks = _.map(groupTasks, function (value, key) {
 									var totalTimeSpent = _.reduce(task.OtherOwnerTasks, function (result, current) {
-										return result + ((current.Owner === key) ? current.TimeSpent : 0);
+										return result + ((current.Owner === key) ? current.Actuals : 0);
 									}, 0);
 
 									var otherTask = new RallyTask({});
@@ -281,7 +281,7 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 									otherTask.Description = task.Description;
 									otherTask.Iteration = task.Iteration;
 									otherTask.Owner = key;
-									otherTask.TimeSpent = totalTimeSpent;
+									otherTask.Actuals = totalTimeSpent;
 									otherTask.Estimate = totalTimeSpent / 6;	// Assume 6 working hours a day
 									return otherTask;
 								});
@@ -290,7 +290,7 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 								task.OtherOwnerTasks = Array.from(mergedTasks.values());
 							}
 
-							if (timeSpent > 0) { task.TimeSpent = timeSpent; }
+							if (actuals > 0) { task.Actuals = actuals; }
 							deferred.resolve(task);
 						},
 							function (error) {
@@ -305,12 +305,12 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		}
 
 		return {
-			getTasksFromRally: function (owner, sprint, target, async, token) {
-				return angularJsGet("task", $http, rallyRestApi.getApiUrlTask(owner, sprint, target), token, async);
+			getTasksFromRally: function (parameters, target) {
+				return angularJsGet("task", $http, rallyRestApi.getApiUrlTask(parameters, target), parameters.Token, parameters.Async);
 			},
 
-			getTasksFromRallyJQuery: function (owner, sprint, target, async, token) {
-				return jQueryGet("task", rallyRestApi.getApiUrlTask(owner, sprint, target), token, async);
+			getTasksFromRallyJQuery: function (parameters, target) {
+				return jQueryGet("task", rallyRestApi.getApiUrlTask(parameters, target), parameters.Token, parameters.Async);
 			},
 
 			getFeatureFromRally: function (release, token) {

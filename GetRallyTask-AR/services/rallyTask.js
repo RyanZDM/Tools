@@ -15,6 +15,7 @@ function RallyTask(jsonObj) {
 	this.Description = ('Name' in jsonObj) ? jsonObj['Name'] : '';
 	this.Estimate = (jsonObj['PlanEstimate']) ? jsonObj['PlanEstimate'] : 0;
 	this.TimeSpent = (jsonObj['TaskEstimateTotal']) ? jsonObj['TaskEstimateTotal'] : 0;
+	this.ScheduleState = jsonObj['ScheduleState'];
 	this.Owner = '';
 	this.Iteration = '';
 	this.TaskLink = '';
@@ -22,7 +23,7 @@ function RallyTask(jsonObj) {
 	this.Testable = true;
 	this.UTNeed = 'NA';
 	this.Reject = false;
-	this.EverFailed = (jsonObj['Description'] && (jsonObj['Description'].toLowerCase().indexOf('[eetfail') != -1));		// [EETFailed] or [EETFail]
+	this.EverFailed = (jsonObj['Description'].toLowerCase().indexOf('[eetfail') != -1);		// [EETFailed] or [EETFail]
 
 	(function (that) {
 		if (jsonObj['Owner'] && jsonObj.Owner['_refObjectName']) {

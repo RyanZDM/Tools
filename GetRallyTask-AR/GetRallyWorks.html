@@ -60,7 +60,7 @@
 						</div>
 						<p></p>
 						<div class="row">
-							<div class="col-md-5">
+							<div class="col-md-4">
 								<div class="input-group">
 									<span class="input-group-addon">Owner</span>
 									<input class="form-control"
@@ -76,43 +76,57 @@
 									</datalist>
 								</div>
 							</div>
-						<div class="col-md-2">
-							<div class="input-group">
-								<span class="input-group-addon"
-									  data-toggle="tooltip"
-									  data-placement="top"
-									  title="0 means get all tasks after 2019-01-01; >0 means just get the tasks belong to the specified sprint">Sprint</span>
-								<input class="form-control"
-									   type="number" min="0" max="999"
-									   id="sprint"
-									   name="sprint"
-									   ng-model="sprint"
-									   required
-									   placeholder="Enter target sprint" />
+							<div class="col-md-2">
+								<div class="input-group">
+									<span class="input-group-addon"
+										  data-toggle="tooltip"
+										  data-placement="top"
+										  title="0 means get all tasks after 2019-01-01; >0 means just get the tasks belong to the specified sprint">
+										Sprint
+									</span>
+									<input class="form-control"
+										   type="number" min="0" max="999"
+										   id="sprint"
+										   name="sprint"
+										   ng-model="sprint"
+										   required
+										   placeholder="Enter target sprint" />
+								</div>
 							</div>
-						</div>
-						<div class="col-md-2">
-							<button class="btn btn-md btn-block btn_primary"
-									id="btnRefresh"
-									ng-disabled="inQuerying"
-									ng-click="refreshTaskList()"
-									data-toggle="tooltip"
-									data-placement="top"
-									title="Get tasks belongs to the [Owner] of the specified [Sprint]">
-								Refresh Task List
-							</button>
-						</div>
-						<div class="col-md-2">
-							<button class="btn btn-md btn-block"
-									id="btnRefreshAll"
-									ng-disabled="inQuerying"
-									ng-click="refreshAll()"
-									data-toggle="tooltip"
-									data-placement="top"
-									title="Get all tasks of all person according to the specified [Sprint]">
-								Get All
-							</button>
-						</div>
+							<div class="col-md-2">
+								<div class="input-group">
+									<span class="input-group-addon"
+										  style="border:0;background:transparent;"
+										  data-toggle="tooltip"
+										  data-placement="top"
+										  title="Check if need to get all tasks even though they are not completed or accepted.">
+										Ignore ScheduleState
+									</span>
+									<input type="checkbox" class="custom-control-input" ng-model="IgnoreScheduleState" />
+								</div>
+							</div>
+							<div class="col-md-2">
+								<button class="btn btn-md btn-block btn_primary"
+										id="btnRefresh"
+										ng-disabled="inQuerying"
+										ng-click="refreshTaskList()"
+										data-toggle="tooltip"
+										data-placement="top"
+										title="Get tasks belongs to the [Owner] of the specified [Sprint]">
+									Refresh Task List
+								</button>
+							</div>
+							<div class="col-md-2">
+								<button class="btn btn-md btn-block"
+										id="btnRefreshAll"
+										ng-disabled="inQuerying"
+										ng-click="refreshAll()"
+										data-toggle="tooltip"
+										data-placement="top"
+										title="Get all tasks of all person according to the specified [Sprint]">
+									Get All
+								</button>
+							</div>
 						</div>
 					</div>
 					<div class="panel-body">
@@ -125,9 +139,10 @@
 										<th>ID</th>
 										<th>Description</th>
 										<th>Estimate<br />(Day)</th>
-										<th>TimeSpent<br />(Hour)</th>
+										<th>Actuals<br />(Hour)</th>
 										<th>Owner</th>
 										<th>Iteration</th>
+										<th ng-show="IgnoreScheduleState">State</th>
 										<th>Reject</th>
 										<th>Ever Failed</th>
 										<th>UT Need</th>
@@ -141,9 +156,10 @@
 										<td>{{task.id}}</td>
 										<td><a href='{{task.Link}}'>{{task.Description}}</a></td>
 										<td>{{task.Estimate}}</td>
-										<td>{{task.TimeSpent}}</td>
+										<td>{{task.Actuals}}</td>
 										<td>{{task.Owner}}</td>
 										<td>{{task.Iteration}}</td>
+										<td ng-show="IgnoreScheduleState">{{task.ScheduleState}}</td>
 										<td>{{task.Reject}}</td>
 										<td>{{task.EverFailed}}</td>
 										<td>{{task.UTNeed}}</td>

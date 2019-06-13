@@ -9,11 +9,9 @@ define(['app'], function (app) {
 							&pagesize=1999';
 		var urlTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
-							query=(<dateCondition> ((Owner.Name = <owner> )\
-								 and ((ScheduleState = Accepted) OR (ScheduleState = Completed))\
-								))\
+							query=(<dateCondition> <ownerStateCondition>)\
 							&order=Iteration,LastUpdateDate\
-							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription\
+							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription\
 							&pagesize=1999';
 		var ownerEmailMapping = {
 			"Ryan Zhang": "dameng.zhang@carestream.com",
@@ -27,9 +25,9 @@ define(['app'], function (app) {
 			// "Zhe S": "zhe.sun@carestream.com",
 			"Jiaxin Yao": "yao.jiaxin@carestream.com",
 			// "Xianjun Z": "xianjun.zhan@carestream.com",
-			"Iris J": "lili.jiang@carestream.com",
+			//"Iris J": "lili.jiang@carestream.com",
 			"Forrest Feng": "changzheng.feng@carestream.com",
-			"Cheng Luo": "cheng.luo@carestream.com",
+			//"Cheng Luo": "cheng.luo@carestream.com",
 			"Benny Liu": "lei.liu@carestream.com",
 			"Dean Peng": "dean.peng@carestream.com",
 			"DongXiao Liu": "dongxiao.liu@carestream.com",
@@ -123,11 +121,17 @@ define(['app'], function (app) {
 			 *
 			 *return		Url used for Ajax call for getting defect and user story list from Rally 
 			 */
-			getApiUrlTask: function (owner, sprint, target) {
+			getApiUrlTask: function (parameters, target) {
+				var ownerStateCondition = '(Owner.Name = ' + parameters.Owner + ')';
+				if (!parameters.IgnoreScheduleState) {
+					ownerStateCondition = '(' + ownerStateCondition + ' and ((ScheduleState = Accepted) OR (ScheduleState = Completed)))'
+				}
+
 				var actualApiUrl = urlTask.replace('<target>', target)
-											.replace('<owner>', owner)
-											.replace('<dateCondition>', getDateCondition(sprint))
+											.replace('<ownerStateCondition>', ownerStateCondition)
+											.replace('<dateCondition>', getDateCondition(parameters.Sprint))
 											.replace(/\t/g, '');
+
 				return actualApiUrl;
 			},
 
@@ -139,7 +143,8 @@ define(['app'], function (app) {
 			 *return		Url used for Ajax call for getting defect and user story list from Rally 
 			 */
 			getApiUrlSubTask: function (taskUrl) {
-				return taskUrl + "?query=(State = Completed) &fetch=Owner,TimeSpent&pagesize=1999";
+				//return taskUrl + "?query=(State = Completed) &fetch=Owner,TimeSpent,Actuals&pagesize=1999";
+				return taskUrl + "?&fetch=Owner,Actuals&pagesize=1999";
 			}
 		};
 	});

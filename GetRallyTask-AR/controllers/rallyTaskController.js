@@ -9,8 +9,9 @@ define(['app', 'underscore'],
 			'$q',
 			'rallyAuthService',
 			'rallyQueryService',
+			'rallyRestApi',
 
-			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService) {
+			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi) {
 				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
 				$scope.TaskList = [];
 				$scope.UserId = '';
@@ -19,26 +20,8 @@ define(['app', 'underscore'],
 				$scope.inQuerying = false;
 				$scope.ErrorMsg = '';
 				$scope.sprint = 0;
-				$scope.emailList = ['dameng.zhang@carestream.com'
-									//, 'joe.zhang@carestream.com'
-									//, 'qinqiang.yan@carestream.com'
-									, 'jiandong.gu@carestream.com'
-									, 'qi.wang@carestream.com'
-									, 'gary.liu@carestream.com'
-									//, 'liang.ma@carestream.com'
-									//, 'jun.sun@carestream.com'
-									//, 'zhe.sun@carestream.com'
-									, 'yao.jiaxin@carestream.com'
-									//, 'xianjun.zhan@carestream.com'
-									, 'lili.jiang@carestream.com'
-									, 'changzheng.feng@carestream.com'
-									, 'cheng.luo@carestream.com'
-									, 'lei.liu@carestream.com'
-									, 'dean.peng@carestream.com'
-									, 'dongxiao.liu@carestream.com'
-									, 'lian.tao@carestream.com'
-									, 'song.zhao@carestream.com'
-				];
+				$scope.IgnoreScheduleState = false;
+				$scope.emailList = Object.values(rallyRestApi.OwnerEmailMapping);
 
 				$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
 
@@ -48,7 +31,7 @@ define(['app', 'underscore'],
 
 				$scope.refreshTaskList = function () {
 					$scope.clearError();
-					return $scope.refreshTaskByOwner($scope.owner, $scope.sprint, true, $q);
+					return $scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'IgnoreScheduleState':$scope.IgnoreScheduleState, 'ClearDataFirst': true }, $q);
 				};
 
 				$scope.refreshAll = function () {
@@ -56,23 +39,25 @@ define(['app', 'underscore'],
 					$scope.TaskList = [];
 
 					_.each($scope.emailList, function (email) {
-						$scope.refreshTaskByOwner(email, /*0*/$scope.sprint, false, $q);
+						$scope.refreshTaskByOwner({ 'Owner': email, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q);
 					})
 				};
 
-				$scope.refreshTaskByOwner = function (owner, sprint, clearDataFirst, q) {
-					if (clearDataFirst) { $scope.TaskList = []; }
+				$scope.refreshTaskByOwner = function (parameters, q) {
+					if (parameters.ClearDataFirst) { $scope.TaskList = []; }
 
 					$scope.inQuerying = true;
 					var token = rallyAuthService.getAuthenticationToken();
+					_.extend(parameters, { 'Token': token, 'Async': true });
 					q.all([
-					rallyQueryService.getTasksFromRally(owner, sprint, 'hierarchicalrequirement', true, token),
-					rallyQueryService.getTasksFromRally(owner, sprint, 'defect', true, token)
+					rallyQueryService.getTasksFromRally(parameters, 'hierarchicalrequirement'),
+					rallyQueryService.getTasksFromRally(parameters, 'defect')
 					])
 						.then(function (lists) {
 							// If directly Complete the user story or defect under which still contains incompleted tasks
 							// the SpentTime of those taks would not be counted any more. So need to accumulate all task hours
 							var tasks = _.union(lists[0], lists[1]);
+							$scope.TaskList = tasks;
 							q.all(rallyQueryService.reCalculateTaskSpentTime(tasks, token))
 								.then(function (updatedTasks) {
 									// A user story or defect may contains some tasks assigned to different developer, need to filter out
