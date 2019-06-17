@@ -14,48 +14,35 @@ function RallyTask(jsonObj) {
 													.replace('hierarchicalrequirement', 'userstory') : '';
 	this.Description = ('Name' in jsonObj) ? jsonObj['Name'] : '';
 	this.Estimate = (jsonObj['PlanEstimate']) ? jsonObj['PlanEstimate'] : 0;
-	this.TimeSpent = (jsonObj['TaskEstimateTotal']) ? jsonObj['TaskEstimateTotal'] : 0;
+	this.TimeSpent = (jsonObj['TaskActualTotal']) ? jsonObj['TaskActualTotal'] : 0;
 	this.ScheduleState = jsonObj['ScheduleState'];
-	this.Owner = '';
+	this.Owner = (jsonObj['Owner'] && jsonObj.Owner['_refObjectName']) ? jsonObj.Owner._refObjectName : '';
+	this.Release = (jsonObj['Release']) ? jsonObj.Release.Name : '';
+	this.TaskLink = (jsonObj['Tasks'] && jsonObj.Tasks.Count > 0) ? this.TaskLink = jsonObj.Tasks._ref : '';
+	this.Reject = ((jsonObj['State']) && (/rejected|reject requested/i.test(jsonObj['State']))) ? true : false;
+	this.EverFailed = (jsonObj['Description']) ? (jsonObj['Description'].toLowerCase().indexOf('[eetfail') != -1) : false;	// [EETFailed] or [EETFail]
 	this.Iteration = '';
-	this.TaskLink = '';
 	this.AC = '';
 	this.Testable = true;
 	this.UTNeed = 'NA';
-	this.Reject = false;
-	this.EverFailed = (jsonObj['Description'].toLowerCase().indexOf('[eetfail') != -1);		// [EETFailed] or [EETFail]
+
+	if (jsonObj['Iteration'] && jsonObj.Iteration['_refObjectName']) {
+		var sprint = jsonObj.Iteration._refObjectName.split(' ').pop();
+		this.Iteration = parseInt(sprint, 10);
+	}
+
+	if (jsonObj['c_AcceptanceCriteria']) {
+		this.AC = jsonObj['c_AcceptanceCriteria'];
+		if (/no testable|not testable|non-testable|No need for QA verification/i.test(this.AC)) {
+			this.Testable = false;
+		}
+	} else {
+		if (jsonObj['Notes']) {
+			this.AC = jsonObj['Notes'];
+		}
+	}
 
 	(function (that) {
-		if (jsonObj['Owner'] && jsonObj.Owner['_refObjectName']) {
-			that.Owner = jsonObj.Owner._refObjectName;
-		}
-
-		if (jsonObj['Iteration'] && jsonObj.Iteration['_refObjectName']) {
-			var sprint = jsonObj.Iteration._refObjectName.split(' ').pop();
-			that.Iteration = parseInt(sprint, 10);
-		}
-
-		if (jsonObj['Tasks'] && jsonObj.Tasks.Count > 0) {
-			that.TaskLink = jsonObj.Tasks._ref;
-		}
-
-		if (jsonObj['State']) {
-			if (/rejected|reject requested/i.test(jsonObj['State'])) {
-				that.Reject = true;
-			}
-		}
-
-		if (jsonObj['c_AcceptanceCriteria']) {
-			that.AC = jsonObj['c_AcceptanceCriteria'];
-			if (/no testable|not testable|non-testable|No need for QA verification/i.test(that.AC)) {
-				that.Testable = false;
-			}
-		} else {
-			if (jsonObj['Notes']) {
-				that.AC = jsonObj['Notes'];
-			}
-		}
-
 		if (jsonObj['c_RootCauseDescription']) {
 			var rootCause = jsonObj['c_RootCauseDescription'].toLowerCase();
 			if (rootCause.indexOf('[utyes]') != -1) {
@@ -63,7 +50,7 @@ function RallyTask(jsonObj) {
 			} else if (rootCause.indexOf('[utno]') != -1) {
 				that.UTNeed = 'N';
 			} else {
-				that.UTNeed = '';
+				that.UTNeed = 'Missed';
 			}
 		}
 	})(this);

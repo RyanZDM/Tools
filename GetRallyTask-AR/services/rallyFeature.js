@@ -17,21 +17,7 @@ function RallyFeature(jsonObj) {
 	this.PlanEstimateTotal = (jsonObj['LeafStoryPlanEstimateTotal']) ? jsonObj['LeafStoryPlanEstimateTotal'] : 0;
 	this.PercentDoneByStoryCount = (jsonObj['PercentDoneByStoryCount']) ? jsonObj['PercentDoneByStoryCount'] : 0;
 	this.PercentDoneByStoryPlanEstimate = (jsonObj['PercentDoneByStoryPlanEstimate']) ? jsonObj['PercentDoneByStoryPlanEstimate'] : 0;
-	this.Release = '';
-	this.Project = '';
-	this.Owner = '';
-
-	(function (that) {
-		if (jsonObj['Owner'] && jsonObj.Owner['_refObjectName']) {
-			that.Owner = jsonObj.Owner._refObjectName;
-		}
-		
-		if (jsonObj['Release'] && jsonObj.Release['_refObjectName']) {
-			that.Release = jsonObj.Release._refObjectName;
-		}
-
-		if (jsonObj['Project'] && jsonObj.Project['_refObjectName']) {
-			that.Project = jsonObj.Project._refObjectName;
-		}
-	})(this);
+	this.Release = (jsonObj['Release'] && jsonObj.Release['_refObjectName']) ? jsonObj.Release._refObjectName : '';
+	this.Project = (jsonObj['Project'] && jsonObj.Project['_refObjectName']) ? jsonObj.Project._refObjectName : '';
+	this.Owner = (jsonObj['Owner'] && jsonObj.Owner['_refObjectName']) ? jsonObj.Owner._refObjectName : '';
 }

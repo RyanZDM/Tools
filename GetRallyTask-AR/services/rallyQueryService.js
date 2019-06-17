@@ -246,6 +246,7 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		 */
 		function reCalculateTaskSpentTime(taskList, authToken) {
 			var promises = [];
+			var ownerEmailList = Object.values(rallyRestApi.OwnerEmailMapping);
 			taskList.forEach(function (task) {
 				if (task.TaskLink !== '') {
 					var deferred = $.Deferred();
@@ -258,12 +259,15 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 									if (subTask["Owner"]) {
 										if (task.Owner === subTask.Owner._refObjectName) {
 											actuals = actuals + subTask.Actuals;
-										} else {	// Found the task with the different owner, create a new Task for it
-											var anotherTask = { Owner: subTask.Owner._refObjectName, Actuals: subTask.Actuals };
-											if (task["OtherOwnerTasks"]) {
-												task.OtherOwnerTasks.push(anotherTask);
-											} else {
-												task["OtherOwnerTasks"] = [anotherTask];
+										} else {	// Found the task with the different owner, create a new Task for it. But would not create new task if he/she is not in the email list
+											var otherOwner = subTask.Owner._refObjectName.toLowerCase();
+											if (ownerEmailList.indexOf(otherOwner) != -1) {
+												var anotherTask = { Owner: otherOwner, Actuals: subTask.Actuals };
+												if (task["OtherOwnerTasks"]) {
+													task.OtherOwnerTasks.push(anotherTask);
+												} else {
+													task["OtherOwnerTasks"] = [anotherTask];
+												}
 											}
 										}
 									}
@@ -285,11 +289,12 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 									otherTask.Owner = key;
 									otherTask.Actuals = totalTimeSpent;
 									otherTask.Estimate = totalTimeSpent / 6;	// Assume 6 working hours a day
+									otherTask.ScheduleState = task.ScheduleState;
 									return otherTask;
 								});
 
 								// Reformat the other owner tasks
-								task.OtherOwnerTasks = Array.from(mergedTasks.values());
+								task.OtherOwnerTasks = Array.from(Object.values(mergedTasks));
 							}
 
 							if (actuals > 0) { task.Actuals = actuals; }

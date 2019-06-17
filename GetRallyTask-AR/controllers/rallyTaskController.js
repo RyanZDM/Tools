@@ -22,8 +22,17 @@ define(['app', 'underscore'],
 				$scope.sprint = 0;
 				$scope.IgnoreScheduleState = false;
 				$scope.emailList = Object.values(rallyRestApi.OwnerEmailMapping);
-
 				$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
+				$scope.Show13a = false;
+				$scope.Show13b = false;
+				$scope.Show14a = true;
+				$scope.Show14b = true;
+				$scope.ShowInDefine = true;
+				$scope.ShowDefined = true;
+				$scope.ShowWIP = true;
+				$scope.ShowCompleted = true;
+				$scope.ShowAccepted = true;
+				$scope.ShowFailedOnly = false;
 
 				$scope.clearError = function () {
 					$scope.ErrorMsg = '';
@@ -57,7 +66,8 @@ define(['app', 'underscore'],
 							// If directly Complete the user story or defect under which still contains incompleted tasks
 							// the SpentTime of those taks would not be counted any more. So need to accumulate all task hours
 							var tasks = _.union(lists[0], lists[1]);
-							$scope.TaskList = tasks;
+
+							$scope.TaskList = _.union($scope.TaskList, tasks);
 							q.all(rallyQueryService.reCalculateTaskSpentTime(tasks, token))
 								.then(function (updatedTasks) {
 									// A user story or defect may contains some tasks assigned to different developer, need to filter out
@@ -69,6 +79,37 @@ define(['app', 'underscore'],
 						})
 						.catch(function (error) { reportError(error); });
 				};
+
+				$scope.scheduleStateFilter = function (task) {
+					if (!$scope.Show13a && (/1.3a/i.test(task.Release))) return false;
+
+					if (!$scope.Show13b && (/1.3b/i.test(task.Release))) return false;
+
+					if (!$scope.Show14a && (/1.4a/i.test(task.Release))) return false;
+
+					if (!$scope.Show14b && (/1.4b/i.test(task.Release))) return false;
+
+					if (!$scope.IgnoreScheduleState) return true;
+
+					if ($scope.ShowFailedOnly) {
+						return task.EverFailed;
+					}
+
+					switch (task.ScheduleState) {
+						case 'Completed':
+							return $scope.ShowCompleted;
+						case 'Accepted':
+							return $scope.ShowAccepted;
+						case 'In-Progress':
+							return $scope.ShowWIP;
+						case 'Defined':
+							return $scope.ShowDefined;
+						case 'In Definition':
+							return $scope.ShowInDefine;
+					}
+					
+					return false;
+				}
 
 				function reportError(error) {
 					console.error(error.statusText);

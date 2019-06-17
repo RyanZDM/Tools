@@ -3,12 +3,12 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta charset="utf-8" />
-	<title>Get the task list from Rally via REST API - Using the AngularJS with RequireJS</title>
+	<title>Get the task list from Rally via REST API</title> <!-- Using the AngularJS with RequireJS -->
 
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<script src="libs\requirejs\2.3.5\require.min.js" data-main="main.js"></script>
-	<link rel="stylesheet" href="libs\bootstrap\3.3.7\bootstrap.min.css"/>
-	
+	<link rel="stylesheet" href="libs\bootstrap\3.3.7\bootstrap.min.css" />
+
 	<style>
 		input.ng-invalid {
 			background-color: lightblue;
@@ -24,154 +24,202 @@
 			padding: 5px;
 		}
 
-		table tr:nth-child(odd) {
-			background-color: #f1f1f1;
+			table tr:nth-child(odd) {
+				background-color: #f1f1f1;
+			}
+
+			table tr:nth-child(even) {
+				background-color: #ffffff;
+			}
+
+		.badgebox {
+			opacity: 0;
 		}
 
-		table tr:nth-child(even) {
-			background-color: #ffffff;
-		}
+			.badgebox + .badge {
+				/* Move the check mark away when unchecked */
+				text-indent: -999999px;
+				/* Makes the badge's width stay the same checked and unchecked */
+				width: 27px;
+			}
+
+			.badgebox:focus + .badge {
+				/* Set something to make the badge looks focused */
+				/* This really depends on the application, in my case it was: */
+				/* Adding a light border */
+				box-shadow: inset 0px 0px 5px;
+				/* Taking the difference out of the padding */
+			}
+
+			.badgebox:checked + .badge {
+				/* Move the check mark back when checked */
+				text-indent: 0;
+			}
 	</style>
 </head>
 <body>
 	<form name="taskForm" ng-controller="rallyTaskController">
-	<!--<form name="taskForm" ng-app="getRallyWorksApp" ng-controller="rallyTaskController">-->
-			<div class="page-header text-primary text-center">
-				<h1>Get Rally Tasks <small>--- Using AngularJS with RequireJS</small></h1>
-			</div>
-			<!--<div class="jumbotron text-center">
-				<h1>Get Rally Tasks</h1>
-			</div>-->
-			<div class="container">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<div class="row alert alert-warning alert-dismissable pull-right" ng-show="(ErrorMsg)">
-							<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-							<strong>Warning:</strong>{{ErrorMsg}}
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<rally-login></rally-login>
-							</div>
-							<span class="col-md-3 text-right alert alert-warning pull-right"
-								  ng-show="taskForm.owner.$error.email">
-								The email address is invalid
-							</span>
-						</div>
-						<p></p>
-						<div class="row">
-							<div class="col-md-4">
-								<div class="input-group">
-									<span class="input-group-addon">Owner</span>
-									<input class="form-control"
-										   type="email"
-										   id="owner"
-										   name="owner"
-										   list="emailOptions"
-										   ng-model="owner"
-										   required
-										   placeholder="Enter owner's Rally account here" />
-									<datalist id="emailOptions">
-										<option ng-repeat="email in emailList | orderBy: email" value={{email}}></option>
-									</datalist>
-								</div>
-							</div>
-							<div class="col-md-2">
-								<div class="input-group">
-									<span class="input-group-addon"
-										  data-toggle="tooltip"
-										  data-placement="top"
-										  title="0 means get all tasks after 2019-01-01; >0 means just get the tasks belong to the specified sprint">
-										Sprint
-									</span>
-									<input class="form-control"
-										   type="number" min="0" max="999"
-										   id="sprint"
-										   name="sprint"
-										   ng-model="sprint"
-										   required
-										   placeholder="Enter target sprint" />
-								</div>
-							</div>
-							<div class="col-md-2">
-								<div class="input-group">
-									<span class="input-group-addon"
-										  style="border:0;background:transparent;"
-										  data-toggle="tooltip"
-										  data-placement="top"
-										  title="Check if need to get all tasks even though they are not completed or accepted.">
-										Ignore ScheduleState
-									</span>
-									<input type="checkbox" class="custom-control-input" ng-model="IgnoreScheduleState" />
-								</div>
-							</div>
-							<div class="col-md-2">
-								<button class="btn btn-md btn-block btn_primary"
-										id="btnRefresh"
-										ng-disabled="inQuerying"
-										ng-click="refreshTaskList()"
-										data-toggle="tooltip"
-										data-placement="top"
-										title="Get tasks belongs to the [Owner] of the specified [Sprint]">
-									Refresh Task List
-								</button>
-							</div>
-							<div class="col-md-2">
-								<button class="btn btn-md btn-block"
-										id="btnRefreshAll"
-										ng-disabled="inQuerying"
-										ng-click="refreshAll()"
-										data-toggle="tooltip"
-										data-placement="top"
-										title="Get all tasks of all person according to the specified [Sprint]">
-									Get All
-								</button>
-							</div>
-						</div>
+		<!--<form name="taskForm" ng-app="getRallyWorksApp" ng-controller="rallyTaskController">-->
+		<div class="page-header text-primary text-center">
+			<h1>Get Rally Tasks <small>--- Can also find the record of violation of process</small></h1>
+		</div>
+		<!--<div class="jumbotron text-center">
+			<h1>Get Rally Tasks</h1>
+		</div>-->
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="row alert alert-warning alert-dismissable pull-right" ng-show="(ErrorMsg)">
+						<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+						<strong>Warning:</strong>{{ErrorMsg}}
 					</div>
-					<div class="panel-body">
-						<h4 class="text-primary">Query Results: {{TaskList.length}}</h4>
-						<div class="row">
-							<table class="table table-hover table-bordered table-responsive" border="1">
-								<thead>
-									<tr>
-										<th>#</th>
-										<th>ID</th>
-										<th>Description</th>
-										<th>Estimate<br />(Day)</th>
-										<th>Actuals<br />(Hour)</th>
-										<th>Owner</th>
-										<th>Iteration</th>
-										<th ng-show="IgnoreScheduleState">State</th>
-										<th>Reject</th>
-										<th>Ever Failed</th>
-										<th>UT Need</th>
-										<th>Testable</th>
-										<!--<th>AC</th>-->
-									</tr>
-								</thead>
-								<tbody>
-									<tr ng-repeat="task in TaskList | orderBy:['Owner', 'Iteration']">
-										<td>{{$index + 1}}</td>
-										<td>{{task.id}}</td>
-										<td><a href='{{task.Link}}'>{{task.Description}}</a></td>
-										<td>{{task.Estimate}}</td>
-										<td>{{task.Actuals}}</td>
-										<td>{{task.Owner}}</td>
-										<td>{{task.Iteration}}</td>
-										<td ng-show="IgnoreScheduleState">{{task.ScheduleState}}</td>
-										<td>{{task.Reject}}</td>
-										<td>{{task.EverFailed}}</td>
-										<td>{{task.UTNeed}}</td>
-										<td>{{task.Testable}}</td>
-										<!--<td>{{task.AC}}</td>-->
-									</tr>
-								</tbody>
-							</table>
+					<div class="row">
+						<div class="col-md-6">
+							<rally-login></rally-login>
+						</div>
+						<span class="col-md-3 text-right alert alert-warning pull-right"
+							  ng-show="taskForm.owner.$error.email">
+							The email address is invalid
+						</span>
+					</div>
+					<p></p>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="input-group">
+								<span class="input-group-addon">Owner</span>
+								<input class="form-control"
+									   type="email"
+									   id="owner"
+									   name="owner"
+									   list="emailOptions"
+									   ng-model="owner"
+									   required
+									   placeholder="Enter owner's Rally account here" />
+								<datalist id="emailOptions">
+									<option ng-repeat="email in emailList | orderBy: email" value={{email}}></option>
+								</datalist>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="input-group">
+								<span class="input-group-addon"
+									  data-toggle="tooltip"
+									  data-placement="top"
+									  title="0 means get all tasks after 2019-01-01; >0 means just get the tasks belong to the specified sprint">
+									Sprint
+								</span>
+								<input class="form-control"
+									   type="number" min="0" max="999"
+									   id="sprint"
+									   name="sprint"
+									   ng-model="sprint"
+									   required
+									   placeholder="Enter target sprint" />
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="input-group">
+								<span class="input-group-addon"
+									  style="border:0;background:transparent;"
+									  data-toggle="tooltip"
+									  data-placement="top"
+									  title="Check if need to get all tasks even though they are not completed or accepted.">
+									Ignore ScheduleState
+								</span>
+								<input type="checkbox" class="custom-control-input" ng-model="IgnoreScheduleState" />
+							</div>
+						</div>
+						<div class="col-md-2">
+							<button class="btn btn-md btn-block btn_primary"
+									id="btnRefresh"
+									ng-disabled="inQuerying"
+									ng-click="refreshTaskList()"
+									data-toggle="tooltip"
+									data-placement="top"
+									title="Get tasks belongs to the [Owner] of the specified [Sprint]">
+								Refresh Task List
+							</button>
+						</div>
+						<div class="col-md-2">
+							<button class="btn btn-md btn-block"
+									id="btnRefreshAll"
+									ng-disabled="inQuerying"
+									ng-click="refreshAll()"
+									data-toggle="tooltip"
+									data-placement="top"
+									title="Get all tasks of all person according to the specified [Sprint]">
+								Get All
+							</button>
 						</div>
 					</div>
 				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-md-4">
+							<h4 class="text-primary">Query Results: {{filteredRecords.length}} / {{TaskList.length}}</h4>
+						</div>
+						<div class="col-md-8">
+							<div class="pull-right">
+								<label for="13a" class="btn btn-info">1.3A <input type="checkbox" ng-model="Show13a" id="13a" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="13b" class="btn btn-primary">1.3B <input type="checkbox" ng-model="Show13b" id="13b" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="14a" class="btn btn-info">1.4A <input type="checkbox" ng-model="Show14a" id="14a" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="14b" class="btn btn-primary">1.4B <input type="checkbox" ng-model="Show14b" id="14b" class="badgebox"><span class="badge">&check;</span></label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12" ng-show="IgnoreScheduleState">
+							<div class="pull-right">
+								<label for="indefine" class="btn btn-default">In Definition <input type="checkbox" ng-model="ShowInDefine" id="indefine" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="defined" class="btn btn-info">Defined <input type="checkbox" ng-model="ShowDefined" id="defined" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="wip" class="btn btn-primary">In-Progress <input type="checkbox" ng-model="ShowWIP" id="wip" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="completed" class="btn btn-warning">Completed <input type="checkbox" ng-model="ShowCompleted" id="completed" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="accepted" class="btn btn-success">Accepted <input type="checkbox" ng-model="ShowAccepted" id="accepted" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="failed" class="btn btn-danger">Failed Only <input type="checkbox" ng-model="ShowFailedOnly" id="failed" class="badgebox"><span class="badge">&check;</span></label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<table class="table table-hover table-bordered table-responsive" border="1">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>ID</th>
+									<th>Description</th>
+									<th>Estimate<br />(Day)</th>
+									<th>Actuals<br />(Hour)</th>
+									<th>Owner</th>
+									<th>Iteration</th>
+									<th ng-show="IgnoreScheduleState">State</th>
+									<th>Reject</th>
+									<th>Ever Failed</th>
+									<th>UT Need</th>
+									<th>Testable</th>
+									<!--<th>AC</th>-->
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="task in TaskList | orderBy:['Owner', 'Iteration', 'ScheduleState', 'id'] |filter: scheduleStateFilter as filteredRecords">
+									<td>{{$index + 1}}</td>
+									<td>{{task.id}}</td>
+									<td><a href='{{task.Link}}'>{{task.Description}}</a></td>
+									<td>{{task.Estimate}}</td>
+									<td>{{task.Actuals}}</td>
+									<td>{{task.Owner}}</td>
+									<td>{{task.Iteration}}</td>
+									<td ng-show="IgnoreScheduleState">{{task.ScheduleState}}</td>
+									<td>{{task.Reject}}</td>
+									<td>{{task.EverFailed}}</td>
+									<td>{{task.UTNeed}}</td>
+									<td>{{task.Testable}}</td>
+									<!--<td>{{task.AC}}</td>-->
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
-		</form>
+		</div>
+	</form>
 </body>
 </html>
