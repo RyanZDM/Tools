@@ -39,25 +39,47 @@ define(['app', 'underscore'],
 				}
 
 				$scope.refreshTaskList = function () {
+					$scope.inQuerying = true;
 					$scope.clearError();
-					return $scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'IgnoreScheduleState':$scope.IgnoreScheduleState, 'ClearDataFirst': true }, $q);
+					$scope.TaskList = [];
+					$scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': true }, $q)
+						.then(function(result) {
+							$scope.TaskList = result;
+						})
+						.finally(function () { $scope.inQuerying = false; });
 				};
 
 				$scope.refreshAll = function () {
+					$scope.inQuerying = true;
 					$scope.clearError();
 					$scope.TaskList = [];
 
+					var promises = [];
 					_.each($scope.emailList, function (email) {
-						$scope.refreshTaskByOwner({ 'Owner': email, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q);
+						promises.push($scope.refreshTaskByOwner({ 'Owner': email, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
 					})
+
+					$q.all(promises)
+					.then(function (result) {
+						result = _.flatten(result);
+						$scope.TaskList = result;
+					})
+					.catch(function (error) {
+						reportError(error);
+					})
+					.finally(function () { $scope.inQuerying = false; });
 				};
 
-				$scope.refreshTaskByOwner = function (parameters, q) {
-					if (parameters.ClearDataFirst) { $scope.TaskList = []; }
-
-					$scope.inQuerying = true;
+				$scope.refreshTaskByOwner = function (parameters, q, taskList) {
 					var token = rallyAuthService.getAuthenticationToken();
 					_.extend(parameters, { 'Token': token, 'Async': true });
+
+					var deferred = $q.defer();
+					var result = [];
+					if (taskList && taskList.length > 0) {
+						result.push(taskList);
+					}
+
 					q.all([
 					rallyQueryService.getTasksFromRally(parameters, 'hierarchicalrequirement'),
 					rallyQueryService.getTasksFromRally(parameters, 'defect')
@@ -67,17 +89,24 @@ define(['app', 'underscore'],
 							// the SpentTime of those taks would not be counted any more. So need to accumulate all task hours
 							var tasks = _.union(lists[0], lists[1]);
 
-							$scope.TaskList = _.union($scope.TaskList, tasks);
+							result = _.union(result, tasks);
 							q.all(rallyQueryService.reCalculateTaskSpentTime(tasks, token))
 								.then(function (updatedTasks) {
 									// A user story or defect may contains some tasks assigned to different developer, need to filter out
 									var otherOwnerTasks = _.flatten(_.filter(_.pluck(updatedTasks, "OtherOwnerTasks"), function (other) { return other !== undefined }));
-									$scope.TaskList = _.union($scope.TaskList, updatedTasks, otherOwnerTasks);
+									result = _.union(result, updatedTasks, otherOwnerTasks);
+
+									deferred.resolve(result);
 								})
 								.catch(function (error) { reportError(error); })
 								.finally(function () { $scope.inQuerying = false; });
 						})
-						.catch(function (error) { reportError(error); });
+						.catch(function (error) {
+							reportError(error)
+							deferred.error(error);
+						});
+
+					return deferred.promise;
 				};
 
 				$scope.scheduleStateFilter = function (task) {
@@ -109,6 +138,21 @@ define(['app', 'underscore'],
 					}
 					
 					return false;
+				}
+
+				$scope.getWorkload = function (records) {
+					var result = '';
+					if (records && records.length > 0) {
+						var totalDays = 0, actualHours = 0;
+						_.each(records, function (record) {
+							totalDays = totalDays + record.Estimate;
+							actualHours = actualHours + (record.Actuals ? record.Actuals : 0);
+						})
+
+						result = '-- Est. Days:' + totalDays + ' | Act. Hours:' + Math.round(actualHours);
+					}
+
+					return result;
 				}
 
 				function reportError(error) {

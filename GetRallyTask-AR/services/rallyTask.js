@@ -21,10 +21,12 @@ function RallyTask(jsonObj) {
 	this.TaskLink = (jsonObj['Tasks'] && jsonObj.Tasks.Count > 0) ? this.TaskLink = jsonObj.Tasks._ref : '';
 	this.Reject = ((jsonObj['State']) && (/rejected|reject requested/i.test(jsonObj['State']))) ? true : false;
 	this.EverFailed = (jsonObj['Description']) ? (jsonObj['Description'].toLowerCase().indexOf('[eetfail') != -1) : false;	// [EETFailed] or [EETFail]
+	this.Blocked = jsonObj.Blocked;
+	this.BlockedReason = (this.Blocked && jsonObj['BlockedReason']) ? jsonObj.BlockedReason : '';
 	this.Iteration = '';
 	this.AC = '';
 	this.Testable = true;
-	this.UTNeed = 'NA';
+	this.UTNeed = 'Missed';
 
 	if (jsonObj['Iteration'] && jsonObj.Iteration['_refObjectName']) {
 		var sprint = jsonObj.Iteration._refObjectName.split(' ').pop();
@@ -43,14 +45,24 @@ function RallyTask(jsonObj) {
 	}
 
 	(function (that) {
+		if (that.id.indexOf('US') != -1) {
+			// NA for user story
+			that.UTNeed = 'NA';
+			return;
+		}
+
+		if (that.ScheduleState != 'Completed' && that.ScheduleState != 'Accepted') {
+			// Leave as empty since not complete yet
+			that.UTNeed = '';
+			return;
+		}
+
 		if (jsonObj['c_RootCauseDescription']) {
 			var rootCause = jsonObj['c_RootCauseDescription'].toLowerCase();
 			if (rootCause.indexOf('[utyes]') != -1) {
 				that.UTNeed = 'Y';
 			} else if (rootCause.indexOf('[utno]') != -1) {
 				that.UTNeed = 'N';
-			} else {
-				that.UTNeed = 'Missed';
 			}
 		}
 	})(this);
