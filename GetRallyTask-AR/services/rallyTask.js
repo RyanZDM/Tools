@@ -28,6 +28,10 @@ function RallyTask(jsonObj) {
 	this.Testable = true;
 	this.UTNeed = 'Missed';
 
+	if (jsonObj['c_PLIEventCRNumber']) {
+		this.id = this.id + '/' + jsonObj.c_PLIEventCRNumber;
+	}
+
 	if (jsonObj['Iteration'] && jsonObj.Iteration['_refObjectName']) {
 		var sprint = jsonObj.Iteration._refObjectName.split(' ').pop();
 		this.Iteration = parseInt(sprint, 10);
