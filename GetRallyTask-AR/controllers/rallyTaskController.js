@@ -103,7 +103,7 @@ define(['app', 'underscore'],
 						})
 						.catch(function (error) {
 							reportError(error)
-							deferred.error(error);
+							deferred.reject(error);
 						});
 
 					return deferred.promise;

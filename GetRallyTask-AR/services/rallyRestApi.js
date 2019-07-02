@@ -25,7 +25,7 @@ define(['app'], function (app) {
 			// "Zhe S": "zhe.sun@carestream.com",
 			"Jiaxin Yao": "yao.jiaxin@carestream.com",
 			// "Xianjun Z": "xianjun.zhan@carestream.com",
-			//"Iris J": "lili.jiang@carestream.com",
+			"Iris J": "lili.jiang@carestream.com",
 			"Forrest Feng": "changzheng.feng@carestream.com",
 			//"Cheng Luo": "cheng.luo@carestream.com",
 			"Benny Liu": "lei.liu@carestream.com",

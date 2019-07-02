@@ -66,7 +66,8 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 				method: 'GET',
 				url: url,
 				async: async,
-				headers: { "Authorization": "Basic " + authToken }
+				headers: { "Authorization": "Basic " + authToken },
+				xhrFields: { withCredentials: false }
 			})
 				.done(function (data) {
 					if (data.QueryResult.Errors.length > 0) {
@@ -99,7 +100,7 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		function angularJsGet(type, httpSvc, url, authToken, async) {
 			// async is useless for $http
 			var deferred = $.Deferred();
-			httpSvc.get(url, { headers: { "Authorization": "Basic " + authToken } })
+			httpSvc.get(url, { headers: { "Authorization": "Basic " + authToken }, "withCredentials": false })
 					.then(function (data) {
 						if (data.data.QueryResult.Errors.length > 0) {
 							data.data.statusText = 'RallyInternalError';
