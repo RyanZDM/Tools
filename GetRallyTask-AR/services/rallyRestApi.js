@@ -11,23 +11,23 @@ define(['app'], function (app) {
 							<target>?\
 							query=(<dateCondition> <ownerStateCondition>)\
 							&order=Iteration,LastUpdateDate\
-							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason\
+							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority\
 							&pagesize=1999';
 		var ownerEmailMapping = {
 			"Ryan Zhang": "dameng.zhang@carestream.com",
-			// "Joe Z": "joe.zhang@carestream.com",
-			// "Peter Y": "qinqiang.yan@carestream.com",
+			"Joe Z": "joe.zhang@carestream.com",
+			"Peter Y": "qinqiang.yan@carestream.com",
 			"Mark Gu": "jiandong.gu@carestream.com",
 			"Qi Wang": "qi.wang@carestream.com",
 			"Gary Liu": "gary.liu@carestream.com",
-			// "Lyman M": "liang.ma@carestream.com",
-			// "Jun Sun": "jun.sun@carestream.com",
-			// "Zhe S": "zhe.sun@carestream.com",
+			"Lyman M": "liang.ma@carestream.com",
+			"Jun Sun": "jun.sun@carestream.com",
+			"Zhe S": "zhe.sun@carestream.com",
 			"Jiaxin Yao": "yao.jiaxin@carestream.com",
-			// "Xianjun Z": "xianjun.zhan@carestream.com",
+			"Xianjun Z": "xianjun.zhan@carestream.com",
 			"Iris J": "lili.jiang@carestream.com",
 			"Forrest Feng": "changzheng.feng@carestream.com",
-			//"Cheng Luo": "cheng.luo@carestream.com",
+			"Cheng Luo": "cheng.luo@carestream.com",
 			"Benny Liu": "lei.liu@carestream.com",
 			"Dean Peng": "dean.peng@carestream.com",
 			"DongXiao Liu": "dongxiao.liu@carestream.com",

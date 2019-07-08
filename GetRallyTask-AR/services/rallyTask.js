@@ -23,6 +23,7 @@ function RallyTask(jsonObj) {
 	this.EverFailed = (jsonObj['Description']) ? (jsonObj['Description'].toLowerCase().indexOf('[eetfail') != -1) : false;	// [EETFailed] or [EETFail]
 	this.Blocked = jsonObj.Blocked;
 	this.BlockedReason = (this.Blocked && jsonObj['BlockedReason']) ? jsonObj.BlockedReason : '';
+	this.Priority = (jsonObj['Priority']) ? jsonObj['Priority'] : '';
 	this.Iteration = '';
 	this.AC = '';
 	this.Testable = true;

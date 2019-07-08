@@ -66,7 +66,7 @@
 		<!--<div class="jumbotron text-center">
 			<h1>Get Rally Tasks</h1>
 		</div>-->
-		<div class="container">
+		<div class="container-fluid">
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<div class="row alert alert-warning alert-dismissable pull-right" ng-show="(ErrorMsg)">
@@ -160,6 +160,7 @@
 						</div>
 						<div class="col-md-6">
 							<div class="pull-right">
+								<label for="other" class="btn btn-default">Other <input type="checkbox" ng-model="ShowOthers" id="other" class="badgebox"><span class="badge">&check;</span></label>
 								<label for="13a" class="btn btn-info">1.3A <input type="checkbox" ng-model="Show13a" id="13a" class="badgebox"><span class="badge">&check;</span></label>
 								<label for="13b" class="btn btn-primary">1.3B <input type="checkbox" ng-model="Show13b" id="13b" class="badgebox"><span class="badge">&check;</span></label>
 								<label for="14a" class="btn btn-info">1.4A <input type="checkbox" ng-model="Show14a" id="14a" class="badgebox"><span class="badge">&check;</span></label>
@@ -186,6 +187,7 @@
 									<th>#</th>
 									<th>ID</th>
 									<th>Description</th>
+									<th>Priority</th>
 									<th>Estimate<br />(Day)</th>
 									<th>Actuals<br />(Hour)</th>
 									<th>Owner</th>
@@ -205,6 +207,7 @@
 									<td align="center">{{$index + 1}}</td>
 									<td>{{task.id}}</td>
 									<td><a href='{{task.Link}}'><b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>{{task.Description}}</a></td>
+									<td align="center">{{task.Priority}}</td>
 									<td align="right">{{task.Estimate}}</td>
 									<td align="right">{{task.Actuals}}</td>
 									<td align="center">{{task.Owner}}</td>

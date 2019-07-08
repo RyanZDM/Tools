@@ -27,6 +27,7 @@ define(['app', 'underscore'],
 				$scope.Show13b = false;
 				$scope.Show14a = true;
 				$scope.Show14b = true;
+				$scope.ShowOthers = false;
 				$scope.ShowInDefine = true;
 				$scope.ShowDefined = true;
 				$scope.ShowWIP = true;
@@ -110,13 +111,21 @@ define(['app', 'underscore'],
 				};
 
 				$scope.scheduleStateFilter = function (task) {
-					if (!$scope.Show13a && (/1.3a/i.test(task.Release))) return false;
+					var is3A = /1.3a/i.test(task.Release);
+					var is3B = /1.3b/i.test(task.Release);
+					var is4A = /1.4a/i.test(task.Release);
+					var is4B = /1.4b/i.test(task.Release);
+					var isOthers = !(is3A || is3B || is4A || is4B);
 
-					if (!$scope.Show13b && (/1.3b/i.test(task.Release))) return false;
+					if (!$scope.Show13a && is3A) return false;
 
-					if (!$scope.Show14a && (/1.4a/i.test(task.Release))) return false;
+					if (!$scope.Show13b && is3B) return false;
 
-					if (!$scope.Show14b && (/1.4b/i.test(task.Release))) return false;
+					if (!$scope.Show14a && is4A) return false;
+
+					if (!$scope.Show14b && is4B) return false;
+
+					if (!$scope.ShowOthers && isOthers) return false;
 
 					if (!$scope.IgnoreScheduleState) return true;
 

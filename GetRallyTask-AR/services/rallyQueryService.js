@@ -102,7 +102,7 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 			var deferred = $.Deferred();
 			httpSvc.get(url, { headers: { "Authorization": "Basic " + authToken }, "withCredentials": false })
 					.then(function (data) {
-						if (data.data.QueryResult.Errors.length > 0) {
+						if (data.data.QueryResult.Errors && data.data.QueryResult.Errors.length > 0) {
 							data.data.statusText = 'RallyInternalError';
 							deferred.reject(data.data);
 						} else {
