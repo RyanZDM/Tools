@@ -160,22 +160,22 @@
 						</div>
 						<div class="col-md-6">
 							<div class="pull-right">
-								<label for="other" class="btn btn-default">Other <input type="checkbox" ng-model="ShowOthers" id="other" class="badgebox"><span class="badge">&check;</span></label>
-								<label for="13a" class="btn btn-info">1.3A <input type="checkbox" ng-model="Show13a" id="13a" class="badgebox"><span class="badge">&check;</span></label>
-								<label for="13b" class="btn btn-primary">1.3B <input type="checkbox" ng-model="Show13b" id="13b" class="badgebox"><span class="badge">&check;</span></label>
-								<label for="14a" class="btn btn-info">1.4A <input type="checkbox" ng-model="Show14a" id="14a" class="badgebox"><span class="badge">&check;</span></label>
-								<label for="14b" class="btn btn-primary">1.4B <input type="checkbox" ng-model="Show14b" id="14b" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="other" class="btn btn-default">Other <input type="checkbox" ng-model="ShowOthers" ng-click="resetWorkloadStat()" id="other" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="13a" class="btn btn-info">1.3A <input type="checkbox" ng-model="Show13a" ng-click="resetWorkloadStat()" id="13a" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="13b" class="btn btn-primary">1.3B <input type="checkbox" ng-model="Show13b" ng-click="resetWorkloadStat()" id="13b" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="14a" class="btn btn-info">1.4A <input type="checkbox" ng-model="Show14a" ng-click="resetWorkloadStat()" id="14a" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="14b" class="btn btn-primary">1.4B <input type="checkbox" ng-model="Show14b" ng-click="resetWorkloadStat()" id="14b" class="badgebox"><span class="badge">&check;</span></label>
 							</div>
 						</div>
 					</div>
 					<div class="row">
 						<div class="col-md-12" ng-show="IgnoreScheduleState">
 							<div class="pull-right">
-								<label for="indefine" class="btn btn-default">In Definition <input type="checkbox" ng-model="ShowInDefine" id="indefine" class="badgebox"><span class="badge">&check;</span></label>
-								<label for="defined" class="btn btn-info">Defined <input type="checkbox" ng-model="ShowDefined" id="defined" class="badgebox"><span class="badge">&check;</span></label>
-								<label for="wip" class="btn btn-primary">In-Progress <input type="checkbox" ng-model="ShowWIP" id="wip" class="badgebox"><span class="badge">&check;</span></label>
-								<label for="completed" class="btn btn-warning">Completed <input type="checkbox" ng-model="ShowCompleted" id="completed" class="badgebox"><span class="badge">&check;</span></label>
-								<label for="accepted" class="btn btn-success">Accepted <input type="checkbox" ng-model="ShowAccepted" id="accepted" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="indefine" class="btn btn-default">In Definition <input type="checkbox" ng-model="ShowInDefine" ng-click="resetWorkloadStat()" id="indefine" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="defined" class="btn btn-info">Defined <input type="checkbox" ng-model="ShowDefined" ng-click="resetWorkloadStat()" id="defined" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="wip" class="btn btn-primary">In-Progress <input type="checkbox" ng-model="ShowWIP" ng-click="resetWorkloadStat()" id="wip" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="completed" class="btn btn-warning">Completed <input type="checkbox" ng-model="ShowCompleted" ng-click="resetWorkloadStat()" id="completed" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="accepted" class="btn btn-success">Accepted <input type="checkbox" ng-model="ShowAccepted" ng-click="resetWorkloadStat()" id="accepted" class="badgebox"><span class="badge">&check;</span></label>
 								<label for="failed" class="btn btn-danger">Failed Only <input type="checkbox" ng-model="ShowFailedOnly" id="failed" class="badgebox"><span class="badge">&check;</span></label>
 							</div>
 						</div>
@@ -202,8 +202,8 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr ng-repeat="task in TaskList | orderBy:['Owner', 'Iteration', 'ScheduleState', 'id'] |filter: scheduleStateFilter as filteredRecords" 
-										ng-style="{ 'textDecoration' : task.Reject ? 'line-through' : 'none', 'fontStyle' : task.Testable ? 'normal' : 'italic', 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray')) }" >
+								<tr ng-repeat="task in TaskList | orderBy:['Owner', 'Iteration', 'ScheduleState', 'id'] |filter: scheduleStateFilter as filteredRecords"
+									ng-style="{ 'textDecoration' : task.Reject ? 'line-through' : 'none', 'fontStyle' : task.Testable ? 'normal' : 'italic', 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray')) }">
 									<td align="center">{{$index + 1}}</td>
 									<td>{{task.id}}</td>
 									<td><a href='{{task.Link}}'><b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>{{task.Description}}</a></td>
@@ -215,13 +215,51 @@
 									<td align="center" ng-show="IgnoreScheduleState">{{task.ScheduleState}}</td>
 									<td align="center">{{task.Reject ? 'Y' : ''}}</td>
 									<td align="center"><div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div></td>
-									<td  align="center"><div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div></td>
-									<td  align="center">{{task.Testable ? '' : 'No'}}</td>
+									<td align="center"><div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div></td>
+									<td align="center">{{task.Testable ? '' : 'No'}}</td>
 									<td>{{task.BlockedReason}}</td>
 									<!--<td>{{task.AC}}</td>-->
 								</tr>
 							</tbody>
 						</table>
+					</div>
+					<div class="row"></div>
+					<div class="row" ng-if="checkStatPermision()">
+						<div class="col-md-2">
+							<button class="btn btn-block" ng-click="collectWorkloadStatData()">Workload Summary</button>
+						</div>
+					</div>
+					<div class="row" ng-if="checkStatPermision()">
+						<div class="col-md-4">
+							<table class="table table-hover table-bordered table-responsive" border="1">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Name</th>
+										<th>Count</th>
+										<th>Est. Days</th>
+										<th>Act. Hours</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="data in workloadStat.WorkLoad | orderBy:['Days']">
+										<td align="center">{{$index + 1}}</td>
+										<td>{{data.Name}}</td>
+										<td align="center">{{data.Count}}</td>
+										<td align="right">{{data.Days}}</td>
+										<td align="right">{{data.Hours}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="col-md-8">
+							<canvas class="chart chart-bar"
+									height="{{workloadStat.ChartHeight}}"
+									chart-data="workloadStat.ChartData"
+									chart-labels="workloadStat.ChartLabels"
+									chart-series="workloadStat.ChartSeries"
+									chart-options="workloadStat.ChartOptions"></canvas>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -8,16 +8,22 @@ require.config({
 		"bootstrap": "libs/bootstrap/3.3.7/bootstrap",
 		"underscore": "libs/underscore/1.8.3/underscore",
 		"moment": "libs/momentjs/2.23.0/moment.min",
+		"chart": "libs/chartjs/2.8.0/Chart.min",
+		"angular-chart": "libs/angular-chart.js/1.1.1/angular-chart.min",
 		"app": "app"
 	},
 	shim: {
-		"bootstrap":["jquery"],
+		"bootstrap": ["jquery"],
 		"angular": { exports: "angular" },
-		"underscore": { exports: "_" }
+		"underscore": { exports: "_" },
+		"chart.js": {
+			deps: ["angular", "chart"]
+		}
 	}
 });
 
 require(['jquery']);
+require(['angular-chart']);
 require(['app']);
 require(['services/rallyRestApi']);
 require(['services/rallyTask']);

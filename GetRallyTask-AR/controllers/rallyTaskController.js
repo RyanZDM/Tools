@@ -13,6 +13,7 @@ define(['app', 'underscore'],
 
 			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi) {
 				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
+				$scope.SAVED_PARAMETERS = 'RallyTaskQueryParameters';
 				$scope.TaskList = [];
 				$scope.UserId = '';
 				$scope.UserPwd = '';
@@ -34,6 +35,29 @@ define(['app', 'underscore'],
 				$scope.ShowCompleted = true;
 				$scope.ShowAccepted = true;
 				$scope.ShowFailedOnly = false;
+				loadSavedParameters();
+
+				function saveCurrentParameters() {
+					if (!$scope.CanUseLocalStorage) { return; }
+
+					localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner + ':' + $scope.sprint + ':' + $scope.Show13a + ':' + $scope.Show13b + ':' + $scope.Show14a + ':' + $scope.Show14b + ':' + $scope.ShowOthers);
+				}
+
+				function loadSavedParameters() {
+					if (!$scope.CanUseLocalStorage) { return; }
+
+					var savedParameters = localStorage.getItem($scope.SAVED_PARAMETERS);
+					if (!savedParameters) { return; }
+
+					var parameters = savedParameters.split(':');
+					if (parameters.length > 0) { $scope.owner = parameters[0]; }
+					if (parameters.length > 1) { $scope.sprint = parseInt(parameters[1]); }
+					if (parameters.length > 2) { $scope.Show13a = parameters[2] == 'true'; }
+					if (parameters.length > 3) { $scope.Show13b = parameters[3] == 'true'; }
+					if (parameters.length > 4) { $scope.Show14a = parameters[4] == 'true'; }
+					if (parameters.length > 5) { $scope.Show14b = parameters[5] == 'true'; }
+					if (parameters.length > 6) { $scope.ShowOthers = parameters[6] == 'true'; }
+				}
 
 				$scope.clearError = function () {
 					$scope.ErrorMsg = '';
@@ -43,8 +67,10 @@ define(['app', 'underscore'],
 					$scope.inQuerying = true;
 					$scope.clearError();
 					$scope.TaskList = [];
+					$scope.resetWorkloadStat();
+					saveCurrentParameters();
 					$scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': true }, $q)
-						.then(function(result) {
+						.then(function (result) {
 							$scope.TaskList = result;
 						})
 						.finally(function () { $scope.inQuerying = false; });
@@ -54,6 +80,8 @@ define(['app', 'underscore'],
 					$scope.inQuerying = true;
 					$scope.clearError();
 					$scope.TaskList = [];
+					$scope.resetWorkloadStat();
+					saveCurrentParameters();
 
 					var promises = [];
 					_.each($scope.emailList, function (email) {
@@ -145,7 +173,7 @@ define(['app', 'underscore'],
 						case 'In Definition':
 							return $scope.ShowInDefine;
 					}
-					
+
 					return false;
 				}
 
@@ -163,6 +191,73 @@ define(['app', 'underscore'],
 
 					return result;
 				}
+
+				$scope.workloadStat = {};
+				$scope.collectWorkloadStatData = function () {
+					if (!$scope.filteredRecords) {
+						$scope.workloadStat = {};
+						return false;
+					}
+
+					if ($scope.workloadStat['Collected'] && $scope.workloadStat.Collected) {
+						return true;
+					};
+
+					// -- For chart display
+					$scope.workloadStat.ChartSeries = ['Series A', 'Series B'];
+					$scope.workloadStat.ChartOptions = [];
+
+					$scope.workloadStat.ChartLabels = [];
+					$scope.workloadStat.ChartData = [];
+					var days = [];
+					var hours = [];
+					// --------------- End
+
+					if ($scope.filteredRecords.length > 0) {
+						var result = $scope.filteredRecords.reduce(function (total, task) {
+							var actuals = (task.Actuals) ? task.Actuals : 0;
+							if (!(task.Owner in total)) {
+								total[task.Owner] = { Days: task.Estimate, Hours: actuals, Count: 1, Name: task.Owner };
+							} else {
+								total[task.Owner].Days += task.Estimate;
+								total[task.Owner].Hours += actuals;
+								total[task.Owner].Count += 1;
+								total[task.Owner].Name = task.Owner;
+							}
+
+							return total;
+						}, {});
+
+						$scope.workloadStat.WorkLoad = result;
+
+						// For chart display
+						$scope.workloadStat.ChartLabels = Object.keys(result);
+						Object.values(result).forEach(function (data) {
+							days.push(data.Days);
+							hours.push(data.Hours);
+						});
+
+						$scope.workloadStat.ChartData.push(days);
+						$scope.workloadStat.ChartData.push(hours);
+						$scope.workloadStat.ChartHeight = $scope.workloadStat.ChartLabels.length * 10;
+					}
+
+					$scope.workloadStat.Collected = true;
+
+					return true;
+				};
+
+				$scope.resetWorkloadStat = function () {
+					$scope.workloadStat = {};
+				}
+
+				$scope.checkStatPermision = function () {
+					if (document.getElementById('userId').value === 'dameng.zhang@carestream.com') {
+						return true;
+					} else {
+						return false;
+					}
+				};
 
 				function reportError(error) {
 					console.error(error.statusText);
