@@ -130,7 +130,7 @@
 							</div>
 						</div>
 						<div class="col-md-2">
-							<button class="btn btn-md btn-block btn_primary"
+							<button class="btn btn-md btn-block btn-default"
 									id="btnRefresh"
 									ng-disabled="inQuerying"
 									ng-click="refreshTaskList()"
@@ -141,7 +141,7 @@
 							</button>
 						</div>
 						<div class="col-md-2">
-							<button class="btn btn-md btn-block"
+							<button class="btn btn-md btn-block btn-default"
 									id="btnRefreshAll"
 									ng-disabled="inQuerying"
 									ng-click="refreshAll()"
@@ -155,10 +155,10 @@
 				</div>
 				<div class="panel-body">
 					<div class="row">
-						<div class="col-md-6">
+						<div class="col-md-5">
 							<h4 class="text-primary"><b>Query Results</b> ({{filteredRecords.length}} / {{TaskList.length}}) <span style="font-size:15px">{{getWorkload(filteredRecords)}}</span></h4>
 						</div>
-						<div class="col-md-6">
+						<div class="col-md-7">
 							<div class="pull-right">
 								<label for="other" class="btn btn-default">Other <input type="checkbox" ng-model="ShowOthers" ng-click="resetWorkloadStat()" id="other" class="badgebox"><span class="badge">&check;</span></label>
 								<label for="13a" class="btn btn-info">1.3A <input type="checkbox" ng-model="Show13a" ng-click="resetWorkloadStat()" id="13a" class="badgebox"><span class="badge">&check;</span></label>
@@ -169,7 +169,18 @@
 						</div>
 					</div>
 					<div class="row">
-						<div class="col-md-12" ng-show="IgnoreScheduleState">
+						<div class="col-md-2">
+							<div class="input-group">
+								<span class="input-group-addon">Order By:</span>
+								<select class="btn btn-default" ng-model="OrderByOptionIndex" ng-options="item.value as item.name for item in OrderByOptions" ng-change="orderChanged()">
+									<!--<option value="0">Default</option>
+									<option value="1">Priority</option>
+									<option value="2">ScheduleState</option>-->
+								</select>
+							</div>
+						</div>
+
+						<div class="col-md-10" ng-show="IgnoreScheduleState">
 							<div class="pull-right">
 								<label for="indefine" class="btn btn-default">In Definition <input type="checkbox" ng-model="ShowInDefine" ng-click="resetWorkloadStat()" id="indefine" class="badgebox"><span class="badge">&check;</span></label>
 								<label for="defined" class="btn btn-info">Defined <input type="checkbox" ng-model="ShowDefined" ng-click="resetWorkloadStat()" id="defined" class="badgebox"><span class="badge">&check;</span></label>
@@ -202,7 +213,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr ng-repeat="task in TaskList | orderBy:['Owner', 'Iteration', 'ScheduleState', 'id'] |filter: scheduleStateFilter as filteredRecords"
+								<tr ng-repeat="task in TaskList | orderBy:OrderByValue |filter: scheduleStateFilter as filteredRecords"
 									ng-style="{ 'textDecoration' : task.Reject ? 'line-through' : 'none', 'fontStyle' : task.Testable ? 'normal' : 'italic', 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray')) }">
 									<td align="center">{{$index + 1}}</td>
 									<td>{{task.id}}</td>

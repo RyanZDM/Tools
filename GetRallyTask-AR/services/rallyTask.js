@@ -49,9 +49,26 @@ function RallyTask(jsonObj) {
 		}
 	}
 
+	switch (this.Priority) {
+		case 'Resolve Immediately':
+			this.Priority = '1 - ' + this.Priority;
+			break;
+		case 'High':
+			this.Priority = '2 - ' + this.Priority;
+			break;
+		case 'Medium':
+			this.Priority = '3 - ' + this.Priority;
+			break;
+		case 'Low':
+			this.Priority = '4 - ' + this.Priority;
+			break;
+		default:
+			// do nothong
+	}
+
 	(function (that) {
-		if (that.id.indexOf('US') != -1) {
-			// NA for user story
+		if (that.Reject || (that.id.indexOf('US') != -1)) {
+			// NA for user story or a reject defect
 			that.UTNeed = 'NA';
 			return;
 		}

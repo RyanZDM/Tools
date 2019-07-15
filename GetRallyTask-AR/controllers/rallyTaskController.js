@@ -35,6 +35,17 @@ define(['app', 'underscore'],
 				$scope.ShowCompleted = true;
 				$scope.ShowAccepted = true;
 				$scope.ShowFailedOnly = false;
+				
+				$scope.OrderByOptions = [{ value: 0, name: 'Default' },
+										 { value: 1, name: 'Priority' },
+										 { value: 2, name: 'ScheduleState' }
+				];
+				$scope.OrderByValues = [['Owner', 'Iteration', '-ScheduleState', 'Priority', 'id'],
+										 ['Priority', '-ScheduleState'],
+										 ['-ScheduleState', 'Priority']];
+				$scope.OrderByOptionIndex = 0;
+				$scope.OrderByValue = $scope.OrderByValues[0];
+
 				loadSavedParameters();
 
 				function saveCurrentParameters() {
@@ -258,6 +269,10 @@ define(['app', 'underscore'],
 						return false;
 					}
 				};
+
+				$scope.orderChanged = function () {
+					$scope.OrderByValue = $scope.OrderByValues[$scope.OrderByOptionIndex];
+				}
 
 				function reportError(error) {
 					console.error(error.statusText);

@@ -4,7 +4,6 @@ define(['app'], function (app) {
 	app.directive("rallyLogin", ['rallyAuthService', function (rallyAuthService) {
 		return {
 			restrict: 'EA',
-			scope: {},
 			template: '<div class="input-group">\
 						<span class="input-group-addon">Authorization</span>\
 						<input class="form-control" type="text" id="userId" ng-model="UserId" ng-change="onChange()" placeholder="Enter the query account" />\
