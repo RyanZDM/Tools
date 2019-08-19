@@ -28,6 +28,7 @@ function RallyTask(jsonObj) {
 	this.AC = '';
 	this.Testable = true;
 	this.UTNeed = 'Missed';
+	this.Rank = (jsonObj['DragAndDropRank']) ? jsonObj.DragAndDropRank : 'ZZ';
 
 	if (jsonObj['c_PLIEventCRNumber']) {
 		this.id = this.id + '/' + jsonObj.c_PLIEventCRNumber;

@@ -1,7 +1,7 @@
 'use strict';
 
-define(['app', 'underscore'],
-	function (app, _) {
+define(['app', 'underscore', 'jquery'],
+	function (app, _, $) {
 		app.controller('rallyTaskController', [
 			'$scope',
 			'$rootScope',
@@ -40,9 +40,9 @@ define(['app', 'underscore'],
 										 { value: 1, name: 'Priority' },
 										 { value: 2, name: 'ScheduleState' }
 				];
-				$scope.OrderByValues = [['Owner', 'Iteration', '-ScheduleState', 'Priority', 'id'],
+				$scope.OrderByValues = [['Owner', 'Iteration', '-ScheduleState', 'Rank', 'Priority'],
 										 ['Priority', '-ScheduleState'],
-										 ['-ScheduleState', 'Priority']];
+										 ['-ScheduleState', 'Rank', 'Priority']];
 				$scope.OrderByOptionIndex = 0;
 				$scope.OrderByValue = $scope.OrderByValues[0];
 
@@ -215,41 +215,56 @@ define(['app', 'underscore'],
 					};
 
 					// -- For chart display
-					$scope.workloadStat.ChartSeries = ['Series A', 'Series B'];
+					$scope.workloadStat.ChartSeries = ['Est. Days', 'Tasks Total'];
 					$scope.workloadStat.ChartOptions = [];
 
 					$scope.workloadStat.ChartLabels = [];
 					$scope.workloadStat.ChartData = [];
+					var count = [];
 					var days = [];
-					var hours = [];
 					// --------------- End
 
 					if ($scope.filteredRecords.length > 0) {
 						var result = $scope.filteredRecords.reduce(function (total, task) {
 							var actuals = (task.Actuals) ? task.Actuals : 0;
 							if (!(task.Owner in total)) {
-								total[task.Owner] = { Days: task.Estimate, Hours: actuals, Count: 1, Name: task.Owner };
+								total[task.Owner] = { Days: task.Estimate, Hours: actuals, Count: 1 };
 							} else {
 								total[task.Owner].Days += task.Estimate;
 								total[task.Owner].Hours += actuals;
 								total[task.Owner].Count += 1;
-								total[task.Owner].Name = task.Owner;
 							}
 
 							return total;
 						}, {});
 
-						$scope.workloadStat.WorkLoad = result;
+						var orderedData = [];
+						for (var owner in result) {
+							var found = result[owner];
+							orderedData.push({ Owner: owner, Count: found.Count, Days: found.Days, Hours: found.Hours });
+						}
+
+						// Order by Days and Count desc
+						orderedData.sort(function (a, b) {
+							if (a.Days > b.Days) {
+								return -1;
+							} else if (a.Days == b.Days) {
+								return (a.Count - b.Count);
+							} else { return 1; }
+						});
+						
+						$scope.workloadStat.WorkLoad = orderedData;
 
 						// For chart display
-						$scope.workloadStat.ChartLabels = Object.keys(result);
-						Object.values(result).forEach(function (data) {
+						//$scope.workloadStat.ChartLabels = Object.keys(result);
+						_.each(orderedData, function (data) {
+							$scope.workloadStat.ChartLabels.push(data.Owner);
+							count.push(data.Count);
 							days.push(data.Days);
-							hours.push(data.Hours);
 						});
 
 						$scope.workloadStat.ChartData.push(days);
-						$scope.workloadStat.ChartData.push(hours);
+						$scope.workloadStat.ChartData.push(count);
 						$scope.workloadStat.ChartHeight = $scope.workloadStat.ChartLabels.length * 10;
 					}
 
@@ -272,6 +287,15 @@ define(['app', 'underscore'],
 
 				$scope.orderChanged = function () {
 					$scope.OrderByValue = $scope.OrderByValues[$scope.OrderByOptionIndex];
+				}
+
+				$scope.export = function () {
+					var data = 'ID\tDescription\tPriority\tOwner\tIteration\tState\tReject\r\n';
+					_.each($scope.filteredRecords, function (record) {
+						data += record.id + '\t' + record.Description + '\t' + record.Priority+ '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject + '\r\n';
+					});
+					
+					// TODO: copy to clipboard
 				}
 
 				function reportError(error) {

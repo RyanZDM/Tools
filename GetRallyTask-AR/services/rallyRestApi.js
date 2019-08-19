@@ -11,7 +11,7 @@ define(['app'], function (app) {
 							<target>?\
 							query=(<dateCondition> <ownerStateCondition>)\
 							&order=Iteration,LastUpdateDate\
-							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority\
+							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank\
 							&pagesize=1999';
 		var ownerEmailMapping = {
 			"Ryan Zhang": "dameng.zhang@carestream.com",
@@ -37,8 +37,15 @@ define(['app'], function (app) {
 
 		function getDateCondition(sprint) {
 			var dateCondition = '((AcceptedDate >= "2019-01-01") OR (InProgressDate >= "2019-01-01")) and ';
-			if (sprint > 0) {
-				dateCondition = '(Iteration.Name = "Sprint ' + sprint + '") and ';
+			switch (sprint) {
+				case -1:
+					dateCondition = '(Iteration = null) and ';
+					break;
+				case 0:
+					// Get all sprint tasks
+					break;
+				default:	// is > 0
+					dateCondition = '(Iteration.Name = "Sprint ' + sprint + '") and ';
 			}
 
 			return dateCondition;
