@@ -96,9 +96,10 @@ define(['app', 'underscore', 'jquery'],
 					saveCurrentParameters();
 
 					var promises = [];
-					_.each($scope.emailList, function (email) {
-						promises.push($scope.refreshTaskByOwner({ 'Owner': email, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
-					})
+					//_.each($scope.emailList, function (email) {
+					//	promises.push($scope.refreshTaskByOwner({ 'Owner': email, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
+					//})
+					promises.push($scope.refreshTaskByOwner({ 'Owner': '', 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
 
 					$q.all(promises)
 					.then(function (result) {

@@ -17,7 +17,9 @@ define(['app'], function (app) {
 
 		var urlTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
-							query=(<dateCondition> <ownerStateCondition>)\
+							query=( ((Release.Name Contains "1.4") Or (Release.Name Contains "OTC"))\
+									 And (<dateCondition> <ownerStateCondition>)\
+								  )\
 							&order=Iteration,LastUpdateDate\
 							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank\
 							&pagesize=1999';
@@ -45,16 +47,17 @@ define(['app'], function (app) {
 		};
 
 		function getDateCondition(sprint) {
-			var dateCondition = '((AcceptedDate >= "2019-01-01") OR (InProgressDate >= "2019-01-01")) and ';
+			var dateCondition = '';
 			switch (sprint) {
 				case -1:
-					dateCondition = '(Iteration = null) and ';
+					dateCondition = ' (Iteration = null) ';
 					break;
 				case 0:
 					// Get all sprint tasks
+					dateCondition = ' ((AcceptedDate >= "2019-01-01") OR (InProgressDate >= "2019-01-01")) '
 					break;
 				default:	// is > 0
-					dateCondition = '(Iteration.Name = "Sprint ' + sprint + '") and ';
+					dateCondition = ' (Iteration.Name = "Sprint ' + sprint + '") ';
 			}
 
 			return dateCondition;
@@ -142,14 +145,33 @@ define(['app'], function (app) {
 			 * @return		Url used for Ajax call for getting defect and user story list from Rally 
 			 */
 			getApiUrlTask: function (parameters, target) {
-				var ownerStateCondition = (parameters.Owner && parameters.Owner !== '') ? ('(Owner.Name = ' + parameters.Owner + ')') : '';
-				if (!parameters.IgnoreScheduleState) {
-					ownerStateCondition = '(' + ownerStateCondition + ' and ((ScheduleState = Accepted) OR (ScheduleState = Completed)))'
+				var ownerStateCondition = (!parameters.IgnoreScheduleState) ? '((ScheduleState = Accepted) OR (ScheduleState = Completed))' : '';
+
+				if (parameters.Owner !== '') {
+					if (ownerStateCondition === '') {
+						ownerStateCondition = '((Owner.Name = ' + parameters.Owner + ') And ' + ownerStateCondition + ')';
+					} else {
+						ownerStateCondition = '(Owner.Name = ' + parameters.Owner + ')';
+					}
+				}
+
+				if (ownerStateCondition !== '') {
+					ownerStateCondition = ' And ' + ownerStateCondition;
+				}
+
+				var dateConditation = getDateCondition(parameters.Sprint);
+				if (ownerStateCondition === '') {
+					// Need to remove the one set of bracket for dateConditaion
+					if (dateConditation.indexOf('((') > 0) {
+						dateConditation = dateConditation.replace('((', '(').replace('))', ')');
+					} else if (dateConditation.indexOf('(') > 0) {
+						dateConditation = dateConditation.replace('(', '').replace(')', '');
+					}
 				}
 
 				var actualApiUrl = urlTask.replace('<target>', target)
 											.replace('<ownerStateCondition>', ownerStateCondition)
-											.replace('<dateCondition>', getDateCondition(parameters.Sprint))
+											.replace('<dateCondition>', dateConditation)
 											.replace(/\t/g, '');
 
 				return actualApiUrl;
