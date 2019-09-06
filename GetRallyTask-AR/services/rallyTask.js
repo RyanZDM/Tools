@@ -14,10 +14,10 @@ function RallyTask(jsonObj) {
 													.replace('hierarchicalrequirement', 'userstory') : '';
 	this.Description = ('Name' in jsonObj) ? jsonObj['Name'] : '';
 	this.Estimate = (jsonObj['PlanEstimate']) ? jsonObj['PlanEstimate'] : 0;
-	this.TimeSpent = (jsonObj['TaskActualTotal']) ? jsonObj['TaskActualTotal'] : 0;
+	this.TimeSpent = (jsonObj['TaskEstimateTotal']) ? jsonObj['TaskEstimateTotal'] : 0;
 	this.ScheduleState = jsonObj['ScheduleState'];
 	this.Owner = (jsonObj['Owner'] && jsonObj.Owner['_refObjectName']) ? jsonObj.Owner._refObjectName : '';
-	this.Release = (jsonObj['Release']) ? jsonObj.Release.Name : '';
+	this.Release = (jsonObj['Release']) ? (jsonObj.Release['Name'] ? jsonObj.Release.Name : jsonObj.Release._refObjectName) : '';
 	this.TaskLink = (jsonObj['Tasks'] && jsonObj.Tasks.Count > 0) ? this.TaskLink = jsonObj.Tasks._ref : '';
 	this.Reject = ((jsonObj['State']) && (/rejected|reject requested/i.test(jsonObj['State']))) ? true : false;
 	this.EverFailed = (jsonObj['Description']) ? (jsonObj['Description'].toLowerCase().indexOf('[eetfail') != -1) : false;	// [EETFailed] or [EETFail]

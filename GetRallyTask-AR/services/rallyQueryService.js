@@ -11,14 +11,14 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		// https://rally1.rallydev.com/slm/webservice/v2.0/security/authorize
 
 		/**
-		 *name xhrGet
+		 * @name xhrGet
 		 *
-		 *description		Query to Rally via the typical way
+		 * @description		Query to Rally via the typical way
 		 *
-		 *param type		"task" (defect or user story), or "feature"
-		 *param url			The url(RESTful API) to the Rally for getting the info
-		 *param authToken	The token string to be sent to Rally for the authentication
-		 *param async		true if need a async call
+		 * @param type		"task" (defect or user story), or "feature"
+		 * @param url			The url(RESTful API) to the Rally for getting the info
+		 * @param authToken	The token string to be sent to Rally for the authentication
+		 * @param async		true if need a async call
 		 */
 		function xhrGet(type, url, authToken, async) {
 			var deferred = $.Deferred();
@@ -51,14 +51,14 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		}
 
 		/**
-		 *name jQueryGet
+		 * @name jQueryGet
 		 *
-		 *description		Query to Rally via the JQuery
+		 * @description		Query to Rally via the JQuery
 		 *
-		 *param type		"task" (defect or user story), or "feature"
-		 *param url			The url(RESTful API) to the Rally for getting the info
-		 *param authToken	The token string to be sent to Rally for the authentication
-		 *param async		true if need a async call
+		 * @param type		"task" (defect or user story), or "feature"
+		 * @param url			The url(RESTful API) to the Rally for getting the info
+		 * @param authToken	The token string to be sent to Rally for the authentication
+		 * @param async		true if need a async call
 		 */
 		function jQueryGet(type, url, authToken, async) {
 			var deferred = $.Deferred();
@@ -87,15 +87,15 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		}
 
 		/**
-		 *name angularJsGet
+		 * @name angularJsGet
 		 *
-		 *description		Query to Rally by using the AngularJS $http
+		 * @description		Query to Rally by using the AngularJS $http
 		 *
-		 *param type		"task" (defect or user story), or "feature"
-		 *param httpSvc		A HTTP service for Ajax call, uses the $http in this service
-		 *param url			The url(RESTful API) to the Rally for getting the info
-		 *param authToken	The token string to be sent to Rally for the authentication
-		 *param async		true if need a async call
+		 * @param type		"task" (defect or user story), or "feature"
+		 * @param httpSvc		A HTTP service for Ajax call, uses the $http in this service
+		 * @param url			The url(RESTful API) to the Rally for getting the info
+		 * @param authToken	The token string to be sent to Rally for the authentication
+		 * @param async		true if need a async call
 		 */
 		function angularJsGet(type, httpSvc, url, authToken, async) {
 			// async is useless for $http
@@ -119,12 +119,12 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		}
 
 		/**
-		 *name getList
+		 * @name getList
 		 *
-		 *description		Analyze the JSON object and return the list against on the target type
+		 * @description		Analyze the JSON object and return the list against on the target type
 		 *
-		 *param type		"task" (defect or user story), or "feature"
-		 *param jsonObj		The json object contains records get from Rally
+		 * @param type		"task" (defect or user story), or "feature"
+		 * @param jsonObj		The json object contains records get from Rally
 		 *
 		 *return			The Rally record collection
 		 */
@@ -135,13 +135,13 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		}
 
 		/**
-		 *name getFeatureList
+		 * @name getFeatureList
 		 *
-		 *description		Analyze the JSON object and return the Rally feature list
+		 * @description		Analyze the JSON object and return the Rally feature list
 		 *
-		 *param jsonObj		The json object contains Rally features
+		 * @param jsonObj		The json object contains Rally features
 		 *
-		 *return			The Rally feature collection
+		 * @return			The Rally feature collection
 		 */
 		function getFeatureList(jsonObj) {
 			if (!jsonObj || !jsonObj.QueryResult || !jsonObj.QueryResult.Results || jsonObj.QueryResult.Results.length < 1) return [];
@@ -156,13 +156,13 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		}
 
 		/**
-		 *name getTaskList
+		 * @name getTaskList
 		 *
-		 *description		Analyze the JSON object and return the Rally task list
+		 * @description		Analyze the JSON object and return the Rally task list
 		 *
-		 *param jsonObj		The json object contains Rally defects and/or user stories
+		 * @param jsonObj		The json object contains Rally defects and/or user stories
 		 *
-		 *return			The Rally task collection
+		 * @return			The Rally task collection
 		 */
 		function getTaskList(jsonObj) {
 			if (!jsonObj || !jsonObj.QueryResult || !jsonObj.QueryResult.Results || jsonObj.QueryResult.Results.length < 1) return [];
@@ -177,13 +177,13 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		}
 
 		/**
-		 *name getWarningReport
+		 * @name getWarningReport
 		 *
-		 *description		Get the warning report data
+		 * @description		Get the warning report data
 		 *
-		 *param token		The authentication token
+		 * @param token		The authentication token
 		 *
-		 *return			The Rally warning report by category
+		 * @return			The Rally warning report by category
 		 */
 		function getWarningReport(token) {
 			var deferred = q.defer();
@@ -207,11 +207,11 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		};
 
 		/**
-		 *name getSingleWarningReport
+		 * @name getSingleWarningReport
 		 *
-		 *description		Get the warning items according to the single provided condition
+		 * @description		Get the warning items according to the single provided condition
 		 *
-		 *return			The warning items
+		 * @return			The warning items
 		 */
 		function getSingleWarningReport($http, url, token, category, desc) {
 			var deferred = $.Deferred();
@@ -237,13 +237,13 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 		}
 
 		/**
-		 *name				reCalculateTaskSpentTime
+		 * @name				reCalculateTaskSpentTime
 		 *
-		 *description		Calculate the totoal time spent of a defect or user story by cumulate the Actuals of all the sub tasks.
+		 * @description		Calculate the totoal time spent of a defect or user story by cumulate the Actuals of all the sub tasks.
 		 *					Those sub tasks would be excluded if the owner is the other one
 		 *
-		 *param taskList	The collection of Rally defects and/or user stories
-		 *param authToken	The token string to be sent to Rally for the authentication
+		 * @param taskList	The collection of Rally defects and/or user stories
+		 * @param authToken	The token string to be sent to Rally for the authentication
 		 */
 		function reCalculateTaskSpentTime(taskList, authToken) {
 			var promises = [];
@@ -323,6 +323,10 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 
 			getFeatureFromRally: function (release, token) {
 				return angularJsGet("feature", $http, rallyRestApi.getApiUrlFeature(release), token, true);
+			},
+
+			getFromRally: function(url, token) {
+				return angularJsGet("task", $http, url, token, true);
 			},
 
 			getWarningReport: getWarningReport,

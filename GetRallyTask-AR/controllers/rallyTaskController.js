@@ -10,8 +10,9 @@ define(['app', 'underscore', 'jquery'],
 			'rallyAuthService',
 			'rallyQueryService',
 			'rallyRestApi',
+			'utility',
 
-			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi) {
+			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi, utility) {
 				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
 				$scope.SAVED_PARAMETERS = 'RallyTaskQueryParameters';
 				$scope.TaskList = [];
@@ -290,12 +291,78 @@ define(['app', 'underscore', 'jquery'],
 				}
 
 				$scope.export = function () {
-					var data = 'ID\tDescription\tPriority\tOwner\tIteration\tState\tReject\r\n';
+					var data = 'ID\tDescription\tPriority\tOwner\tIteration\tState\tReject';
 					_.each($scope.filteredRecords, function (record) {
-						data += record.id + '\t' + record.Description + '\t' + record.Priority+ '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject + '\r\n';
+						data += '\r\n' + record.id + '\t' + record.Description + '\t' + record.Priority+ '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject;
 					});
+
+					window.alert(utility.copyToClipboard(data) ? 'Data get copied to clipboard.' : 'Copy to clipboard failed.');
+				}
+
+				$scope.getProjectSummaryReport = function() {
+					$scope.inQuerying = true;
+					$scope.projectSummary = {};
+					$scope.summaryByProject($scope.sprint)
+						.then(function (result) {
+							for (var project in result) {
+								if (!result[project]['Not Start']) {
+									result[project]['Not Start'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
+								}
+
+								if (!result[project]['In-Progress']) {
+									result[project]['In-Progress'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
+								}
+
+								if (!result[project]['Completed']) {
+									result[project]['Completed'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
+								}
+
+								if (!result[project]['Accepted']) {
+									result[project]['Accepted'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
+								}
+
+								result[project].Total = (result[project]['Not Start']._Count + result[project]['In-Progress']._Count + result[project]['Completed']._Count + result[project]['Accepted']._Count) + ' ('
+														+ (result[project]['Not Start'].Estimate + result[project]['In-Progress'].Estimate + result[project]['Completed'].Estimate + result[project]['Accepted'].Estimate)
+														+ 'D)';
+							}
+
+							$scope.projectSummary = result;
+						})
+						.finally(function () { $scope.inQuerying = false; });;
+				}
+
+				$scope.summaryByProject = function (sprint) {
+					var token = rallyAuthService.getAuthenticationToken();
+
+					var stateFunc = function (record) {
+						var state = 'Not Start';
+						if (record.ScheduleState == 'In-Progress' || record.ScheduleState == 'Completed' || record.ScheduleState == 'Accepted') {
+							state = record.ScheduleState;
+						};
+
+						return state;
+					};
+
 					
-					// TODO: copy to clipboard
+					var deferred = $q.defer();
+
+					$q.all([
+					rallyQueryService.getFromRally(rallyRestApi.getApiUrlTaskSummary(sprint, 'hierarchicalrequirement'), token),
+					rallyQueryService.getFromRally(rallyRestApi.getApiUrlTaskSummary(sprint, 'defect'), token)
+					])
+						.then(function (lists) {
+							var result = _.union(lists[0], lists[1]);
+
+							result = utility.groupByMultiple(result, ['Release', stateFunc], ['Estimate', 'TimeSpent']);
+
+							deferred.resolve(result);
+						})
+						.catch(function (error) {
+							reportError(error);
+							deferred.reject(error);
+						});
+
+					return deferred.promise;
 				}
 
 				function reportError(error) {

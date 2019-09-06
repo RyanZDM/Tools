@@ -7,6 +7,14 @@ define(['app'], function (app) {
 							&order=FormattedID\
 							&fetch=FormattedID,Name,Owner,Release,Project,StoryCount,PlanEstimateTotal,PercentDoneByStoryCount,PercentDoneByStoryPlanEstimate,Blocked,BlockedReason\
 							&pagesize=1999';
+		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
+							<target>?\
+							query=((Iteration.Name = "Sprint <sprint>")\
+									 And ((Release.Name Contains "1.4") Or (Release.Name Contains "OTC")))\
+							&order=Iteration,LastUpdateDate\
+							&fetch=FormattedID,PlanEstimate,TaskEstimateTotal,Release,ScheduleState,State,Blocked\
+							&pagesize=1999';
+
 		var urlTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
 							query=(<dateCondition> <ownerStateCondition>)\
@@ -32,7 +40,8 @@ define(['app'], function (app) {
 			"Dean Peng": "dean.peng@carestream.com",
 			"DongXiao Liu": "dongxiao.liu@carestream.com",
 			"Taylor Tao": "lian.tao@carestream.com",
-			"Song Zhao": "song.zhao@carestream.com"
+			"Song Zhao": "song.zhao@carestream.com",
+			"Terry Zhou": "jun.zhou@carestream.com"
 		};
 
 		function getDateCondition(sprint) {
@@ -59,6 +68,8 @@ define(['app'], function (app) {
 			OwnerEmailMapping: ownerEmailMapping,
 
 			UrlFeature: urlFeature,
+
+			UrlTaskSummary: urlTaskSummary,
 
 			// <target> must be either 'defect' or 'hierarchicalrequirement', the blank spack befor and operator are MUST
 			UrlTask: urlTask,
@@ -107,13 +118,13 @@ define(['app'], function (app) {
 			},
 
 			/**
-			 *name			getApiUrlFeature
+			 * @name			getApiUrlFeature
 			 *
-			 *description	Gets the actual url for getting feature list from Rally
+			 * @description	Gets the actual url for getting feature list from Rally
 			 *
-			 *param release	The name of release which is used as a filter when querying feature from Rally
+			 * @param release	The name of release which is used as a filter when querying feature from Rally
 			 *
-			 *return		Url used for Ajax call for getting feature list from Rally 
+			 * @return		Url used for Ajax call for getting feature list from Rally 
 			 */
 			getApiUrlFeature: function (release) {
 				var qry = (release !== '') ? 'Release.Name Contains "' + release + '"'
@@ -124,14 +135,14 @@ define(['app'], function (app) {
 			},
 
 			/**
-			 *name			getApiUrlTask
+			 * @name			getApiUrlTask
 			 *
-			 *description	Gets the actual url for getting defect and user story list from Rally with given parameters
+			 * @description	Gets the actual url for getting defect and user story list from Rally with given parameters
 			 *
-			 *return		Url used for Ajax call for getting defect and user story list from Rally 
+			 * @return		Url used for Ajax call for getting defect and user story list from Rally 
 			 */
 			getApiUrlTask: function (parameters, target) {
-				var ownerStateCondition = '(Owner.Name = ' + parameters.Owner + ')';
+				var ownerStateCondition = (parameters.Owner && parameters.Owner !== '') ? ('(Owner.Name = ' + parameters.Owner + ')') : '';
 				if (!parameters.IgnoreScheduleState) {
 					ownerStateCondition = '(' + ownerStateCondition + ' and ((ScheduleState = Accepted) OR (ScheduleState = Completed)))'
 				}
@@ -145,15 +156,32 @@ define(['app'], function (app) {
 			},
 
 			/**
-			 *name			getApiUrlTask
+			 * @name			getApiUrlTask
 			 *
-			 *description	Gets the actual url for getting defect and user story list from Rally with given parameters
+			 * @description	Gets the actual url for getting defect and user story list from Rally with given parameters
 			 *
-			 *return		Url used for Ajax call for getting defect and user story list from Rally 
+			 * @return		Url used for Ajax call for getting defect and user story list from Rally 
 			 */
 			getApiUrlSubTask: function (taskUrl) {
 				//return taskUrl + "?query=(State = Completed) &fetch=Owner,TimeSpent,Actuals&pagesize=1999";
 				return taskUrl + "?&fetch=Owner,Actuals&pagesize=1999";
+			},
+
+			/**
+			 * @name			getApiUrlFeature
+			 *
+			 * @description	Gets the actual url for getting the task summary of all releases
+			 *
+			 * @param sprint	The sprint number
+			 * @param target	Defect or user story
+			 *
+			 * @return		Url used for Ajax call for getting task summary from Rally 
+			 */
+			getApiUrlTaskSummary: function (sprint, target) {
+				var url = urlTaskSummary.replace('<sprint>', sprint)
+										.replace('<target>', target)
+										.replace(/\t/g, '');
+				return url;
 			}
 		};
 	});

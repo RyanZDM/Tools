@@ -30,6 +30,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{AA
 		services\rallyQueryService.js = services\rallyQueryService.js
 		services\rallyRestApi.js = services\rallyRestApi.js
 		services\rallyTask.js = services\rallyTask.js
+		services\utility.js = services\utility.js
 	EndProjectSection
 EndProject
 Global

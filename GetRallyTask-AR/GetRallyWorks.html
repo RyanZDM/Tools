@@ -69,6 +69,8 @@
 		<!--<div class="jumbotron text-center">
 			<h1>Get Rally Tasks</h1>
 		</div>-->
+		<textarea name="_for_clipboard_copy" id="_for_clipboard_copy" hidden>test value</textarea>
+		<input type="text" value="" hidden name="_for_clipboard_copy1" id="_for_clipboard_copy1" />
 		<div class="container-fluid">
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -132,7 +134,7 @@
 								<input type="checkbox" class="custom-control-input" ng-model="IgnoreScheduleState" />
 							</div>
 						</div>
-						<div class="col-md-2">
+						<div class="col-md-2"><!--style="width:auto"-->
 							<button class="btn btn-md btn-block btn-default"
 									id="btnRefresh"
 									ng-disabled="inQuerying"
@@ -173,7 +175,7 @@
 					</div>
 					<div class="row">
 						<div class="col-md-1">
-							<button class="btn btn-md btn-block btn-default" ng-click="export()">To Clipboard</button>
+							<button class="btn btn-md btn-block btn-default" style="width:auto" ng-click="export()">To Clipboard</button>
 						</div>
 						<div class="col-md-2">
 							<div class="input-group">
@@ -275,6 +277,37 @@
 									chart-labels="workloadStat.ChartLabels"
 									chart-series="workloadStat.ChartSeries"
 									chart-options="workloadStat.ChartOptions"></canvas>
+						</div>
+					</div>
+					<div class="row" ng-if="checkStatPermision()">
+						<div class="col-md-2">
+							<button class="btn btn-block" ng-click="getProjectSummaryReport()">Project Status Summary</button>
+						</div>
+					</div>
+					<div class="row ng-if=checkStatePermision()">
+						<div class="col-md-12">
+							<table class="table table-hover table-bordered table-responsive" border="1" size="auto">
+								<thead>
+									<tr>
+										<th>Project</th>
+										<th>Not Start</th>
+										<th>In Progress</th>
+										<th>Completed</th>
+										<th>Accepted</th>
+										<th>Total</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="(project, data) in projectSummary">
+										<td align="left">{{project}}</td>
+										<td align="right">{{data["Not Start"]._Count + ' (' + data["Not Start"].Estimate + 'D)'}}</td>
+										<td align="right">{{data["In-Progress"]._Count + ' (' + data["In-Progress"].Estimate + 'D)'}}</td>
+										<td align="right">{{data["Completed"]._Count + ' (' + data["Completed"].Estimate + 'D)'}}</td>
+										<td align="right">{{data["Accepted"]._Count + ' (' + data["Accepted"].Estimate + 'D)'}}</td>
+										<td align="right">{{projectSummary[project].Total}}</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</div>
 				</div>

@@ -28,6 +28,7 @@ require(['app']);
 require(['services/rallyRestApi']);
 require(['services/rallyTask']);
 require(['services/rallyFeature']);
+require(['services/utility']);
 require(['services/rallyAuthService']);
 require(['services/rallyQueryService']);
 require(['directives/rallyLoginDirective']);
