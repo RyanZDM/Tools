@@ -148,7 +148,7 @@ define(['app'], function (app) {
 				var ownerStateCondition = (!parameters.IgnoreScheduleState) ? '((ScheduleState = Accepted) OR (ScheduleState = Completed))' : '';
 
 				if (parameters.Owner !== '') {
-					if (ownerStateCondition === '') {
+					if (ownerStateCondition !== '') {
 						ownerStateCondition = '((Owner.Name = ' + parameters.Owner + ') And ' + ownerStateCondition + ')';
 					} else {
 						ownerStateCondition = '(Owner.Name = ' + parameters.Owner + ')';

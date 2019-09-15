@@ -300,10 +300,14 @@ define(['app', 'underscore', 'jquery'],
 					window.alert(utility.copyToClipboard(data) ? 'Data get copied to clipboard.' : 'Copy to clipboard failed.');
 				}
 
-				$scope.getProjectSummaryReport = function() {
+				$scope.getProjectSummaryReport = function(token) {
 					$scope.inQuerying = true;
 					$scope.projectSummary = {};
-					$scope.summaryByProject($scope.sprint)
+					if (!token) {
+						token = rallyAuthService.getAuthenticationToken();
+					}
+
+					$scope.summaryByProject($scope.sprint, token)
 						.then(function (result) {
 							for (var project in result) {
 								if (!result[project]['Not Start']) {
@@ -332,9 +336,7 @@ define(['app', 'underscore', 'jquery'],
 						.finally(function () { $scope.inQuerying = false; });;
 				}
 
-				$scope.summaryByProject = function (sprint) {
-					var token = rallyAuthService.getAuthenticationToken();
-
+				$scope.summaryByProject = function (sprint, token) {
 					var stateFunc = function (record) {
 						var state = 'Not Start';
 						if (record.ScheduleState == 'In-Progress' || record.ScheduleState == 'Completed' || record.ScheduleState == 'Accepted') {
@@ -364,6 +366,16 @@ define(['app', 'underscore', 'jquery'],
 						});
 
 					return deferred.promise;
+				}
+
+				$scope.getProjectSummaryReportPeriodically = function () {
+					if (!$scope.sprint || $scope.sprint < 1) { return; }
+
+					var token = "ZGFtZW5nLnpoYW5nQGNhcmVzdHJlYW0uY29tOjFxYXoyV1NY";
+
+					$scope.getProjectSummaryReport(token);
+					$scope.LastUpdate = "Last update at " + new Date().toLocaleTimeString();
+					setTimeout($scope.getProjectSummaryReportPeriodically, 60000 * 10);
 				}
 
 				function reportError(error) {

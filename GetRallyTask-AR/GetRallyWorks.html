@@ -69,8 +69,6 @@
 		<!--<div class="jumbotron text-center">
 			<h1>Get Rally Tasks</h1>
 		</div>-->
-		<textarea name="_for_clipboard_copy" id="_for_clipboard_copy" hidden>test value</textarea>
-		<input type="text" value="" hidden name="_for_clipboard_copy1" id="_for_clipboard_copy1" />
 		<div class="container-fluid">
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -284,7 +282,7 @@
 							<button class="btn btn-block" ng-click="getProjectSummaryReport()">Project Status Summary</button>
 						</div>
 					</div>
-					<div class="row ng-if=checkStatePermision()">
+					<div class="row" ng-if=checkStatePermision()>
 						<div class="col-md-12">
 							<table class="table table-hover table-bordered table-responsive" border="1" size="auto">
 								<thead>
