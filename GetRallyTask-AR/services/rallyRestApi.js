@@ -40,10 +40,11 @@ define(['app'], function (app) {
 			"Cheng Luo": "cheng.luo@carestream.com",
 			"Benny Liu": "lei.liu@carestream.com",
 			"Dean Peng": "dean.peng@carestream.com",
-			"DongXiao Liu": "dongxiao.liu@carestream.com",
+			"DongXiao L": "dongxiao.liu@carestream.com",
 			"Taylor Tao": "lian.tao@carestream.com",
 			"Song Zhao": "song.zhao@carestream.com",
-			"Terry Zhou": "jun.zhou@carestream.com"
+			"Terry Zhou": "jun.zhou@carestream.com",
+			"Yijiong S": "yijiong.shi@carestream.com"
 		};
 
 		function getDateCondition(sprint) {
@@ -155,10 +156,6 @@ define(['app'], function (app) {
 					}
 				}
 
-				if (ownerStateCondition !== '') {
-					ownerStateCondition = ' And ' + ownerStateCondition;
-				}
-
 				var dateConditation = getDateCondition(parameters.Sprint);
 				if (ownerStateCondition === '') {
 					// Need to remove the one set of bracket for dateConditaion
@@ -167,6 +164,9 @@ define(['app'], function (app) {
 					} else if (dateConditation.indexOf('(') > 0) {
 						dateConditation = dateConditation.replace('(', '').replace(')', '');
 					}
+				} else {
+					// Need to add ' AND ' between the two conditions
+					ownerStateCondition = ' And ' + ownerStateCondition;
 				}
 
 				var actualApiUrl = urlTask.replace('<target>', target)

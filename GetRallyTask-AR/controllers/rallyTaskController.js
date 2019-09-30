@@ -24,7 +24,9 @@ define(['app', 'underscore', 'jquery'],
 				$scope.sprint = 0;
 				$scope.IgnoreScheduleState = false;
 				$scope.emailList = Object.values(rallyRestApi.OwnerEmailMapping);
+				$scope.OwnerNameList = Object.keys(rallyRestApi.OwnerEmailMapping);
 				$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
+				$scope.SDCOnly = true;
 				$scope.Show13a = false;
 				$scope.Show13b = false;
 				$scope.Show14a = true;
@@ -168,11 +170,21 @@ define(['app', 'underscore', 'jquery'],
 
 					if (!$scope.ShowOthers && isOthers) return false;
 
-					if (!$scope.IgnoreScheduleState) return true;
+					if ($scope.SDCOnly) {
+						if (!task.Owner || task.Owner == '') return false;
+						var ower = task.Owner.toLowerCase();
+						var find = $scope.OwnerNameList.find(function (data) {
+							return ower == data.toLowerCase();
+						});
+
+						if (!find) return false;
+					}
 
 					if ($scope.ShowFailedOnly) {
 						return task.EverFailed;
 					}
+
+					if (!$scope.IgnoreScheduleState) return true;
 
 					switch (task.ScheduleState) {
 						case 'Completed':
