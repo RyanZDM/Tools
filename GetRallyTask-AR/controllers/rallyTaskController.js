@@ -51,12 +51,24 @@ define(['app', 'underscore', 'jquery'],
 
 				loadSavedParameters();
 
+				/**
+				 * @name	saveCurrentParameters()
+				 *
+				 * @description	Saves the current parameters (owner, sprint, scope etc.) to browser local cache
+				 *
+				 */
 				function saveCurrentParameters() {
 					if (!$scope.CanUseLocalStorage) { return; }
 
 					localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner + ':' + $scope.sprint + ':' + $scope.Show13a + ':' + $scope.Show13b + ':' + $scope.Show14a + ':' + $scope.Show14b + ':' + $scope.ShowOthers);
 				}
 
+				/**
+				 * @name	loadSavedParameters()
+				 *
+				 * @description	Loads saved parameters from browser local cache
+				 *
+				 */
 				function loadSavedParameters() {
 					if (!$scope.CanUseLocalStorage) { return; }
 
@@ -77,6 +89,12 @@ define(['app', 'underscore', 'jquery'],
 					$scope.ErrorMsg = '';
 				}
 
+				/**
+				 * @name	$scope.refreshTaskList = function ()
+				 *
+				 * @description	Get the task list of specified engineer from Rally, save to $scope.TaskList
+				 *
+				 */
 				$scope.refreshTaskList = function () {
 					$scope.inQuerying = true;
 					$scope.clearError();
@@ -90,6 +108,12 @@ define(['app', 'underscore', 'jquery'],
 						.finally(function () { $scope.inQuerying = false; });
 				};
 
+				/**
+				 * @name	refreshAll
+				 *
+				 * @description	Get the task list of all engineers from Rally, save to $scope.TaskList
+				 * 
+				 */
 				$scope.refreshAll = function () {
 					$scope.inQuerying = true;
 					$scope.clearError();
@@ -114,6 +138,17 @@ define(['app', 'underscore', 'jquery'],
 					.finally(function () { $scope.inQuerying = false; });
 				};
 
+				/**
+				 * @name	refreshTaskByOwner
+				 *
+				 * @description	Get the Rally task according to the specified parameters. Called by refreshTaskList() and refreshAll()
+				 *
+				 * @param	parameters	Options for querying the tasks from Rally.
+				 * @param	q		  	$q object.
+				 * @param	taskList  	Append the list to the query result if it is not empty.
+				 *
+				 * @returns	Promise to the task for querying task from Rally
+				 */
 				$scope.refreshTaskByOwner = function (parameters, q, taskList) {
 					var token = rallyAuthService.getAuthenticationToken();
 					_.extend(parameters, { 'Token': token, 'Async': true });
@@ -153,6 +188,15 @@ define(['app', 'underscore', 'jquery'],
 					return deferred.promise;
 				};
 
+				/**
+				 * @name	scheduleStateFilter
+				 *
+				 * @description	Schedule state filter
+				 *
+				 * @param	task	The task record to be filtered.
+				 *
+				 * @returns	false if do not want to show
+				 */
 				$scope.scheduleStateFilter = function (task) {
 					var is3A = /1.3a/i.test(task.Release);
 					var is3B = /1.3b/i.test(task.Release);
@@ -202,6 +246,15 @@ define(['app', 'underscore', 'jquery'],
 					return false;
 				}
 
+				/**
+				 * @name	getWorkload
+				 *
+				 * @description	Accumulate the total estimation days and acutal working hours 
+				 *
+				 * @param	records	The records to accumlate.
+				 *
+				 * @returns	The accumlate result string.
+				 */
 				$scope.getWorkload = function (records) {
 					var result = '';
 					if (records && records.length > 0) {
@@ -218,6 +271,14 @@ define(['app', 'underscore', 'jquery'],
 				}
 
 				$scope.workloadStat = {};
+
+				/**
+				 * @name	collectWorkloadStatData
+				 *
+				 * @description	Summarize the totoal estimation days, working hours and task count by engineer
+				 *
+				 * @returns	Ture if the workload stat data is generated successfully. False if no data.
+				 */
 				$scope.collectWorkloadStatData = function () {
 					if (!$scope.filteredRecords) {
 						$scope.workloadStat = {};
@@ -291,6 +352,13 @@ define(['app', 'underscore', 'jquery'],
 					$scope.workloadStat = {};
 				}
 
+				/**
+				 * @name	checkStatPermision
+				 *
+				 * @description	Check stat permision
+				 *
+				 * @returns	If the current user has permission to see the data stat table/charter
+				 */
 				$scope.checkStatPermision = function () {
 					if (document.getElementById('userId').value === 'dameng.zhang@carestream.com') {
 						return true;
@@ -303,6 +371,12 @@ define(['app', 'underscore', 'jquery'],
 					$scope.OrderByValue = $scope.OrderByValues[$scope.OrderByOptionIndex];
 				}
 
+				/**
+				 * @name	export
+				 *
+				 * @description	Copy the current filtered data to clipboard
+				 *
+				 */
 				$scope.export = function () {
 					var data = 'ID\tDescription\tPriority\tOwner\tIteration\tState\tReject';
 					_.each($scope.filteredRecords, function (record) {
@@ -312,6 +386,15 @@ define(['app', 'underscore', 'jquery'],
 					window.alert(utility.copyToClipboard(data) ? 'Data get copied to clipboard.' : 'Copy to clipboard failed.');
 				}
 
+				/**
+				 * @name	getProjectSummaryReport
+				 *
+				 * @description	Accumulate the total estimation days, actual working hours, task count group by project and ScheduleState
+				 *
+				 * @param	token	The authorization token for querying the Rally tasks.
+				 *
+				 * @returns	Summary report is saved to $scope.projectcSummary.
+				 */
 				$scope.getProjectSummaryReport = function(token) {
 					$scope.inQuerying = true;
 					$scope.projectSummary = {};
@@ -348,6 +431,16 @@ define(['app', 'underscore', 'jquery'],
 						.finally(function () { $scope.inQuerying = false; });;
 				}
 
+				/**
+				 * @name	summaryByProject
+				 *
+				 * @description	Gets the rally task summary group by Release/ScheduleState
+				 *
+				 * @param	sprint	The sprint.
+				 * @param	token 	The authorization token for querying the Rally tasks.
+				 *
+				 * @returns	Promise to the summary result.
+				 */
 				$scope.summaryByProject = function (sprint, token) {
 					var stateFunc = function (record) {
 						var state = 'Not Start';
@@ -380,6 +473,13 @@ define(['app', 'underscore', 'jquery'],
 					return deferred.promise;
 				}
 
+				/**
+				 * @name	getProjectSummaryReportPeriodically
+				 *
+				 * @description	After called this function, will gets project summary report periodically
+				 *
+				 * @returns	The project summary report periodically.
+				 */
 				$scope.getProjectSummaryReportPeriodically = function () {
 					if (!$scope.sprint || $scope.sprint < 1) { return; }
 
@@ -390,6 +490,14 @@ define(['app', 'underscore', 'jquery'],
 					setTimeout($scope.getProjectSummaryReportPeriodically, 60000 * 10);
 				}
 
+				/**
+				 * @name	reportError
+				 *
+				 * @description	Reports an error
+				 *
+				 * @param	error	The error object.
+				 *
+				 */
 				function reportError(error) {
 					console.error(error.statusText);
 					if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {

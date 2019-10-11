@@ -222,6 +222,18 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 			return deferred.promise();
 		}
 
+		/**
+		 * @name	function mergeWarningReport(data)
+		 *
+		 * @description	Merge warning report
+		 *
+		 * @author	Ryan
+		 * @date	10/10/2019
+		 *
+		 * @param	data	The data.
+		 *
+		 * @returns	.
+		 */
 		function mergeWarningReport(data) {
 			var reports = [];
 			_.each(data, function (item) {

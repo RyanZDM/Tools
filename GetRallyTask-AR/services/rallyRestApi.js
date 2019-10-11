@@ -47,6 +47,16 @@ define(['app'], function (app) {
 			"Yijiong S": "yijiong.shi@carestream.com"
 		};
 
+		/**
+		 * @name	getDateCondition
+		 *
+		 * @description	Gets date condition
+		 *
+		 * @param	sprint	The sprint number. 0 means get all sprint tasks; -1 means unscheduled tasks
+		 *
+		 * @returns	The date condition string used for Rally task query.
+		 */
+
 		function getDateCondition(sprint) {
 			var dateCondition = '';
 			switch (sprint) {

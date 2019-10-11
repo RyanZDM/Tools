@@ -11,7 +11,14 @@ define(['app', 'underscore'], function (app, _) {
 			copyToClipboard: copyToClipboard,
 			groupByMultiple: groupByMultiple
 		}
-		
+
+		/**
+		 * @name	copyToClipboard
+		 *
+		 * @description	Copies text to clipboard
+		 *
+		 * @param	text	The text.
+		 */
 		function copyToClipboard(text) {
 			if (window.clipboardData) {	// IE
 				window.clipboardData.clearData();
@@ -39,10 +46,15 @@ define(['app', 'underscore'], function (app, _) {
 		}
 
 		/**
+		 * @name	groupByMultiple
 		 *
-		 * @param array	data array to be group by
-		 * @param {(string|function)[]} iteratee - The iteratees to transform keys.
-		 * @param cumulativeItems	items will be cumulated
+		 * @description	Group by multiple
+		 *
+		 * @param	array								data array to be group by.
+		 * @param	{(string|function)[]}	iteratee	The iteratees to transform keys.
+		 * @param	cumulativeItems						items will be cumulated.
+		 *
+		 * @returns	The cumulated items specified by 'cumulativeItems' group by 'iteratee'.
 		 */
 		function groupByMultiple(array, iteratee, cumulativeItems) {
 			if (!array || array.length < 1) return [];
