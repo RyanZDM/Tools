@@ -10,7 +10,7 @@ define(['app'], function (app) {
 		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
 							query=((Iteration.Name = "Sprint <sprint>")\
-									 And ((Release.Name Contains "1.4") Or (Release.Name Contains "OTC")))\
+									 And ((Release.Name Contains "1.4") Or ((Release.Name Contains "OTC") Or (Project.Name = "Team Taiji"))))\
 							&order=Iteration,LastUpdateDate\
 							&fetch=FormattedID,PlanEstimate,TaskEstimateTotal,Release,ScheduleState,State,Blocked\
 							&pagesize=1999';
