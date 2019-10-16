@@ -222,14 +222,14 @@
 								<tr ng-repeat="task in TaskList | orderBy:OrderByValue |filter: scheduleStateFilter as filteredRecords"
 									ng-style="{ 'textDecoration' : task.Reject ? 'line-through' : 'none', 'fontStyle' : task.Testable ? 'normal' : 'italic', 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray')) }">
 									<td align="center">{{$index + 1}}</td>
-									<td>{{task.id}}</td>
+									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
 									<td><a href='{{task.Link}}'><b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>{{task.Description}}</a></td>
 									<td align="center">{{task.Priority}}</td>
 									<td align="right">{{task.Estimate}}</td>
 									<td align="right">{{task.Actuals}}</td>
 									<td align="center">{{task.Owner}}</td>
 									<td align="center">{{task.Iteration}}</td>
-									<td align="center" ng-show="IgnoreScheduleState">{{task.ScheduleState}}</td>
+									<td align="center" ng-show="IgnoreScheduleState"><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.ScheduleState}}</div></td>
 									<td align="center">{{task.Reject ? 'Y' : ''}}</td>
 									<td align="center"><div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div></td>
 									<td align="center"><div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div></td>

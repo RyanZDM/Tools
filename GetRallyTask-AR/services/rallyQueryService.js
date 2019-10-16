@@ -1,6 +1,6 @@
 'use strict';
 
-define(['jquery', 'underscore', 'app'], function ($, _, app) {
+define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 	/**
 	 * @name rallyQueryService
 	 *
@@ -168,8 +168,14 @@ define(['jquery', 'underscore', 'app'], function ($, _, app) {
 			if (!jsonObj || !jsonObj.QueryResult || !jsonObj.QueryResult.Results || jsonObj.QueryResult.Results.length < 1) return [];
 
 			var taskList = [];
+			var today = moment().format('YYYYMMDD');
 			for (var index in jsonObj.QueryResult.Results) {
 				var task = new RallyTask(jsonObj.QueryResult.Results[index]);
+				task.WasChangedToday = false;
+				if (task['FlowStateChangedDate'] && task['FlowStateChangedDate'] != '') {
+					var changeDate = moment(task['FlowStateChangedDate']).format('YYYYMMDD');
+					if (changeDate === today) { task.WasChangedToday = true; }
+				}
 				taskList[taskList.length] = task;
 			}
 

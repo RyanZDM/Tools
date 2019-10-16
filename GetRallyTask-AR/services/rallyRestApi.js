@@ -21,7 +21,7 @@ define(['app'], function (app) {
 									 And (<dateCondition> <ownerStateCondition>)\
 								  )\
 							&order=Iteration,LastUpdateDate\
-							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank\
+							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate\
 							&pagesize=1999';
 		var ownerEmailMapping = {
 			"Ryan Zhang": "dameng.zhang@carestream.com",
@@ -56,7 +56,6 @@ define(['app'], function (app) {
 		 *
 		 * @returns	The date condition string used for Rally task query.
 		 */
-
 		function getDateCondition(sprint) {
 			var dateCondition = '';
 			switch (sprint) {
