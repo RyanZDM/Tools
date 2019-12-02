@@ -169,6 +169,7 @@
 								<label for="14a" class="btn btn-info">1.4A <input type="checkbox" ng-model="Show14a" ng-click="resetWorkloadStat()" id="14a" class="badgebox"><span class="badge">&check;</span></label>
 								<label for="14b" class="btn btn-primary">1.4B <input type="checkbox" ng-model="Show14b" ng-click="resetWorkloadStat()" id="14b" class="badgebox"><span class="badge">&check;</span></label>
 								<label for="SDC" class="btn btn-success">SDC Only<input type="checkbox" ng-model="SDCOnly" ng-click="resetWorkloadStat()" id="SDC" class="badgebox"><span class="badge">&check;</span></label>
+								<label for="DE" class="btn btn-success">DE Only<input type="checkbox" ng-model="DEOnly" ng-click="resetWorkloadStat()" id="DE" class="badgebox"><span class="badge">&check;</span></label>
 							</div>
 						</div>
 					</div>
@@ -202,17 +203,17 @@
 							<thead>
 								<tr>
 									<th>#</th>
-									<th>ID</th>
+									<th data-toggle="tooltip" title="Highlight in bold means was changed today">ID</th>
 									<th>Description</th>
 									<th>Priority</th>
 									<th>Estimate<br />(Day)</th>
 									<th>Actuals<br />(Hour)</th>
 									<th>Owner</th>
 									<th>Iteration</th>
-									<th ng-show="IgnoreScheduleState">State</th>
+									<th ng-show="IgnoreScheduleState" data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
 									<th>Reject</th>
 									<th>Ever Failed</th>
-									<th>UT Need</th>
+									<th data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>
 									<th>Testable</th>
 									<th>BlockedReason</th>
 									<!--<th>AC</th>-->

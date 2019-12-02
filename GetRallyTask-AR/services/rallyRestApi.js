@@ -5,7 +5,7 @@ define(['app'], function (app) {
 		var urlFeature = 'https://rally1.rallydev.com/slm/webservice/v2.0/PortfolioItem/Feature?\
 							query=(<QueryString>)\
 							&order=FormattedID\
-							&fetch=FormattedID,Name,Owner,Release,Project,StoryCount,PlanEstimateTotal,PercentDoneByStoryCount,PercentDoneByStoryPlanEstimate,Blocked,BlockedReason\
+							&fetch=FormattedID,Name,Owner,Release,Project,StoryCount,PlanEstimateTotal,PercentDoneByStoryCount,PercentDoneByStoryPlanEstimate,Blocked,BlockedReason,Project\
 							&pagesize=1999';
 		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
@@ -21,7 +21,7 @@ define(['app'], function (app) {
 									 And (<dateCondition> <ownerStateCondition>)\
 								  )\
 							&order=Iteration,LastUpdateDate\
-							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate\
+							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature\
 							&pagesize=1999';
 		var ownerEmailMapping = {
 			"Ryan Zhang": "dameng.zhang@carestream.com",
@@ -44,7 +44,9 @@ define(['app'], function (app) {
 			"Taylor Tao": "lian.tao@carestream.com",
 			"Song Zhao": "song.zhao@carestream.com",
 			"Terry Zhou": "jun.zhou@carestream.com",
-			"Yijiong S": "yijiong.shi@carestream.com"
+			"Yijiong S": "yijiong.shi@carestream.com",
+			"Tidi Zhu": "tidi.zhu@carestream.com",
+			"David Yang": "deqing.yang@carestream.com"
 		};
 
 		/**

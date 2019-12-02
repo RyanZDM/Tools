@@ -27,6 +27,7 @@ define(['app', 'underscore', 'jquery'],
 				$scope.OwnerNameList = Object.keys(rallyRestApi.OwnerEmailMapping);
 				$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
 				$scope.SDCOnly = true;
+				$scope.DEOnly = false;
 				$scope.Show13a = false;
 				$scope.Show13b = false;
 				$scope.Show14a = true;
@@ -214,7 +215,10 @@ define(['app', 'underscore', 'jquery'],
 
 					if (!$scope.ShowOthers && isOthers) return false;
 
+					if ($scope.DEOnly && task.id.indexOf("DE") === -1) return false;
+
 					if ($scope.SDCOnly) {
+						if (((task.Feature.indexOf("Nano") !== -1) || (task.Project != "Team Taiji") && (task.Project != "Software"))) return false;	// Temp remove it
 						if (!task.Owner || task.Owner == '') return false;
 						var ower = task.Owner.toLowerCase();
 						var find = $scope.OwnerNameList.find(function (data) {
