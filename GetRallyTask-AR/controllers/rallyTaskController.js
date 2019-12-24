@@ -22,10 +22,12 @@ define(['app', 'underscore', 'jquery'],
 				$scope.inQuerying = false;
 				$scope.ErrorMsg = '';
 				$scope.sprint = 0;
-				$scope.IgnoreScheduleState = false;
+				$scope.IgnoreScheduleState = true;
 				$scope.emailList = Object.values(rallyRestApi.OwnerEmailMapping);
 				$scope.OwnerNameList = Object.keys(rallyRestApi.OwnerEmailMapping);
 				$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
+				$scope.LastFilteredCount = 0;
+				$scope.LastRecordCount = 0;
 				$scope.SDCOnly = true;
 				$scope.DEOnly = false;
 				$scope.Show13a = false;
@@ -90,6 +92,18 @@ define(['app', 'underscore', 'jquery'],
 					$scope.ErrorMsg = '';
 				}
 
+				$scope.initBeforeQuery = function() {
+					// Record the last time record count so that we know if have changes between two query
+					$scope.LastRecordCount = $scope.TaskList.length;
+					$scope.LastFilteredCount = $scope.filteredRecords ? $scope.filteredRecords.length : 0;
+
+					$scope.inQuerying = true;
+					$scope.clearError();
+					$scope.TaskList = [];
+					$scope.resetWorkloadStat();
+					saveCurrentParameters();
+				};
+
 				/**
 				 * @name	$scope.refreshTaskList = function ()
 				 *
@@ -97,11 +111,7 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 */
 				$scope.refreshTaskList = function () {
-					$scope.inQuerying = true;
-					$scope.clearError();
-					$scope.TaskList = [];
-					$scope.resetWorkloadStat();
-					saveCurrentParameters();
+					$scope.initBeforeQuery();
 					$scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': true }, $q)
 						.then(function (result) {
 							$scope.TaskList = result;
@@ -116,11 +126,7 @@ define(['app', 'underscore', 'jquery'],
 				 * 
 				 */
 				$scope.refreshAll = function () {
-					$scope.inQuerying = true;
-					$scope.clearError();
-					$scope.TaskList = [];
-					$scope.resetWorkloadStat();
-					saveCurrentParameters();
+					$scope.initBeforeQuery();
 
 					var promises = [];
 					//_.each($scope.emailList, function (email) {
@@ -218,7 +224,7 @@ define(['app', 'underscore', 'jquery'],
 					if ($scope.DEOnly && task.id.indexOf("DE") === -1) return false;
 
 					if ($scope.SDCOnly) {
-						if (((task.Feature.indexOf("Nano") !== -1) || (task.Project != "Team Taiji") && (task.Project != "Software"))) return false;	// Temp remove it
+						if ((task.Project != "Team Taiji") && (task.Project != "Software")) return false;	// Temp remove it
 						if (!task.Owner || task.Owner == '') return false;
 						var ower = task.Owner.toLowerCase();
 						var find = $scope.OwnerNameList.find(function (data) {
