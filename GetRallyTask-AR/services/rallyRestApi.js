@@ -7,22 +7,29 @@ define(['app'], function (app) {
 							&order=FormattedID\
 							&fetch=FormattedID,Name,Owner,Release,Project,StoryCount,PlanEstimateTotal,PercentDoneByStoryCount,PercentDoneByStoryPlanEstimate,Blocked,BlockedReason,Project\
 							&pagesize=1999';
+        // #Configurable here#
+        // Change the query checking condition for different team/project
 		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
 							query=((Iteration.Name = "Sprint <sprint>")\
-									 And ((Release.Name Contains "1.4") Or ((Release.Name Contains "OTC") Or (Project.Name = "Team Taiji"))))\
+									 And ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "OTC") Or (Project.Name = "Team Taiji"))))\
 							&order=Iteration,LastUpdateDate\
 							&fetch=FormattedID,PlanEstimate,TaskEstimateTotal,Release,ScheduleState,State,Blocked\
 							&pagesize=1999';
 
+        // #Configurable here#
+        // Change the query checking condition for different team/project
 		var urlTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
-							query=( ((Release.Name Contains "1.4") Or (Release.Name Contains "OTC"))\
+							query=( ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "OTC") Or (Project.Name = "Team Taiji")))\
 									 And (<dateCondition> <ownerStateCondition>)\
 								  )\
 							&order=Iteration,LastUpdateDate\
 							&fetch=FormattedID,Name,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature\
 							&pagesize=1999';
+
+        // #Configurable here#
+        // Change the developers for different feature team
 		var ownerEmailMapping = {
 			"Ryan Zhang": "dameng.zhang@carestream.com",
 			"Joe Z": "joe.zhang@carestream.com",
@@ -68,10 +75,11 @@ define(['app'], function (app) {
 					break;
 				case 0:
 					// Get all sprint tasks
-					dateCondition = ' ((AcceptedDate >= "2019-01-01") OR (InProgressDate >= "2019-01-01")) '
+					dateCondition = ' ((AcceptedDate >= "2019-01-01") OR (InProgressDate >= "2019-01-01")) ';
+					//dateCondition = ' (Iteration.Name > "Sprint 47") ';
 					break;
-				default:	// is > 0
-					dateCondition = ' (Iteration.Name = "Sprint ' + sprint + '") ';
+				default:	// is > 0  Note: Do NOT use the condition "Iteration.Name = Sprint xxx" because that the comparation is case sensitive
+					dateCondition = ' (Iteration.Name Contains "' + sprint + '") ';
 			}
 
 			return dateCondition;

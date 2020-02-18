@@ -30,10 +30,8 @@ define(['app', 'underscore', 'jquery'],
 				$scope.LastRecordCount = 0;
 				$scope.SDCOnly = true;
 				$scope.DEOnly = false;
-				$scope.Show13a = false;
-				$scope.Show13b = false;
-				$scope.Show14a = true;
-				$scope.Show14b = true;
+				$scope.ShowP1 = true;
+				$scope.ShowP2 = true;
 				$scope.ShowOthers = false;
 				$scope.ShowInDefine = true;
 				$scope.ShowDefined = true;
@@ -63,7 +61,7 @@ define(['app', 'underscore', 'jquery'],
 				function saveCurrentParameters() {
 					if (!$scope.CanUseLocalStorage) { return; }
 
-					localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner + ':' + $scope.sprint + ':' + $scope.Show13a + ':' + $scope.Show13b + ':' + $scope.Show14a + ':' + $scope.Show14b + ':' + $scope.ShowOthers);
+                    localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner + ':' + $scope.sprint + ':' + $scope.ShowP1 + ':' + $scope.ShowP2 + ':' + $scope.ShowOthers);
 				}
 
 				/**
@@ -81,11 +79,9 @@ define(['app', 'underscore', 'jquery'],
 					var parameters = savedParameters.split(':');
 					if (parameters.length > 0) { $scope.owner = parameters[0]; }
 					if (parameters.length > 1) { $scope.sprint = parseInt(parameters[1]); }
-					if (parameters.length > 2) { $scope.Show13a = parameters[2] == 'true'; }
-					if (parameters.length > 3) { $scope.Show13b = parameters[3] == 'true'; }
-					if (parameters.length > 4) { $scope.Show14a = parameters[4] == 'true'; }
-					if (parameters.length > 5) { $scope.Show14b = parameters[5] == 'true'; }
-					if (parameters.length > 6) { $scope.ShowOthers = parameters[6] == 'true'; }
+					if (parameters.length > 2) { $scope.ShowP1 = parameters[2] == 'true'; }
+					if (parameters.length > 3) { $scope.ShowP2 = parameters[3] == 'true'; }
+					if (parameters.length > 4) { $scope.ShowOthers = parameters[4] == 'true'; }
 				}
 
 				$scope.clearError = function () {
@@ -205,24 +201,20 @@ define(['app', 'underscore', 'jquery'],
 				 * @returns	false if do not want to show
 				 */
 				$scope.scheduleStateFilter = function (task) {
-					var is3A = /1.3a/i.test(task.Release);
-					var is3B = /1.3b/i.test(task.Release);
-					var is4A = /1.4a/i.test(task.Release);
-					var is4B = /1.4b/i.test(task.Release);
-					var isOthers = !(is3A || is3B || is4A || is4B);
+					var isP1 = /\[Phase I]/i.test(task.Release);
+					var isP2 = /\[Phase II]/i.test(task.Release);
+                    var isOthers = !(isP1 || isP2);
+                    
+                    if (!$scope.ShowP1 && isP1) return false;
 
-					if (!$scope.Show13a && is3A) return false;
-
-					if (!$scope.Show13b && is3B) return false;
-
-					if (!$scope.Show14a && is4A) return false;
-
-					if (!$scope.Show14b && is4B) return false;
+                    if (!$scope.ShowP2 && isP2) return false;
 
 					if (!$scope.ShowOthers && isOthers) return false;
 
 					if ($scope.DEOnly && task.id.indexOf("DE") === -1) return false;
 
+                    // #Configurable here#
+                    // Change the condition for different project
 					if ($scope.SDCOnly) {
 						if ((task.Project != "Team Taiji") && (task.Project != "Software")) return false;	// Temp remove it
 						if (!task.Owner || task.Owner == '') return false;
