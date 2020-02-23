@@ -1,56 +1,59 @@
 'use strict';
 
 define(['app', 'underscore', 'jquery'],
-	function (app, _, $) {
-		app.controller('rallyTaskController', [
-			'$scope',
-			'$rootScope',
-			'$http',
-			'$q',
-			'rallyAuthService',
-			'rallyQueryService',
-			'rallyRestApi',
-			'utility',
+    function (app, _, $) {
+        app.controller('rallyTaskController', [
+            '$scope',
+            '$rootScope',
+            '$http',
+            '$q',
+            'rallyAuthService',
+            'rallyQueryService',
+            'rallyRestApi',
+            'utility',
 
-			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi, utility) {
-				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
+            function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi, utility) {
+                $scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
 				$scope.SAVED_PARAMETERS = 'RallyTaskQueryParameters';
-				$scope.TaskList = [];
-				$scope.UserId = '';
-				$scope.UserPwd = '';
-				$scope.owner = '';
-				$scope.inQuerying = false;
-				$scope.ErrorMsg = '';
-				$scope.sprint = 0;
-				$scope.IgnoreScheduleState = true;
-				$scope.emailList = Object.values(rallyRestApi.OwnerEmailMapping);
-				$scope.OwnerNameList = Object.keys(rallyRestApi.OwnerEmailMapping);
-				$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
-				$scope.LastFilteredCount = 0;
-				$scope.LastRecordCount = 0;
-				$scope.SDCOnly = true;
-				$scope.DEOnly = false;
-				$scope.ShowP1 = true;
-				$scope.ShowP2 = true;
-				$scope.ShowOthers = false;
-				$scope.ShowInDefine = true;
-				$scope.ShowDefined = true;
-				$scope.ShowWIP = true;
-				$scope.ShowCompleted = true;
-				$scope.ShowAccepted = true;
-				$scope.ShowFailedOnly = false;
-				
-				$scope.OrderByOptions = [{ value: 0, name: 'Default' },
-										 { value: 1, name: 'Priority' },
-										 { value: 2, name: 'ScheduleState' }
-				];
-				$scope.OrderByValues = [['Owner', 'Iteration', '-ScheduleState', 'Rank', 'Priority'],
-										 ['Priority', '-ScheduleState'],
-										 ['-ScheduleState', 'Rank', 'Priority']];
-				$scope.OrderByOptionIndex = 0;
-				$scope.OrderByValue = $scope.OrderByValues[0];
+				$scope.SAVED_OTHERINFO = 'RallyTaskOtherInfo';
+                $scope.TaskList = [];
+                $scope.UserId = '';
+                $scope.UserPwd = '';
+                $scope.owner = '';
+                $scope.inQuerying = false;
+                $scope.ErrorMsg = '';
+                $scope.sprint = 0;
+                $scope.IgnoreScheduleState = true;
+                $scope.emailList = Object.values(rallyRestApi.OwnerEmailMapping);
+                $scope.OwnerNameList = Object.keys(rallyRestApi.OwnerEmailMapping);
+                $scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
+				$scope.SaveOtherInfo2Local = true;
+				$scope.OtherInfoLabel = 'Other';
+                $scope.LastFilteredCount = 0;
+                $scope.LastRecordCount = 0;
+                $scope.SDCOnly = true;
+                $scope.DEOnly = false;
+                $scope.ShowP1 = true;
+                $scope.ShowP2 = true;
+                $scope.ShowOthers = false;
+                $scope.ShowInDefine = true;
+                $scope.ShowDefined = true;
+                $scope.ShowWIP = true;
+                $scope.ShowCompleted = true;
+                $scope.ShowAccepted = true;
+                $scope.ShowFailedOnly = false;
 
-				loadSavedParameters();
+                $scope.OrderByOptions = [{ value: 0, name: 'Default' },
+                { value: 1, name: 'Priority' },
+                { value: 2, name: 'ScheduleState' }
+                ];
+                $scope.OrderByValues = [['Owner', 'Iteration', '-ScheduleState', 'Rank', 'Priority'],
+                ['Priority', '-ScheduleState'],
+                ['-ScheduleState', 'Rank', 'Priority']];
+                $scope.OrderByOptionIndex = 0;
+                $scope.OrderByValue = $scope.OrderByValues[0];
+
+                loadSavedParameters();
 
 				/**
 				 * @name	saveCurrentParameters()
@@ -58,11 +61,25 @@ define(['app', 'underscore', 'jquery'],
 				 * @description	Saves the current parameters (owner, sprint, scope etc.) to browser local cache
 				 *
 				 */
-				function saveCurrentParameters() {
-					if (!$scope.CanUseLocalStorage) { return; }
+                function saveCurrentParameters() {
+                    if (!$scope.CanUseLocalStorage) { return; }
 
-                    localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner + ':' + $scope.sprint + ':' + $scope.ShowP1 + ':' + $scope.ShowP2 + ':' + $scope.ShowOthers);
-				}
+					localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner + ':' + $scope.sprint + ':' + $scope.ShowP1 + ':' + $scope.ShowP2 + ':' + $scope.ShowOthers + ':' + $scope.SaveOtherInfo2Local + ':' + $scope.OtherInfoLabel);
+
+					if ($scope.SaveOtherInfo2Local) {
+						var otherInfo = '';
+						_.each($scope.TaskList, function (task) {
+							if (task['Other'] && task.Other != '') {
+								otherInfo = otherInfo + task.id + '|' + task.Other + '|';
+							}
+						});
+
+						if (otherInfo !== '') {
+							otherInfo = otherInfo.substring(0, otherInfo.length - 1);
+							localStorage.setItem($scope.SAVED_OTHERINFO, otherInfo);
+						}
+                    }
+                }
 
 				/**
 				 * @name	loadSavedParameters()
@@ -70,35 +87,66 @@ define(['app', 'underscore', 'jquery'],
 				 * @description	Loads saved parameters from browser local cache
 				 *
 				 */
-				function loadSavedParameters() {
-					if (!$scope.CanUseLocalStorage) { return; }
+                function loadSavedParameters() {
+                    if (!$scope.CanUseLocalStorage) { return; }
 
-					var savedParameters = localStorage.getItem($scope.SAVED_PARAMETERS);
-					if (!savedParameters) { return; }
+                    var savedParameters = localStorage.getItem($scope.SAVED_PARAMETERS);
+                    if (!savedParameters) { return; }
 
 					var parameters = savedParameters.split(':');
-					if (parameters.length > 0) { $scope.owner = parameters[0]; }
-					if (parameters.length > 1) { $scope.sprint = parseInt(parameters[1]); }
-					if (parameters.length > 2) { $scope.ShowP1 = parameters[2] == 'true'; }
-					if (parameters.length > 3) { $scope.ShowP2 = parameters[3] == 'true'; }
-					if (parameters.length > 4) { $scope.ShowOthers = parameters[4] == 'true'; }
+					var paramLen = parameters.length;
+					if (paramLen > 0) { $scope.owner = parameters[0]; }
+					if (paramLen > 1) { $scope.sprint = parseInt(parameters[1]); }
+					if (paramLen > 2) { $scope.ShowP1 = parameters[2] == 'true'; }
+					if (paramLen > 3) { $scope.ShowP2 = parameters[3] == 'true'; }
+					if (paramLen > 4) { $scope.ShowOthers = parameters[4] == 'true'; }
+					if (paramLen > 5) { $scope.SaveOtherInfo2Local = parameters[5] == 'true'; }
+					if (paramLen > 6) { $scope.OtherInfoLabel = parameters[6]; }
+
+					if ($scope.SaveOtherInfo2Local && $scope.TaskList.length > 0) {
+						var otherInfoString = localStorage.getItem($scope.SAVED_OTHERINFO);
+						if (!otherInfoString) { return; }
+
+						var otherInfoList = otherInfoString.split('|');
+						var total = otherInfoList.length;
+						var remainCount = total;
+						while (remainCount > 1) {
+							var id = otherInfoList[total - remainCount];
+							var value = otherInfoList[total - remainCount + 1];
+							remainCount = remainCount - 2;
+
+							updateOtherInfo($scope.TaskList, id, value);
+						}
+					}
+                }
+
+				function updateOtherInfo (list, id, value) {
+					var index = _.findIndex(list, function (task) {
+						if (!id || !task['id']) return false;
+
+						return (id.substring(0, 6).toLowerCase() == task.id.substring(0, 6).toLowerCase());
+					});
+
+					if (index > -1) {
+						list[index].Other = value;
+					}
 				}
 
-				$scope.clearError = function () {
-					$scope.ErrorMsg = '';
-				}
+                $scope.clearError = function () {
+                    $scope.ErrorMsg = '';
+                }
 
-				$scope.initBeforeQuery = function() {
-					// Record the last time record count so that we know if have changes between two query
-					$scope.LastRecordCount = $scope.TaskList.length;
-					$scope.LastFilteredCount = $scope.filteredRecords ? $scope.filteredRecords.length : 0;
+                $scope.initBeforeQuery = function () {
+                    // Record the last time record count so that we know if have changes between two query
+                    $scope.LastRecordCount = $scope.TaskList.length;
+                    $scope.LastFilteredCount = $scope.filteredRecords ? $scope.filteredRecords.length : 0;
 
-					$scope.inQuerying = true;
-					$scope.clearError();
-					$scope.TaskList = [];
-					$scope.resetWorkloadStat();
-					saveCurrentParameters();
-				};
+                    saveCurrentParameters();
+                    $scope.inQuerying = true;
+                    $scope.clearError();
+                    $scope.TaskList = [];
+                    $scope.resetWorkloadStat();
+                };
 
 				/**
 				 * @name	$scope.refreshTaskList = function ()
@@ -106,14 +154,17 @@ define(['app', 'underscore', 'jquery'],
 				 * @description	Get the task list of specified engineer from Rally, save to $scope.TaskList
 				 *
 				 */
-				$scope.refreshTaskList = function () {
-					$scope.initBeforeQuery();
-					$scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': true }, $q)
-						.then(function (result) {
+                $scope.refreshTaskList = function () {
+                    $scope.initBeforeQuery();
+                    $scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': true }, $q)
+                        .then(function (result) {
 							$scope.TaskList = result;
-						})
-						.finally(function () { $scope.inQuerying = false; });
-				};
+
+							// Load the other info from local storage
+							loadSavedParameters();
+                        })
+                        .finally(function () { $scope.inQuerying = false; });
+                };
 
 				/**
 				 * @name	refreshAll
@@ -121,25 +172,28 @@ define(['app', 'underscore', 'jquery'],
 				 * @description	Get the task list of all engineers from Rally, save to $scope.TaskList
 				 * 
 				 */
-				$scope.refreshAll = function () {
-					$scope.initBeforeQuery();
+                $scope.refreshAll = function () {
+                    $scope.initBeforeQuery();
 
-					var promises = [];
-					//_.each($scope.emailList, function (email) {
-					//	promises.push($scope.refreshTaskByOwner({ 'Owner': email, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
-					//})
-					promises.push($scope.refreshTaskByOwner({ 'Owner': '', 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
+                    var promises = [];
+                    //_.each($scope.emailList, function (email) {
+                    //	promises.push($scope.refreshTaskByOwner({ 'Owner': email, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
+                    //})
+                    promises.push($scope.refreshTaskByOwner({ 'Owner': '', 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
 
-					$q.all(promises)
-					.then(function (result) {
-						result = _.flatten(result);
-						$scope.TaskList = result;
-					})
-					.catch(function (error) {
-						reportError(error);
-					})
-					.finally(function () { $scope.inQuerying = false; });
-				};
+                    $q.all(promises)
+                        .then(function (result) {
+                            result = _.flatten(result);
+							$scope.TaskList = result;
+
+							// Load the other info from local storage
+							loadSavedParameters();
+                        })
+                        .catch(function (error) {
+                            reportError(error);
+                        })
+                        .finally(function () { $scope.inQuerying = false; });
+                };
 
 				/**
 				 * @name	refreshTaskByOwner
@@ -152,44 +206,44 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 * @returns	Promise to the task for querying task from Rally
 				 */
-				$scope.refreshTaskByOwner = function (parameters, q, taskList) {
-					var token = rallyAuthService.getAuthenticationToken();
-					_.extend(parameters, { 'Token': token, 'Async': true });
+                $scope.refreshTaskByOwner = function (parameters, q, taskList) {
+                    var token = rallyAuthService.getAuthenticationToken();
+                    _.extend(parameters, { 'Token': token, 'Async': true });
 
-					var deferred = $q.defer();
-					var result = [];
-					if (taskList && taskList.length > 0) {
-						result.push(taskList);
-					}
+                    var deferred = $q.defer();
+                    var result = [];
+                    if (taskList && taskList.length > 0) {
+                        result.push(taskList);
+                    }
 
-					q.all([
-					rallyQueryService.getTasksFromRally(parameters, 'hierarchicalrequirement'),
-					rallyQueryService.getTasksFromRally(parameters, 'defect')
-					])
-						.then(function (lists) {
-							// If directly Complete the user story or defect under which still contains incompleted tasks
-							// the SpentTime of those taks would not be counted any more. So need to accumulate all task hours
-							var tasks = _.union(lists[0], lists[1]);
+                    q.all([
+                        rallyQueryService.getTasksFromRally(parameters, 'hierarchicalrequirement'),
+                        rallyQueryService.getTasksFromRally(parameters, 'defect')
+                    ])
+                        .then(function (lists) {
+                            // If directly Complete the user story or defect under which still contains incompleted tasks
+                            // the SpentTime of those taks would not be counted any more. So need to accumulate all task hours
+                            var tasks = _.union(lists[0], lists[1]);
 
-							result = _.union(result, tasks);
-							q.all(rallyQueryService.reCalculateTaskSpentTime(tasks, token))
-								.then(function (updatedTasks) {
-									// A user story or defect may contains some tasks assigned to different developer, need to filter out
-									var otherOwnerTasks = _.flatten(_.filter(_.pluck(updatedTasks, "OtherOwnerTasks"), function (other) { return other !== undefined }));
-									result = _.union(result, updatedTasks, otherOwnerTasks);
+                            result = _.union(result, tasks);
+                            q.all(rallyQueryService.reCalculateTaskSpentTime(tasks, token))
+                                .then(function (updatedTasks) {
+                                    // A user story or defect may contains some tasks assigned to different developer, need to filter out
+                                    var otherOwnerTasks = _.flatten(_.filter(_.pluck(updatedTasks, "OtherOwnerTasks"), function (other) { return other !== undefined }));
+                                    result = _.union(result, updatedTasks, otherOwnerTasks);
 
-									deferred.resolve(result);
-								})
-								.catch(function (error) { reportError(error); })
-								.finally(function () { $scope.inQuerying = false; });
-						})
-						.catch(function (error) {
-							reportError(error)
-							deferred.reject(error);
-						});
+                                    deferred.resolve(result);
+                                })
+                                .catch(function (error) { reportError(error); })
+                                .finally(function () { $scope.inQuerying = false; });
+                        })
+                        .catch(function (error) {
+                            reportError(error)
+                            deferred.reject(error);
+                        });
 
-					return deferred.promise;
-				};
+                    return deferred.promise;
+                };
 
 				/**
 				 * @name	scheduleStateFilter
@@ -200,53 +254,53 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 * @returns	false if do not want to show
 				 */
-				$scope.scheduleStateFilter = function (task) {
-					var isP1 = /\[Phase I]/i.test(task.Release);
-					var isP2 = /\[Phase II]/i.test(task.Release);
+                $scope.scheduleStateFilter = function (task) {
+                    var isP1 = /\[Phase I]/i.test(task.Release);
+                    var isP2 = /\[Phase II]/i.test(task.Release);
                     var isOthers = !(isP1 || isP2);
-                    
+
                     if (!$scope.ShowP1 && isP1) return false;
 
                     if (!$scope.ShowP2 && isP2) return false;
 
-					if (!$scope.ShowOthers && isOthers) return false;
+                    if (!$scope.ShowOthers && isOthers) return false;
 
-					if ($scope.DEOnly && task.id.indexOf("DE") === -1) return false;
+                    if ($scope.DEOnly && task.id.indexOf("DE") === -1) return false;
 
                     // #Configurable here#
                     // Change the condition for different project
-					if ($scope.SDCOnly) {
-						if ((task.Project != "Team Taiji") && (task.Project != "Software")) return false;	// Temp remove it
-						if (!task.Owner || task.Owner == '') return false;
-						var ower = task.Owner.toLowerCase();
-						var find = $scope.OwnerNameList.find(function (data) {
-							return ower == data.toLowerCase();
-						});
+                    if ($scope.SDCOnly) {
+                        if ((task.Project != "Team Taiji") && (task.Project != "Software")) return false;	// Temp remove it
+                        if (!task.Owner || task.Owner == '') return false;
+                        var ower = task.Owner.toLowerCase();
+                        var find = $scope.OwnerNameList.find(function (data) {
+                            return ower == data.toLowerCase();
+                        });
 
-						if (!find) return false;
-					}
+                        if (!find) return false;
+                    }
 
-					if ($scope.ShowFailedOnly) {
-						return task.EverFailed;
-					}
+                    if ($scope.ShowFailedOnly) {
+                        return task.EverFailed;
+                    }
 
-					if (!$scope.IgnoreScheduleState) return true;
+                    if (!$scope.IgnoreScheduleState) return true;
 
-					switch (task.ScheduleState) {
-						case 'Completed':
-							return $scope.ShowCompleted;
-						case 'Accepted':
-							return $scope.ShowAccepted;
-						case 'In-Progress':
-							return $scope.ShowWIP;
-						case 'Defined':
-							return $scope.ShowDefined;
-						case 'In Definition':
-							return $scope.ShowInDefine;
-					}
+                    switch (task.ScheduleState) {
+                        case 'Completed':
+                            return $scope.ShowCompleted;
+                        case 'Accepted':
+                            return $scope.ShowAccepted;
+                        case 'In-Progress':
+                            return $scope.ShowWIP;
+                        case 'Defined':
+                            return $scope.ShowDefined;
+                        case 'In Definition':
+                            return $scope.ShowInDefine;
+                    }
 
-					return false;
-				}
+                    return false;
+                }
 
 				/**
 				 * @name	getWorkload
@@ -257,22 +311,22 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 * @returns	The accumlate result string.
 				 */
-				$scope.getWorkload = function (records) {
-					var result = '';
-					if (records && records.length > 0) {
-						var totalDays = 0, actualHours = 0;
-						_.each(records, function (record) {
-							totalDays = totalDays + record.Estimate;
-							actualHours = actualHours + (record.Actuals ? record.Actuals : 0);
-						})
+                $scope.getWorkload = function (records) {
+                    var result = '';
+                    if (records && records.length > 0) {
+                        var totalDays = 0, actualHours = 0;
+                        _.each(records, function (record) {
+                            totalDays = totalDays + record.Estimate;
+                            actualHours = actualHours + (record.Actuals ? record.Actuals : 0);
+                        })
 
-						result = '-- Est. Days:' + totalDays + ' | Act. Hours:' + Math.round(actualHours);
-					}
+                        result = '-- Est. Days:' + totalDays + ' | Act. Hours:' + Math.round(actualHours);
+                    }
 
-					return result;
-				}
+                    return result;
+                }
 
-				$scope.workloadStat = {};
+                $scope.workloadStat = {};
 
 				/**
 				 * @name	collectWorkloadStatData
@@ -281,78 +335,78 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 * @returns	Ture if the workload stat data is generated successfully. False if no data.
 				 */
-				$scope.collectWorkloadStatData = function () {
-					if (!$scope.filteredRecords) {
-						$scope.workloadStat = {};
-						return false;
-					}
+                $scope.collectWorkloadStatData = function () {
+                    if (!$scope.filteredRecords) {
+                        $scope.workloadStat = {};
+                        return false;
+                    }
 
-					if ($scope.workloadStat['Collected'] && $scope.workloadStat.Collected) {
-						return true;
-					};
+                    if ($scope.workloadStat['Collected'] && $scope.workloadStat.Collected) {
+                        return true;
+                    };
 
-					// -- For chart display
-					$scope.workloadStat.ChartSeries = ['Est. Days', 'Tasks Total'];
-					$scope.workloadStat.ChartOptions = [];
+                    // -- For chart display
+                    $scope.workloadStat.ChartSeries = ['Est. Days', 'Tasks Total'];
+                    $scope.workloadStat.ChartOptions = [];
 
-					$scope.workloadStat.ChartLabels = [];
-					$scope.workloadStat.ChartData = [];
-					var count = [];
-					var days = [];
-					// --------------- End
+                    $scope.workloadStat.ChartLabels = [];
+                    $scope.workloadStat.ChartData = [];
+                    var count = [];
+                    var days = [];
+                    // --------------- End
 
-					if ($scope.filteredRecords.length > 0) {
-						var result = $scope.filteredRecords.reduce(function (total, task) {
-							var actuals = (task.Actuals) ? task.Actuals : 0;
-							if (!(task.Owner in total)) {
-								total[task.Owner] = { Days: task.Estimate, Hours: actuals, Count: 1 };
-							} else {
-								total[task.Owner].Days += task.Estimate;
-								total[task.Owner].Hours += actuals;
-								total[task.Owner].Count += 1;
-							}
+                    if ($scope.filteredRecords.length > 0) {
+                        var result = $scope.filteredRecords.reduce(function (total, task) {
+                            var actuals = (task.Actuals) ? task.Actuals : 0;
+                            if (!(task.Owner in total)) {
+                                total[task.Owner] = { Days: task.Estimate, Hours: actuals, Count: 1 };
+                            } else {
+                                total[task.Owner].Days += task.Estimate;
+                                total[task.Owner].Hours += actuals;
+                                total[task.Owner].Count += 1;
+                            }
 
-							return total;
-						}, {});
+                            return total;
+                        }, {});
 
-						var orderedData = [];
-						for (var owner in result) {
-							var found = result[owner];
-							orderedData.push({ Owner: owner, Count: found.Count, Days: found.Days, Hours: found.Hours });
-						}
+                        var orderedData = [];
+                        for (var owner in result) {
+                            var found = result[owner];
+                            orderedData.push({ Owner: owner, Count: found.Count, Days: found.Days, Hours: found.Hours });
+                        }
 
-						// Order by Days and Count desc
-						orderedData.sort(function (a, b) {
-							if (a.Days > b.Days) {
-								return -1;
-							} else if (a.Days == b.Days) {
-								return (a.Count - b.Count);
-							} else { return 1; }
-						});
-						
-						$scope.workloadStat.WorkLoad = orderedData;
+                        // Order by Days and Count desc
+                        orderedData.sort(function (a, b) {
+                            if (a.Days > b.Days) {
+                                return -1;
+                            } else if (a.Days == b.Days) {
+                                return (a.Count - b.Count);
+                            } else { return 1; }
+                        });
 
-						// For chart display
-						//$scope.workloadStat.ChartLabels = Object.keys(result);
-						_.each(orderedData, function (data) {
-							$scope.workloadStat.ChartLabels.push(data.Owner);
-							count.push(data.Count);
-							days.push(data.Days);
-						});
+                        $scope.workloadStat.WorkLoad = orderedData;
 
-						$scope.workloadStat.ChartData.push(days);
-						$scope.workloadStat.ChartData.push(count);
-						$scope.workloadStat.ChartHeight = $scope.workloadStat.ChartLabels.length * 10;
-					}
+                        // For chart display
+                        //$scope.workloadStat.ChartLabels = Object.keys(result);
+                        _.each(orderedData, function (data) {
+                            $scope.workloadStat.ChartLabels.push(data.Owner);
+                            count.push(data.Count);
+                            days.push(data.Days);
+                        });
 
-					$scope.workloadStat.Collected = true;
+                        $scope.workloadStat.ChartData.push(days);
+                        $scope.workloadStat.ChartData.push(count);
+                        $scope.workloadStat.ChartHeight = $scope.workloadStat.ChartLabels.length * 10;
+                    }
 
-					return true;
-				};
+                    $scope.workloadStat.Collected = true;
 
-				$scope.resetWorkloadStat = function () {
-					$scope.workloadStat = {};
-				}
+                    return true;
+                };
+
+                $scope.resetWorkloadStat = function () {
+                    $scope.workloadStat = {};
+                }
 
 				/**
 				 * @name	checkStatPermision
@@ -361,17 +415,17 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 * @returns	If the current user has permission to see the data stat table/charter
 				 */
-				$scope.checkStatPermision = function () {
-					if (document.getElementById('userId').value === 'dameng.zhang@carestream.com') {
-						return true;
-					} else {
-						return false;
-					}
-				};
+                $scope.checkStatPermision = function () {
+                    if (document.getElementById('userId').value === 'dameng.zhang@carestream.com') {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                };
 
-				$scope.orderChanged = function () {
-					$scope.OrderByValue = $scope.OrderByValues[$scope.OrderByOptionIndex];
-				}
+                $scope.orderChanged = function () {
+                    $scope.OrderByValue = $scope.OrderByValues[$scope.OrderByOptionIndex];
+                }
 
 				/**
 				 * @name	export
@@ -379,14 +433,14 @@ define(['app', 'underscore', 'jquery'],
 				 * @description	Copy the current filtered data to clipboard
 				 *
 				 */
-				$scope.export = function () {
-					var data = 'ID\tDescription\tPriority\tOwner\tIteration\tState\tReject';
-					_.each($scope.filteredRecords, function (record) {
-						data += '\r\n' + record.id + '\t' + record.Description + '\t' + record.Priority+ '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject;
-					});
+                $scope.export = function () {
+                    var data = 'ID\tDescription\tPriority\tOwner\tIteration\tState\tReject';
+                    _.each($scope.filteredRecords, function (record) {
+                        data += '\r\n' + record.id + '\t' + record.Description + '\t' + record.Priority + '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject;
+                    });
 
-					window.alert(utility.copyToClipboard(data) ? 'Data get copied to clipboard.' : 'Copy to clipboard failed.');
-				}
+                    window.alert(utility.copyToClipboard(data) ? 'Data get copied to clipboard.' : 'Copy to clipboard failed.');
+                }
 
 				/**
 				 * @name	getProjectSummaryReport
@@ -397,41 +451,41 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 * @returns	Summary report is saved to $scope.projectcSummary.
 				 */
-				$scope.getProjectSummaryReport = function(token) {
-					$scope.inQuerying = true;
-					$scope.projectSummary = {};
-					if (!token) {
-						token = rallyAuthService.getAuthenticationToken();
-					}
+                $scope.getProjectSummaryReport = function (token) {
+                    $scope.inQuerying = true;
+                    $scope.projectSummary = {};
+                    if (!token) {
+                        token = rallyAuthService.getAuthenticationToken();
+                    }
 
-					$scope.summaryByProject($scope.sprint, token)
-						.then(function (result) {
-							for (var project in result) {
-								if (!result[project]['Not Start']) {
-									result[project]['Not Start'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
-								}
+                    $scope.summaryByProject($scope.sprint, token)
+                        .then(function (result) {
+                            for (var project in result) {
+                                if (!result[project]['Not Start']) {
+                                    result[project]['Not Start'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
+                                }
 
-								if (!result[project]['In-Progress']) {
-									result[project]['In-Progress'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
-								}
+                                if (!result[project]['In-Progress']) {
+                                    result[project]['In-Progress'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
+                                }
 
-								if (!result[project]['Completed']) {
-									result[project]['Completed'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
-								}
+                                if (!result[project]['Completed']) {
+                                    result[project]['Completed'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
+                                }
 
-								if (!result[project]['Accepted']) {
-									result[project]['Accepted'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
-								}
+                                if (!result[project]['Accepted']) {
+                                    result[project]['Accepted'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
+                                }
 
-								result[project].Total = (result[project]['Not Start']._Count + result[project]['In-Progress']._Count + result[project]['Completed']._Count + result[project]['Accepted']._Count) + ' ('
-														+ (result[project]['Not Start'].Estimate + result[project]['In-Progress'].Estimate + result[project]['Completed'].Estimate + result[project]['Accepted'].Estimate)
-														+ 'D)';
-							}
+                                result[project].Total = (result[project]['Not Start']._Count + result[project]['In-Progress']._Count + result[project]['Completed']._Count + result[project]['Accepted']._Count) + ' ('
+                                    + (result[project]['Not Start'].Estimate + result[project]['In-Progress'].Estimate + result[project]['Completed'].Estimate + result[project]['Accepted'].Estimate)
+                                    + 'D)';
+                            }
 
-							$scope.projectSummary = result;
-						})
-						.finally(function () { $scope.inQuerying = false; });;
-				}
+                            $scope.projectSummary = result;
+                        })
+                        .finally(function () { $scope.inQuerying = false; });;
+                }
 
 				/**
 				 * @name	summaryByProject
@@ -443,37 +497,37 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 * @returns	Promise to the summary result.
 				 */
-				$scope.summaryByProject = function (sprint, token) {
-					var stateFunc = function (record) {
-						var state = 'Not Start';
-						if (record.ScheduleState == 'In-Progress' || record.ScheduleState == 'Completed' || record.ScheduleState == 'Accepted') {
-							state = record.ScheduleState;
-						};
+                $scope.summaryByProject = function (sprint, token) {
+                    var stateFunc = function (record) {
+                        var state = 'Not Start';
+                        if (record.ScheduleState == 'In-Progress' || record.ScheduleState == 'Completed' || record.ScheduleState == 'Accepted') {
+                            state = record.ScheduleState;
+                        };
 
-						return state;
-					};
+                        return state;
+                    };
 
-					
-					var deferred = $q.defer();
 
-					$q.all([
-					rallyQueryService.getFromRally(rallyRestApi.getApiUrlTaskSummary(sprint, 'hierarchicalrequirement'), token),
-					rallyQueryService.getFromRally(rallyRestApi.getApiUrlTaskSummary(sprint, 'defect'), token)
-					])
-						.then(function (lists) {
-							var result = _.union(lists[0], lists[1]);
+                    var deferred = $q.defer();
 
-							result = utility.groupByMultiple(result, ['Release', stateFunc], ['Estimate', 'TimeSpent']);
+                    $q.all([
+                        rallyQueryService.getFromRally(rallyRestApi.getApiUrlTaskSummary(sprint, 'hierarchicalrequirement'), token),
+                        rallyQueryService.getFromRally(rallyRestApi.getApiUrlTaskSummary(sprint, 'defect'), token)
+                    ])
+                        .then(function (lists) {
+                            var result = _.union(lists[0], lists[1]);
 
-							deferred.resolve(result);
-						})
-						.catch(function (error) {
-							reportError(error);
-							deferred.reject(error);
-						});
+                            result = utility.groupByMultiple(result, ['Release', stateFunc], ['Estimate', 'TimeSpent']);
 
-					return deferred.promise;
-				}
+                            deferred.resolve(result);
+                        })
+                        .catch(function (error) {
+                            reportError(error);
+                            deferred.reject(error);
+                        });
+
+                    return deferred.promise;
+                }
 
 				/**
 				 * @name	getProjectSummaryReportPeriodically
@@ -482,15 +536,15 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 * @returns	The project summary report periodically.
 				 */
-				$scope.getProjectSummaryReportPeriodically = function () {
-					if (!$scope.sprint || $scope.sprint < 1) { return; }
+                $scope.getProjectSummaryReportPeriodically = function () {
+                    if (!$scope.sprint || $scope.sprint < 1) { return; }
 
-					var token = "ZGFtZW5nLnpoYW5nQGNhcmVzdHJlYW0uY29tOjFxYXoyV1NY";
+                    var token = "ZGFtZW5nLnpoYW5nQGNhcmVzdHJlYW0uY29tOjFxYXoyV1NY";
 
-					$scope.getProjectSummaryReport(token);
-					$scope.LastUpdate = "Last update at " + new Date().toLocaleTimeString();
-					setTimeout($scope.getProjectSummaryReportPeriodically, 60000 * 10);
-				}
+                    $scope.getProjectSummaryReport(token);
+                    $scope.LastUpdate = "Last update at " + new Date().toLocaleTimeString();
+                    setTimeout($scope.getProjectSummaryReportPeriodically, 60000 * 10);
+                }
 
 				/**
 				 * @name	reportError
@@ -500,13 +554,13 @@ define(['app', 'underscore', 'jquery'],
 				 * @param	error	The error object.
 				 *
 				 */
-				function reportError(error) {
-					console.error(error.statusText);
-					if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
-						$scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
-					} else {
-						$scope.ErrorMsg = error.statusText;
-					}
-				}
-			}]);
-	});
+                function reportError(error) {
+                    console.error(error.statusText);
+                    if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
+                        $scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
+                    } else {
+                        $scope.ErrorMsg = error.statusText;
+                    }
+                }
+            }]);
+    });

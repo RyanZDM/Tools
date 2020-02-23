@@ -55,7 +55,9 @@ define(['app'], function (app) {
 			"Tidi Zhu": "tidi.zhu@carestream.com",
 			"David Yang": "deqing.yang@carestream.com",
 			"Cheng Song": "cheng.song@carestream.com",
-			"Justin Shi": "chunming.shi@carestream.com",
+            "Justin Shi": "chunming.shi@carestream.com",
+            "Ben Tang": "xiaowei.tang@carestream.com",
+            "Yufang Xu": "yufang.xu@carestream.com",
 		};
 
 		/**
