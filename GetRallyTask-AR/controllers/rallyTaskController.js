@@ -75,9 +75,10 @@ define(['app', 'underscore', 'jquery'],
 						});
 
 						if (otherInfo !== '') {
-							otherInfo = otherInfo.substring(0, otherInfo.length - 1);
-							localStorage.setItem($scope.SAVED_OTHERINFO, otherInfo);
+							otherInfo = otherInfo.substring(0, otherInfo.length - 1);							
 						}
+
+						localStorage.setItem($scope.SAVED_OTHERINFO, otherInfo);
                     }
                 }
 
