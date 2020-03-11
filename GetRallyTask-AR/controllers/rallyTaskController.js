@@ -31,7 +31,8 @@ define(['app', 'underscore', 'jquery'],
 				$scope.OtherInfoLabel = 'Comments';
                 $scope.LastFilteredCount = 0;
                 $scope.LastRecordCount = 0;
-                $scope.SDCOnly = true;
+				$scope.SDCOnly = false;
+				$scope.TaijiOnly = true;
                 $scope.DEOnly = false;
                 $scope.ShowP1 = true;
                 $scope.ShowP2 = true;
@@ -268,6 +269,10 @@ define(['app', 'underscore', 'jquery'],
 
                     if ($scope.DEOnly && task.id.indexOf("DE") === -1) return false;
 
+					if ($scope.TaijiOnly) {
+						if (task.Project != "Team Taiji") return false;
+					}
+
                     // #Configurable here#
                     // Change the condition for different project
                     if ($scope.SDCOnly) {
@@ -279,7 +284,7 @@ define(['app', 'underscore', 'jquery'],
                         });
 
                         if (!find) return false;
-                    }
+					}
 
                     if ($scope.ShowFailedOnly) {
                         return task.EverFailed;
