@@ -28,7 +28,7 @@ define(['app', 'underscore', 'jquery'],
                 $scope.OwnerNameList = Object.keys(rallyRestApi.OwnerEmailMapping);
                 $scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
 				$scope.SaveOtherInfo2Local = true;
-				$scope.OtherInfoLabel = 'Other';
+				$scope.OtherInfoLabel = 'Comments';
                 $scope.LastFilteredCount = 0;
                 $scope.LastRecordCount = 0;
                 $scope.SDCOnly = true;
@@ -435,9 +435,9 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 */
                 $scope.export = function () {
-                    var data = 'ID\tDescription\tPriority\tOwner\tIteration\tState\tReject';
+                    var data = 'ID\tDescription\tPriority\tOwner\tIteration\tState\tReject\t' + $scope.OtherInfoLabel;
                     _.each($scope.filteredRecords, function (record) {
-                        data += '\r\n' + record.id + '\t' + record.Description + '\t' + record.Priority + '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject;
+						data += '\r\n' + record.id + '\t' + record.Description + '\t' + record.Priority + '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject + '\t' + record.Other;
                     });
 
                     window.alert(utility.copyToClipboard(data) ? 'Data get copied to clipboard.' : 'Copy to clipboard failed.');

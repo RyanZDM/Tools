@@ -32,6 +32,7 @@ function RallyTask(jsonObj) {
 	this.FlowStateChangedDate = (jsonObj['FlowStateChangedDate']) ? jsonObj['FlowStateChangedDate'] : '';
 	this.Project = (jsonObj['Project']) ? jsonObj['Project']._refObjectName : '';
 	this.Feature = (jsonObj['Feature']) ? jsonObj['Feature']._refObjectName : '';
+	this.Other = '';
 
 	if (jsonObj['c_PLIEventCRNumber']) {
 		this.id = this.id + '/' + jsonObj.c_PLIEventCRNumber;

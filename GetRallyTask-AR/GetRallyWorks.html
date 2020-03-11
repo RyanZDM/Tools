@@ -215,14 +215,14 @@
 									<th>Ever Failed</th>
 									<th data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>
 									<!--<th>Testable</th>-->
-									<th>BlockedReason</th>
-									<!--<th>AC</th>-->
 									<th class="col-3" width="10%">
 										<div class="input-group">
 											<input type="checkbox" ng-model="SaveOtherInfo2Local" />
-											<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label"/>
+											<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label" />
 										</div>
 									</th>
+									<th>BlockedReason</th>
+									<!--<th>AC</th>-->
 								</tr>
 							</thead>
 							<tbody>
@@ -241,12 +241,12 @@
 									<td align="center"><div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div></td>
 									<td align="center"><div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div></td>
 									<!--<td align="center">{{task.Testable ? '' : 'No'}}</td>-->
-									<td>{{task.BlockedReason}}</td>
-									<!--<td>{{task.AC}}</td>-->
-                                    <td class="col-3" width="10%">
+									<td class="col-3" width="10%">
 										<textarea style="word-break:break-all" class="form-control" ng-model="task.Other"></textarea>
 										<!--<input type="text" style="word-break:break-all" class="form-control" ng-model="task.Other"/>-->
 									</td>
+									<td>{{task.BlockedReason}}</td>
+									<!--<td>{{task.AC}}</td>-->
 								</tr>
 							</tbody>
 						</table>
