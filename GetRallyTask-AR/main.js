@@ -5,7 +5,7 @@ require.config({
 		"jquery": "libs/jquery/3.2.1/jquery",
 		"angular": "libs/angularjs/1.4.6/angular",
 		"domReady": "libs/require-domready/2.0.1/domReady",
-		"bootstrap": "libs/bootstrap/3.3.7/bootstrap",
+		"bootstrap": "libs/bootstrap/current/bootstrap",
 		"underscore": "libs/underscore/1.8.3/underscore",
 		"moment": "libs/momentjs/2.23.0/moment.min",
 		"chart": "libs/chartjs/2.8.0/Chart.min",

@@ -265,7 +265,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 		 */
 		function reCalculateTaskSpentTime(taskList, authToken) {
 			var promises = [];
-			var ownerEmailList = Object.values(rallyRestApi.OwnerEmailMapping);
+			//var ownerEmailList = Object.keys(rallyRestApi.OwnerEmailMapping);
 			taskList.forEach(function (task) {
 				if (task.TaskLink !== '') {
 					var deferred = $.Deferred();
@@ -278,17 +278,18 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 									if (subTask["Owner"]) {
 										if (task.Owner === subTask.Owner._refObjectName) {
 											actuals = actuals + subTask.Actuals;
-										} else {	// Found the task with the different owner, create a new Task for it. But would not create new task if he/she is not in the email list
-											var otherOwner = subTask.Owner._refObjectName.toLowerCase();
-											if (ownerEmailList.indexOf(otherOwner) != -1) {
-												var anotherTask = { Owner: otherOwner, Actuals: subTask.Actuals };
-												if (task["OtherOwnerTasks"]) {
-													task.OtherOwnerTasks.push(anotherTask);
-												} else {
-													task["OtherOwnerTasks"] = [anotherTask];
-												}
+										} else {	// Found the task with the different owner, create a new Task for it.
+											var otherOwner = subTask.Owner._refObjectName;
+											var anotherTask = { Owner: otherOwner, Actuals: subTask.Actuals };
+											if (task["OtherOwnerTasks"]) {
+												task.OtherOwnerTasks.push(anotherTask);
+											} else {
+												task["OtherOwnerTasks"] = [anotherTask];
 											}
 										}
+									} else {
+										// If the owner of sub task is null, assume it is the same with parent
+										actuals = actuals + subTask.Actuals;
 									}
 								}
 							})
@@ -300,15 +301,10 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 										return result + ((current.Owner === key) ? current.Actuals : 0);
 									}, 0);
 
-									var otherTask = new RallyTask({});
-									otherTask.id = task.id;
-									otherTask.Link = task.Link;
-									otherTask.Description = task.Description;
-									otherTask.Iteration = task.Iteration;
+									var otherTask = task.clone("OtherOwnerTasks");
 									otherTask.Owner = key;
 									otherTask.Actuals = totalTimeSpent;
-									otherTask.Estimate = totalTimeSpent / 6;	// Assume 6 working hours a day
-									otherTask.ScheduleState = task.ScheduleState;
+									otherTask.FakeTask = true;	// This is not a real Rally task
 									return otherTask;
 								});
 

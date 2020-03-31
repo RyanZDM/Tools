@@ -12,7 +12,14 @@ function RallyTask(jsonObj) {
 	this.Link = ('_ref' in jsonObj) ? jsonObj['_ref'].toLowerCase()
 													.replace('slm/webservice/v2.0', '#/278792303760ud/detail')
 													.replace('hierarchicalrequirement', 'userstory') : '';
-	this.Description = ('Name' in jsonObj) ? jsonObj['Name'] : '';
+	this.Title = ('Name' in jsonObj) ? jsonObj['Name'] : '';
+	this.Description = (jsonObj['Description']) ? jsonObj['Description'] : '';
+	this.Description = this.Description.replace(/<br \/>/g, '\n')
+										.replace(/&nbsp;/g, ' ')
+										.replace(/&lt;/g, '<')
+										.replace(/&gt;/g, '>')
+										.replace(/<\/?p>|<\/?strong>|<\/?span[^>]*>|<\/?p[^>]*>|<\/?a[^>]*>/g, '')
+										;
 	this.Estimate = (jsonObj['PlanEstimate']) ? jsonObj['PlanEstimate'] : 0;
 	this.TimeSpent = (jsonObj['TaskEstimateTotal']) ? jsonObj['TaskEstimateTotal'] : 0;
 	this.ScheduleState = jsonObj['ScheduleState'];
@@ -33,6 +40,24 @@ function RallyTask(jsonObj) {
 	this.Project = (jsonObj['Project']) ? jsonObj['Project']._refObjectName : '';
 	this.Feature = (jsonObj['Feature']) ? jsonObj['Feature']._refObjectName : '';
 	this.Other = '';
+
+	this.clone = function (exclude) {
+		var excludes = [];
+		if (Array.isArray(exclude)) {
+			excludes = exclude;
+		} else if (typeof exclude === 'string') {
+			excludes.push(exclude);
+		}
+
+		var newTask = {};
+		for (var propertyName in this) {
+			if (!excludes.includes(propertyName)) {
+				newTask[propertyName] = this[propertyName];
+			}
+		}
+
+		return newTask;
+	};
 
 	if (jsonObj['c_PLIEventCRNumber']) {
 		this.id = this.id + '/' + jsonObj.c_PLIEventCRNumber;

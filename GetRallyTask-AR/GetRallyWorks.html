@@ -7,7 +7,7 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<script src="libs\requirejs\2.3.5\require.min.js" data-main="main.js"></script>
-	<link rel="stylesheet" href="libs\bootstrap\3.3.7\bootstrap.min.css" />
+	<link rel="stylesheet" href="libs\bootstrap\current\bootstrap.min.css" />
 
 	<style>
 		input.ng-invalid {
@@ -56,6 +56,12 @@
 				text-indent: 0;
 			}
 	</style>
+
+	<script>
+		function initTooltip() {
+			$('[data-toggle="tooltip"]').tooltip();
+		}
+	</script>
 </head>
 <body>
 	<form name="taskForm" ng-controller="rallyTaskController">
@@ -132,7 +138,8 @@
 								<input type="checkbox" class="custom-control-input" ng-model="IgnoreScheduleState" />
 							</div>
 						</div>
-						<div class="col-md-2"><!--style="width:auto"-->
+						<div class="col-md-2">
+							<!--style="width:auto"-->
 							<button class="btn btn-md btn-block btn-default"
 									id="btnRefresh"
 									ng-disabled="inQuerying"
@@ -200,12 +207,15 @@
 						</div>
 					</div>
 					<div class="row">
+						<!--<button type="button" class="btn btn-secondary" onclick="initTooltip()" data-toggle="tooltip" data-html="true" title="<em>Tooltip</em> <u>with</u> <b>HTML</b>">
+							Tooltip with HTML
+						</button>-->
 						<table class="table table-hover table-bordered table-responsive" border="1" id="result">
 							<thead>
 								<tr>
 									<th>#</th>
 									<th data-toggle="tooltip" title="Highlight in bold means was changed today">ID</th>
-									<th>Description</th>
+									<th data-toggle="tooltip" data-html="true">Description</th>
 									<th>Priority</th>
 									<th>Est.<br />(Day)</th>
 									<th>Act.<br />(Hour)</th>
@@ -218,7 +228,8 @@
 									<!--<th>Testable</th>-->
 									<th class="col-3" width="10%">
 										<div class="input-group">
-											<input type="checkbox" ng-model="SaveOtherInfo2Local" />
+											<input type="checkbox" ng-model="IfSaveOtherInfo2Local" />
+											<label class="btn btn-default btn-sm h-50" ng-click="SaveOtherInfo2Local()">S</label>
 											<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label" />
 										</div>
 									</th>
@@ -231,7 +242,9 @@
 									ng-style="{ 'textDecoration' : task.Reject ? 'line-through' : 'none', 'fontStyle' : task.Testable ? 'normal' : 'italic', 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray')) }">
 									<td align="center">{{$index + 1}}</td>
 									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
-									<td><a href='{{task.Link}}'><b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>{{task.Description}}</a></td>
+									<td data-toggle="tooltip" title={{task.Description}} data-html="true">
+										<a href='{{task.Link}}'><b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>{{task.Title}}</a>
+									</td>
 									<td align="center">{{task.Priority}}</td>
 									<td align="right">{{task.Estimate}}</td>
 									<td align="right">{{task.Actuals}}</td>
