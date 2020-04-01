@@ -21,7 +21,7 @@ function RallyTask(jsonObj) {
 										.replace(/<\/?p>|<\/?strong>|<\/?span[^>]*>|<\/?p[^>]*>|<\/?a[^>]*>/g, '')
 										;
 	this.Estimate = (jsonObj['PlanEstimate']) ? jsonObj['PlanEstimate'] : 0;
-	this.TimeSpent = (jsonObj['TaskEstimateTotal']) ? jsonObj['TaskEstimateTotal'] : 0;
+	this.Actuals = (jsonObj['TaskEstimateTotal']) ? jsonObj['TaskEstimateTotal'] : 0;
 	this.ScheduleState = jsonObj['ScheduleState'];
 	this.Owner = (jsonObj['Owner'] && jsonObj.Owner['_refObjectName']) ? jsonObj.Owner._refObjectName : '';
 	this.Release = (jsonObj['Release']) ? (jsonObj.Release['Name'] ? jsonObj.Release.Name : jsonObj.Release._refObjectName) : '';

@@ -43,6 +43,7 @@ define(['app', 'underscore', 'jquery'],
             	$scope.ShowCompleted = true;
             	$scope.ShowAccepted = true;
             	$scope.ShowFailedOnly = false;
+            	$scope.ShowFakeTask = true;
 
             	$scope.OrderByOptions = [{ value: 0, name: 'Default' },
                 { value: 1, name: 'Priority' },
@@ -259,6 +260,8 @@ define(['app', 'underscore', 'jquery'],
 				 * @returns	false if do not want to show
 				 */
             	$scope.scheduleStateFilter = function (task) {
+            		if (!$scope.ShowFakeTask && task.FakeTask) return false;
+
             		var isP1 = /\[Phase I]/i.test(task.Release);
             		var isP2 = /\[Phase II]/i.test(task.Release);
             		var isOthers = !(isP1 || isP2);
@@ -442,7 +445,7 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 */
             	$scope.export = function () {
-            		var data = 'ID\tDescription\tPriority\tOwner\tIteration\tState\tReject\t' + $scope.OtherInfoLabel;
+            		var data = 'ID\tTitle\tPriority\tOwner\tIteration\tState\tReject\t' + $scope.OtherInfoLabel;
             		_.each($scope.filteredRecords, function (record) {
             			data += '\r\n' + record.id + '\t' + record.Title + '\t' + record.Priority + '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject + '\t' + record.Other;
             		});

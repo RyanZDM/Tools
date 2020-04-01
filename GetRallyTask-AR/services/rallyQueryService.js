@@ -271,25 +271,19 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 					var deferred = $.Deferred();
 					$http.get(rallyRestApi.getApiUrlSubTask(task.TaskLink), { headers: { "Authorization": "Basic " + authToken } })
 						.then(function (data) {
-							var actuals = 0;
-							// accumulate the totoal time spent hours
+							// accumulate the totoal time spent hours if have one more owner for this task
 							data.data.QueryResult.Results.forEach(function (subTask) {
 								if ($.isNumeric(subTask.Actuals) && subTask.Actuals > 0) {
-									if (subTask["Owner"]) {
-										if (task.Owner === subTask.Owner._refObjectName) {
-											actuals = actuals + subTask.Actuals;
-										} else {	// Found the task with the different owner, create a new Task for it.
-											var otherOwner = subTask.Owner._refObjectName;
-											var anotherTask = { Owner: otherOwner, Actuals: subTask.Actuals };
-											if (task["OtherOwnerTasks"]) {
-												task.OtherOwnerTasks.push(anotherTask);
-											} else {
-												task["OtherOwnerTasks"] = [anotherTask];
-											}
-										}
-									} else {
+									if (subTask["Owner"] && task.Owner !== subTask.Owner._refObjectName) {
+										// If the task is assigned to different owner, create a new Task for it.
 										// If the owner of sub task is null, assume it is the same with parent
-										actuals = actuals + subTask.Actuals;
+										var otherOwner = subTask.Owner._refObjectName;
+										var anotherTask = { Owner: otherOwner, Actuals: subTask.Actuals, State: subTask.State };
+										if (task["OtherOwnerTasks"]) {
+											task.OtherOwnerTasks.push(anotherTask);
+										} else {
+											task["OtherOwnerTasks"] = [anotherTask];
+										}
 									}
 								}
 							})
@@ -297,13 +291,31 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 							if (task["OtherOwnerTasks"]) { // Contains at least one task which belong to the different owner
 								var groupTasks = _.groupBy(task.OtherOwnerTasks, function (element) { return element.Owner; });
 								var mergedTasks = _.map(groupTasks, function (value, key) {
+									var state = "";
 									var totalTimeSpent = _.reduce(task.OtherOwnerTasks, function (result, current) {
+										// State: Defined, In-Progress, Completed
+										if (state !== current.State) {
+											switch (state) {
+												case "In-Progress":	// Should be In-Progress
+													break;
+												case "Completed":	// Should be the same with new value
+													state = current.State;
+													break;
+												case "Defined":		// Should be the same with new value except that the new state is Completed
+													if (current.State !== "Completed") { state = current.State; }
+													break;
+												default:
+													state = current.State;
+											}
+										}
+
 										return result + ((current.Owner === key) ? current.Actuals : 0);
 									}, 0);
 
 									var otherTask = task.clone("OtherOwnerTasks");
 									otherTask.Owner = key;
 									otherTask.Actuals = totalTimeSpent;
+									otherTask.ScheduleState = state;
 									otherTask.FakeTask = true;	// This is not a real Rally task
 									return otherTask;
 								});
@@ -312,7 +324,6 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 								task.OtherOwnerTasks = Array.from(Object.values(mergedTasks));
 							}
 
-							if (actuals > 0) { task.Actuals = actuals; }
 							deferred.resolve(task);
 						},
 							function (error) {
