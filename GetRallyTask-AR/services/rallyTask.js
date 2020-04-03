@@ -39,6 +39,7 @@ function RallyTask(jsonObj) {
 	this.FlowStateChangedDate = (jsonObj['FlowStateChangedDate']) ? jsonObj['FlowStateChangedDate'] : '';
 	this.Project = (jsonObj['Project']) ? jsonObj['Project']._refObjectName : '';
 	this.Feature = (jsonObj['Feature']) ? jsonObj['Feature']._refObjectName : '';
+	this.SubTasks = '';
 	this.Other = '';
 
 	this.clone = function (exclude) {

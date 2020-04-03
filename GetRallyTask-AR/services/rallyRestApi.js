@@ -209,7 +209,7 @@ define(['app'], function (app) {
 			 */
 			getApiUrlSubTask: function (taskUrl) {
 				//return taskUrl + "?query=(State = Completed) &fetch=Owner,TimeSpent,Actuals&pagesize=1999";
-				return taskUrl + "?&fetch=Owner,Actuals,State&pagesize=1999";
+				return taskUrl + "?&fetch=FormattedID,Owner,Actuals,State&pagesize=1999";
 			},
 
 			/**

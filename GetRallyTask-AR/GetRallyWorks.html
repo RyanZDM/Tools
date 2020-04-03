@@ -194,6 +194,10 @@
 									DE Only
 									<input type="checkbox" ng-model="DEOnly" ng-click="resetWorkloadStat()" id="DE" class="badgebox"><span class="badge">&check;</span>
 								</label>
+								<label for="FakeTask" class="btn btn-default" data-toggle="tooltip" title="Show sub tasks if has one more owner for a task">
+									Sub Task
+									<input type="checkbox" ng-model="ShowFakeTask" ng-click="resetWorkloadStat()" id="FakeTask" class="badgebox"><span class="badge">&check;</span>
+								</label>
 							</div>
 						</div>
 					</div>
@@ -275,7 +279,7 @@
 								<!-- TODO: special color for the fake task? -->
 								<tr ng-repeat="task in TaskList | orderBy:OrderByValue |filter: scheduleStateFilter as filteredRecords"
 									ng-style="{ 'textDecoration' : task.Reject ? 'line-through' : 'none', 'fontStyle' : task.Testable ? 'normal' : 'italic', 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray')) }">
-									<td align="center">{{$index + 1}}</td>
+									<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
 									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
 									<td data-toggle="tooltip" title={{task.Description}} data-html="true">
 										<a href='{{task.Link}}'><b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>{{task.Title}}</a>

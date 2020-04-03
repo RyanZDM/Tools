@@ -278,7 +278,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 										// If the task is assigned to different owner, create a new Task for it.
 										// If the owner of sub task is null, assume it is the same with parent
 										var otherOwner = subTask.Owner._refObjectName;
-										var anotherTask = { Owner: otherOwner, Actuals: subTask.Actuals, State: subTask.State };
+										var anotherTask = { Owner: otherOwner, Actuals: subTask.Actuals, State: subTask.State, FormattedID: subTask.FormattedID };
 										if (task["OtherOwnerTasks"]) {
 											task.OtherOwnerTasks.push(anotherTask);
 										} else {
@@ -292,6 +292,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 								var groupTasks = _.groupBy(task.OtherOwnerTasks, function (element) { return element.Owner; });
 								var mergedTasks = _.map(groupTasks, function (value, key) {
 									var state = "";
+									var subTasks = "";
 									var totalTimeSpent = _.reduce(task.OtherOwnerTasks, function (result, current) {
 										// State: Defined, In-Progress, Completed
 										if (state !== current.State) {
@@ -309,6 +310,8 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 											}
 										}
 
+										subTasks = current.FormattedID + " ";
+
 										return result + ((current.Owner === key) ? current.Actuals : 0);
 									}, 0);
 
@@ -316,6 +319,8 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 									otherTask.Owner = key;
 									otherTask.Actuals = totalTimeSpent;
 									otherTask.ScheduleState = state;
+									otherTask.SubTasks = subTasks;
+									otherTask.id = task.id + " (" + otherTask.SubTasks.trimRight() + ")";
 									otherTask.FakeTask = true;	// This is not a real Rally task
 									return otherTask;
 								});
