@@ -355,10 +355,14 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 				return angularJsGet("feature", $http, rallyRestApi.getApiUrlFeature(release), token, true);
 			},
 
+			getOpenDefectCRP2: function (token) {
+				return angularJsGet("task", $http, rallyRestApi.UrlOpenDefectCRP2, token, true);
+			},
+
 			getFromRally: function(url, token) {
 				return angularJsGet("task", $http, url, token, true);
 			},
-
+			
 			getWarningReport: getWarningReport,
 
 			reCalculateTaskSpentTime: reCalculateTaskSpentTime,

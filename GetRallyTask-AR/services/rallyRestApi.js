@@ -7,6 +7,13 @@ define(['app'], function (app) {
 							&order=FormattedID\
 							&fetch=FormattedID,Name,Owner,Release,Project,StoryCount,PlanEstimateTotal,PercentDoneByStoryCount,PercentDoneByStoryPlanEstimate,Blocked,BlockedReason,Project\
 							&pagesize=1999';
+		
+		var urlOpenDefectCRP2 = 'https://rally1.rallydev.com/slm/webservice/v2.0/defect?\
+								query=((Release.Name = "Crossroads [Phase II]") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
+								&order=FormattedID\
+								&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature\
+								&pagesize=1999';
+
         // #Configurable here#
         // Change the query checking condition for different team/project
 		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
@@ -58,6 +65,9 @@ define(['app'], function (app) {
             "Justin Shi": "chunming.shi@carestream.com",
             "Ben Tang": "xiaowei.tang@carestream.com",
             "Yufang Xu": "yufang.xu@carestream.com",
+            "Sail Feng": "liming.feng@carestream.com",
+            "Kaliven Lee": "kaliven.li@carestream.com",
+            "Mercy Gong": "yitao.gong@carestream.com",
 		};
 
 		/**
@@ -95,6 +105,8 @@ define(['app'], function (app) {
 			OwnerEmailMapping: ownerEmailMapping,
 
 			UrlFeature: urlFeature,
+
+			UrlOpenDefectCRP2: urlOpenDefectCRP2.replace(/\t/g, ''),
 
 			UrlTaskSummary: urlTaskSummary,
 

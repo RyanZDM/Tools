@@ -43,7 +43,8 @@ define(['app', 'underscore', 'jquery'],
             	$scope.ShowCompleted = true;
             	$scope.ShowAccepted = true;
             	$scope.ShowFailedOnly = false;
-            	$scope.ShowFakeTask = true;
+            	$scope.ShowFakeTask = false;
+            	$scope.QueryType = '';
 
             	$scope.OrderByOptions = [{ value: 0, name: 'Default' },
                 { value: 1, name: 'Priority' },
@@ -161,25 +162,25 @@ define(['app', 'underscore', 'jquery'],
 				 */
             	$scope.refreshTaskList = function () {
             		$scope.initBeforeQuery();
+            		$scope.QueryType = ' --- ' + $scope.owner + '\'s Rally task in sprint ' + $scope.sprint + ' @' + new Date().toLocaleTimeString();
             		$scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': true }, $q)
                         .then(function (result) {
                         	$scope.TaskList = result;
 
                         	// Load the other info from local storage
                         	loadSavedParameters();
-                        })
-                        .finally(function () { $scope.inQuerying = false; });
+                        });
             	};
 
             	/**
 				 * @name	refreshAll
 				 *
-				 * @description	Get the task list of all engineers from Rally, save to $scope.TaskList
+				 * @description	Gets the task list of all engineers from Rally, save to $scope.TaskList
 				 * 
 				 */
             	$scope.refreshAll = function () {
             		$scope.initBeforeQuery();
-
+            		$scope.QueryType = ' --- Rally task in sprint ' + $scope.sprint + ' for ALL person @' + new Date().toLocaleTimeString();
             		var promises = [];
             		//_.each($scope.emailList, function (email) {
             		//	promises.push($scope.refreshTaskByOwner({ 'Owner': email, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
@@ -197,8 +198,34 @@ define(['app', 'underscore', 'jquery'],
                         .catch(function (error) {
                         	reportError(error);
                         })
-                        .finally(function () { $scope.inQuerying = false; });
+                        //.finally(function () { $scope.inQuerying = false; })
+            			;
             	};
+
+            	/**
+				 * @name	getOpenDefects
+				 *
+				 * @descriptions	Gets all open defects of Crossroads phase II
+				 *
+				 */
+            	$scope.getOpenDefects = function () {
+            		$scope.initBeforeQuery();
+            		$scope.QueryType = ' --- ALL Crossroads Phase II open defect @' + new Date().toLocaleTimeString();
+
+            		var token = rallyAuthService.getAuthenticationToken();
+            		rallyQueryService.getOpenDefectCRP2(token).then(function (list) {
+            														$scope.TaskList = list;
+
+            														// Load the other info from local storage
+            														loadSavedParameters();
+            													},
+																function (error) {
+																	reportError(error);
+																})
+            													.then(function () { 
+            														$scope.inQuerying = false; 
+            													});
+            	}
 
             	/**
 				 * @name	refreshTaskByOwner

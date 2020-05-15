@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta charset="utf-8" />
-	<title>Get the task list from Rally via REST API</title> <!-- Using the AngularJS with RequireJS -->
+	<title>Get the task list from Rally</title> <!-- Using the AngularJS with RequireJS -->
 
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<script src="libs\requirejs\2.3.5\require.min.js" data-main="main.js"></script>
@@ -56,18 +56,12 @@
 				text-indent: 0;
 			}
 	</style>
-
-	<script>
-		function initTooltip() {
-			$('[data-toggle="tooltip"]').tooltip();
-		}
-	</script>
 </head>
 <body>
 	<form name="taskForm" ng-controller="rallyTaskController">
 		<!--<form name="taskForm" ng-app="getRallyWorksApp" ng-controller="rallyTaskController">-->
 		<div class="page-header text-primary text-center">
-			<h1>Get Rally Tasks <small>--- Can also find the record of violation of process</small></h1>
+			<h1>Get Rally Tasks <small>{{QueryType}}</small></h1>
 			<div ng-if="checkStatPermision()" class="text-right">
 				<a href="RallyWorkStatitics.html">Rally Warning Report</a>
 			</div>
@@ -77,6 +71,9 @@
 		</div>-->
 		<div class="container-fluid">
 			<div class="panel panel-default">
+				<!--<div class="text-primary text-center">
+					<h1>{{QueryType}}</h1>
+				</div>-->
 				<div class="panel-heading">
 					<div class="row alert alert-warning alert-dismissable pull-right" ng-show="(ErrorMsg)">
 						<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
@@ -126,8 +123,9 @@
 									   placeholder="Enter target sprint" />
 							</div>
 						</div>
-						<div class="col-md-2">
+						<div class="col-md-1">
 							<div class="input-group">
+								<input type="checkbox" class="custom-control-input" ng-model="IgnoreScheduleState" />
 								<span class="input-group-addon"
 									  style="border:0;background:transparent;"
 									  data-toggle="tooltip"
@@ -135,31 +133,45 @@
 									  title="Check if need to get all tasks even though they are not completed or accepted.">
 									Ignore<br />ScheduleState
 								</span>
-								<input type="checkbox" class="custom-control-input" ng-model="IgnoreScheduleState" />
 							</div>
 						</div>
-						<div class="col-md-2">
-							<!--style="width:auto"-->
-							<button class="btn btn-md btn-block btn-default"
-									id="btnRefresh"
-									ng-disabled="inQuerying"
-									ng-click="refreshTaskList()"
-									data-toggle="tooltip"
-									data-placement="top"
-									title="Get tasks belongs to the [Owner] of the specified [Sprint]">
-								Refresh Task List
-							</button>
-						</div>
-						<div class="col-md-2">
-							<button class="btn btn-md btn-block btn-default"
-									id="btnRefreshAll"
-									ng-disabled="inQuerying"
-									ng-click="refreshAll()"
-									data-toggle="tooltip"
-									data-placement="top"
-									title="Get all tasks of all person according to the specified [Sprint]">
-								Get All
-							</button>
+						<div class="col-md-4 pull-right">
+							<div class="input-group">
+								<!--<span class="input-group-addon">Buttons</span>-->
+								<span class="input-group-btn">
+									<button class="btn btn-md btn-block btn-default"
+											id="btnRefresh"
+											ng-disabled="inQuerying"
+											ng-click="refreshTaskList()"
+											data-toggle="tooltip"
+											data-placement="top"
+											title="Get tasks belongs to the [Owner] of the specified [Sprint]">
+										Refresh Task List
+									</button>
+								</span>
+								<span class="input-group-btn">
+									<button class="btn btn-md btn-block btn-default"
+											id="btnRefreshAll"
+											ng-disabled="inQuerying"
+											ng-click="refreshAll()"
+											data-toggle="tooltip"
+											data-placement="top"
+											title="Get all tasks of all person according to the specified [Sprint]">
+										Get All
+									</button>
+								</span>
+								<span class="input-group-btn">
+									<button class="btn btn-md btn-block btn-default"
+											id="btnGetOpenDefects"
+											ng-disabled="inQuerying"
+											ng-click="getOpenDefects()"
+											data-toggle="tooltip"
+											data-placement="top"
+											title="Get all open defects of Crossroads Phase II">
+										Open Defect
+									</button>
+								</span>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -209,9 +221,6 @@
 							<div class="input-group">
 								<span class="input-group-addon">Order By:</span>
 								<select class="btn btn-default" ng-model="OrderByOptionIndex" ng-options="item.value as item.name for item in OrderByOptions" ng-change="orderChanged()">
-									<!--<option value="0">Default</option>
-									<option value="1">Priority</option>
-									<option value="2">ScheduleState</option>-->
 								</select>
 							</div>
 						</div>
@@ -245,9 +254,9 @@
 						</div>
 					</div>
 					<div class="row">
-						<!--<button type="button" class="btn btn-secondary" onclick="initTooltip()" data-toggle="tooltip" data-html="true" title="<em>Tooltip</em> <u>with</u> <b>HTML</b>">
-							Tooltip with HTML
-						</button>-->
+						<!--<span data-toggle="tooltip" data-html="true" title="<em>Tooltip</em> <u>with</u> <b>HTML1</b>">
+							<button type="button" class="btn btn-secondary">Tooltip with HTML</button>
+						</span>-->
 						<table class="table table-hover table-bordered table-responsive" border="1" id="result">
 							<thead>
 								<tr>
@@ -278,21 +287,35 @@
 							<tbody>
 								<!-- TODO: special color for the fake task? -->
 								<tr ng-repeat="task in TaskList | orderBy:OrderByValue |filter: scheduleStateFilter as filteredRecords"
-									ng-style="{ 'textDecoration' : task.Reject ? 'line-through' : 'none', 'fontStyle' : task.Testable ? 'normal' : 'italic', 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray')) }">
+									ng-style="{ 'textDecoration' : task.Reject ? 'line-through' : 'none'
+												, 'fontStyle' : task.Testable ? 'normal' : 'italic'
+												, 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray'))
+												, 'fontSize': task.FakeTask ? '80%' : '100%'
+											}">
 									<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
 									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
 									<td data-toggle="tooltip" title={{task.Description}} data-html="true">
-										<a href='{{task.Link}}'><b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>{{task.Title}}</a>
+										<a href='{{task.Link}}'>
+											<b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>
+											<b ng-show="task.Duplicate"><font color="black">[Duplicate] &nbsp;</font></b>
+											{{task.Title}}
+										</a>
 									</td>
 									<td align="center">{{task.Priority}}</td>
 									<td align="right">{{task.Estimate}}</td>
 									<td align="right">{{task.Actuals}}</td>
 									<td align="center">{{task.Owner}}</td>
 									<td align="center">{{task.Iteration}}</td>
-									<td align="center" ng-show="IgnoreScheduleState"><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.ScheduleState}}</div></td>
+									<td align="center" ng-show="IgnoreScheduleState">
+										<div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.ScheduleState}}</div>
+									</td>
 									<td align="center">{{task.Reject ? 'Y' : ''}}</td>
-									<td align="center"><div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div></td>
-									<td align="center"><div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div></td>
+									<td align="center">
+										<div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div>
+									</td>
+									<td align="center">
+										<div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div>
+									</td>
 									<!--<td align="center">{{task.Testable ? '' : 'No'}}</td>-->
 									<td class="col-3" width="10%">
 										<textarea style="word-break:break-all" class="form-control" ng-model="task.Other"></textarea>

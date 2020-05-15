@@ -27,6 +27,7 @@ function RallyTask(jsonObj) {
 	this.Release = (jsonObj['Release']) ? (jsonObj.Release['Name'] ? jsonObj.Release.Name : jsonObj.Release._refObjectName) : '';
 	this.TaskLink = (jsonObj['Tasks'] && jsonObj.Tasks.Count > 0) ? this.TaskLink = jsonObj.Tasks._ref : '';
 	this.Reject = ((jsonObj['State']) && (/rejected|reject requested/i.test(jsonObj['State']))) ? true : false;
+	this.Duplicate = ((jsonObj['State']) && (/duplicate/i.test(jsonObj['State']))) ? true : false;
 	this.EverFailed = (jsonObj['Description']) ? (jsonObj['Description'].toLowerCase().indexOf('[eetfail') != -1) : false;	// [EETFailed] or [EETFail]
 	this.Blocked = jsonObj.Blocked;
 	this.BlockedReason = (this.Blocked && jsonObj['BlockedReason']) ? jsonObj.BlockedReason : '';
