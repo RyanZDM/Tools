@@ -287,7 +287,7 @@
 							<tbody>
 								<!-- TODO: special color for the fake task? -->
 								<tr ng-repeat="task in TaskList | orderBy:OrderByValue |filter: scheduleStateFilter as filteredRecords"
-									ng-style="{ 'textDecoration' : task.Reject ? 'line-through' : 'none'
+									ng-style="{ 'textDecoration' : (task.Reject || task.Duplicate) ? 'line-through' : 'none'
 												, 'fontStyle' : task.Testable ? 'normal' : 'italic'
 												, 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray'))
 												, 'fontSize': task.FakeTask ? '80%' : '100%'

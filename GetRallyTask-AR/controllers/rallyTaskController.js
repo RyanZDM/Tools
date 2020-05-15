@@ -182,9 +182,6 @@ define(['app', 'underscore', 'jquery'],
             		$scope.initBeforeQuery();
             		$scope.QueryType = ' --- Rally task in sprint ' + $scope.sprint + ' for ALL person @' + new Date().toLocaleTimeString();
             		var promises = [];
-            		//_.each($scope.emailList, function (email) {
-            		//	promises.push($scope.refreshTaskByOwner({ 'Owner': email, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
-            		//})
             		promises.push($scope.refreshTaskByOwner({ 'Owner': '', 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
 
             		$q.all(promises)
@@ -223,7 +220,8 @@ define(['app', 'underscore', 'jquery'],
 																	reportError(error);
 																})
             													.then(function () { 
-            														$scope.inQuerying = false; 
+            														$scope.inQuerying = false;
+            														$scope.$apply();
             													});
             	}
 
