@@ -195,7 +195,7 @@ define(['app', 'underscore', 'jquery'],
                         .catch(function (error) {
                         	reportError(error);
                         })
-                        //.finally(function () { $scope.inQuerying = false; })
+                        .finally(function () { $scope.$apply(); })
             			;
             	};
 
