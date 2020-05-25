@@ -169,7 +169,10 @@ define(['app', 'underscore', 'jquery'],
 
                         	// Load the other info from local storage
                         	loadSavedParameters();
-                        });
+                        })
+            			.then(function () {
+            				setTimeout(function () { $scope.enableHtmlFormatTooltip(); }, 100);
+            			});
             	};
 
             	/**
@@ -195,8 +198,9 @@ define(['app', 'underscore', 'jquery'],
                         .catch(function (error) {
                         	reportError(error);
                         })
-                        .finally(function () { $scope.$apply(); })
-            			;
+                        .finally(function () {
+                        	$scope.enableHtmlFormatTooltip();
+                        });
             	};
 
             	/**
@@ -222,6 +226,7 @@ define(['app', 'underscore', 'jquery'],
             													.then(function () { 
             														$scope.inQuerying = false;
             														$scope.$apply();
+            														$scope.enableHtmlFormatTooltip();
             													});
             	}
 
@@ -442,7 +447,7 @@ define(['app', 'underscore', 'jquery'],
 
             	$scope.resetWorkloadStat = function () {
             		$scope.workloadStat = {};
-            	}
+            	};
 
             	/**
 				 * @name	checkStatPermision
@@ -461,7 +466,13 @@ define(['app', 'underscore', 'jquery'],
 
             	$scope.orderChanged = function () {
             		$scope.OrderByValue = $scope.OrderByValues[$scope.OrderByOptionIndex];
-            	}
+            	};
+
+            	$scope.enableHtmlFormatTooltip = function () {
+            		setTimeout(function () {
+            			$('[data-html="true"]').tooltip({ placement: 'right', delay: { show: 1000, hide: 500 } });;
+            		}, 100);
+            	};
 
             	/**
 				 * @name	export
@@ -476,7 +487,7 @@ define(['app', 'underscore', 'jquery'],
             		});
 
             		window.alert(utility.copyToClipboard(data) ? 'Data get copied to clipboard.' : 'Copy to clipboard failed.');
-            	}
+            	};
 
             	/**
 				 * @name	getProjectSummaryReport
@@ -521,7 +532,7 @@ define(['app', 'underscore', 'jquery'],
                         	$scope.projectSummary = result;
                         })
                         .finally(function () { $scope.inQuerying = false; });;
-            	}
+            	};
 
             	/**
 				 * @name	summaryByProject
@@ -563,7 +574,7 @@ define(['app', 'underscore', 'jquery'],
                         });
 
             		return deferred.promise;
-            	}
+            	};
 
             	/**
 				 * @name	getProjectSummaryReportPeriodically
@@ -580,7 +591,7 @@ define(['app', 'underscore', 'jquery'],
             		$scope.getProjectSummaryReport(token);
             		$scope.LastUpdate = "Last update at " + new Date().toLocaleTimeString();
             		setTimeout($scope.getProjectSummaryReportPeriodically, 60000 * 10);
-            	}
+            	};
 
             	/**
 				 * @name	reportError
@@ -597,6 +608,6 @@ define(['app', 'underscore', 'jquery'],
             		} else {
             			$scope.ErrorMsg = error.statusText;
             		}
-            	}
+            	};
             }]);
     });

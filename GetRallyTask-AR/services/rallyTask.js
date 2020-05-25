@@ -14,12 +14,12 @@ function RallyTask(jsonObj) {
 													.replace('hierarchicalrequirement', 'userstory') : '';
 	this.Title = ('Name' in jsonObj) ? jsonObj['Name'] : '';
 	this.Description = (jsonObj['Description']) ? jsonObj['Description'] : '';
-	this.Description = this.Description.replace(/<br \/>/g, '\n')
-										.replace(/&nbsp;/g, ' ')
-										.replace(/&lt;/g, '<')
-										.replace(/&gt;/g, '>')
-										.replace(/<\/?p>|<\/?strong>|<\/?span[^>]*>|<\/?p[^>]*>|<\/?a[^>]*>/g, '')
-										;
+	//this.Description = this.Description.replace(/<br \/>/g, '\n')
+	//									.replace(/&nbsp;/g, ' ')
+	//									.replace(/&lt;/g, '<')
+	//									.replace(/&gt;/g, '>')
+	//									.replace(/<\/?p>|<\/?strong>|<\/?span[^>]*>|<\/?p[^>]*>|<\/?a[^>]*>/g, '')
+	//									;
 	this.Estimate = (jsonObj['PlanEstimate']) ? jsonObj['PlanEstimate'] : 0;
 	this.Actuals = (jsonObj['TaskEstimateTotal']) ? jsonObj['TaskEstimateTotal'] : 0;
 	this.ScheduleState = jsonObj['ScheduleState'];

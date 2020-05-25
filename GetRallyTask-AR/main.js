@@ -23,6 +23,7 @@ require.config({
 });
 
 require(['jquery']);
+require(['bootstrap']);
 require(['angular-chart']);
 require(['app']);
 require(['services/rallyRestApi']);
@@ -58,5 +59,6 @@ require(['angular', 'app'], function(angular) {
 require(['domReady!'], function (document) {
 	require(['jquery', 'angular'], function ($, angular) {
 		angular.bootstrap(document, ['getRallyWorksApp']);
+		//$('[data-toggle="tooltip"]').tooltip()
 	});
 });

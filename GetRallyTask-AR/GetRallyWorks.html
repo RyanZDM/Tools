@@ -7,6 +7,7 @@
 
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<script src="libs\requirejs\2.3.5\require.min.js" data-main="main.js"></script>
+
 	<link rel="stylesheet" href="libs\bootstrap\current\bootstrap.min.css" />
 
 	<style>
@@ -55,6 +56,14 @@
 				/* Move the check mark back when checked */
 				text-indent: 0;
 			}
+
+		.tooltip-inner {
+			max-width: 800px; /* If max-width does not work, try using width instead */
+			width: 800px;
+			max-height: 1200px;
+			height: 800px;
+			text-align:left;
+		}
 	</style>
 </head>
 <body>
@@ -183,7 +192,7 @@
 						<div class="col-md-7">
 							<div class="pull-right">
 								<label for="other" class="btn btn-default">
-									Other 
+									Other
 									<input type="checkbox" ng-model="ShowOthers" ng-click="resetWorkloadStat()" id="other" class="badgebox"><span class="badge">&check;</span>
 								</label>
 								<label for="p1" class="btn btn-info">
@@ -214,16 +223,40 @@
 						</div>
 					</div>
 					<div class="row">
-						<div class="col-md-1">
-							<button class="btn btn-md btn-block btn-default" style="width:auto" ng-click="export()">To Clipboard</button>
-						</div>
-						<div class="col-md-2">
+						<div class="col-md-3">
 							<div class="input-group">
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-primary" style="width:auto"
+											data-toggle="tooltip"
+											data-placement="right"
+											title="Enable HTML format Tooltip"
+											ng-click="enableHtmlFormatTooltip()">
+										Tooltip
+									</button>
+								</span>
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-primary" style="width:auto"
+											data-toggle="tooltip"
+											data-placement="right"
+											title="Export data to Clipboard"
+											ng-click="export()">
+										Clipboard
+									</button>
+								</span>
 								<span class="input-group-addon">Order By:</span>
-								<select class="btn btn-default" ng-model="OrderByOptionIndex" ng-options="item.value as item.name for item in OrderByOptions" ng-change="orderChanged()">
+								<select class="btn btn-default" 
+										ng-model="OrderByOptionIndex" 
+										ng-options="item.value as item.name for item in OrderByOptions" 
+										ng-change="orderChanged()">
 								</select>
 							</div>
 						</div>
+						<!--<div class="col-md-2">
+							<div class="input-group">
+								<span class="input-group-addon">Order By:</span>
+								<select class="btn btn-default" ng-model="OrderByOptionIndex" ng-options="item.value as item.name for item in OrderByOptions" ng-change="orderChanged()"></select>
+							</div>
+						</div>-->
 						<div class="col-md-9" ng-show="IgnoreScheduleState">
 							<div class="pull-right">
 								<label for="indefine" class="btn btn-default">
@@ -254,9 +287,6 @@
 						</div>
 					</div>
 					<div class="row">
-						<!--<span data-toggle="tooltip" data-html="true" title="<em>Tooltip</em> <u>with</u> <b>HTML1</b>">
-							<button type="button" class="btn btn-secondary">Tooltip with HTML</button>
-						</span>-->
 						<table class="table table-hover table-bordered table-responsive" border="1" id="result">
 							<thead>
 								<tr>
