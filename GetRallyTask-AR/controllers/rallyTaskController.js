@@ -56,6 +56,11 @@ define(['app', 'underscore', 'jquery'],
             	$scope.OrderByOptionIndex = 0;
             	$scope.OrderByValue = $scope.OrderByValues[0];
 
+				// Re-enable the Tooltip since the filtered the tasks changed
+            	$scope.$watch('filteredRecords', function () {
+            		$scope.enableHtmlFormatTooltip();
+            	});
+
             	loadSavedParameters();
 
             	/**
