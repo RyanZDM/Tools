@@ -311,7 +311,6 @@ define(['app', 'underscore', 'jquery'],
             		// #Configurable here#
             		// Change the condition for different project
             		if ($scope.SDCOnly) {
-            			if ((task.Project != "Team Taiji") && (task.Project != "Software")) return false;	// Temp remove it
             			if (!task.Owner || task.Owner == '') return false;
             			var ower = task.Owner.toLowerCase();
             			var find = $scope.OwnerNameList.find(function (data) {
@@ -470,7 +469,7 @@ define(['app', 'underscore', 'jquery'],
 
             	$scope.enableHtmlFormatTooltip = function () {
             		setTimeout(function () {
-            			$('[data-html="true"]').tooltip({ placement: 'right', delay: { show: 1000, hide: 500 } });;
+            			$('[data-html="true"]').tooltip({ placement: 'right', delay: { show: 1000, hide: 100 } });;
             		}, 100);
             	};
 

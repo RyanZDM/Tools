@@ -68,6 +68,7 @@ define(['app'], function (app) {
             "Sail Feng": "liming.feng@carestream.com",
             "Kaliven Lee": "kaliven.li@carestream.com",
             "Mercy Gong": "yitao.gong@carestream.com",
+            "Bryan C": "bryan.chen@carestream.com",
 		};
 
 		/**
