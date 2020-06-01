@@ -474,7 +474,7 @@ define(['app', 'underscore', 'jquery'],
 
             	$scope.enableHtmlFormatTooltip = function () {
             		setTimeout(function () {
-            			$('[data-html="true"]').tooltip({ placement: 'right', delay: { show: 1000, hide: 100 } });;
+            			$('[data-html="true"]').tooltip();
             		}, 100);
             	};
 

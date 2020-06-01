@@ -328,7 +328,7 @@
 											}">
 									<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
 									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
-									<td data-toggle="tooltip" title={{task.Description}} data-html="true">
+									<td data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1000", "hide": "50" }'>
 										<a href='{{task.Link}}'>
 											<b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>
 											<b ng-show="task.Duplicate"><font color="black">[Duplicate] &nbsp;</font></b>
