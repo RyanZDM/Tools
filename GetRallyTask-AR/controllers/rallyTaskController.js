@@ -44,6 +44,7 @@ define(['app', 'underscore', 'jquery'],
             	$scope.ShowAccepted = true;
             	$scope.ShowFailedOnly = false;
             	$scope.ShowFakeTask = false;
+            	$scope.ShowRejectedDefects = true;
             	$scope.QueryType = '';
 
             	$scope.OrderByOptions = [{ value: 0, name: 'Default' },
@@ -324,6 +325,8 @@ define(['app', 'underscore', 'jquery'],
 
             			if (!find) return false;
             		}
+
+            		if (!$scope.ShowRejectedDefects && task.Reject) return false;
 
             		if ($scope.ShowFailedOnly) {
             			return task.EverFailed;
