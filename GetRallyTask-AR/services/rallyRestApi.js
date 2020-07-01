@@ -9,10 +9,16 @@ define(['app'], function (app) {
 							&pagesize=1999';
 		
 		var urlOpenDefectCRP2 = 'https://rally1.rallydev.com/slm/webservice/v2.0/defect?\
-								query=((Release.Name = "Crossroads [Phase II]") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
+								query=((Release.Name = "Crossroads [Phase II]") And ( (ScheduleState != "Completed") And ( (ScheduleState != "Accepted") And (Tags.ObjectID != null) ) ) )\
 								&order=FormattedID\
-								&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature\
+								&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Tags\
 								&pagesize=1999';
+
+		var urlOpenDefectSwiftwater = 'https://rally1.rallydev.com/slm/webservice/v2.0/defect?\
+										query=((Release.Name = "Swiftwater") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
+										&order=FormattedID\
+										&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Tags\
+										&pagesize=1999';
 
         // #Configurable here#
         // Change the query checking condition for different team/project
@@ -74,7 +80,7 @@ define(['app'], function (app) {
 			"Yijiong S": "yijiong.shi@carestream.com",
 			// QA
 			"Ben Tang": "xiaowei.tang@carestream.com",
-			"Yufang Xu": "yufang.xu@carestream.com",
+			"Yufang X": "yufang.xu@carestream.com",
 			"Xueqing Wang": "xueqing.wang@carestream.com",
 			"Annie He": "yanhong.he@carestream.com",
 			"Sherry Hu": "yan.hu@carestream.com",
@@ -118,6 +124,8 @@ define(['app'], function (app) {
 			UrlFeature: urlFeature,
 
 			UrlOpenDefectCRP2: urlOpenDefectCRP2.replace(/\t/g, ''),
+
+			UrlOpenDefectSwiftwater: urlOpenDefectSwiftwater.replace(/\t/g, ''),
 
 			UrlTaskSummary: urlTaskSummary,
 
@@ -177,8 +185,7 @@ define(['app'], function (app) {
 			 * @return		Url used for Ajax call for getting feature list from Rally 
 			 */
 			getApiUrlFeature: function (release) {
-				var qry = (release !== '') ? 'Release.Name Contains "' + release + '"'
-											: 'Release.Name Contains "1.4"';
+				var qry = 'Release.Name Contains' + (release !== '') ? '"' + release + '"' : "Swiftwater";
 				var url = urlFeature.replace('<QueryString>', qry)
 									.replace(/\t/g, '');
 				return url;

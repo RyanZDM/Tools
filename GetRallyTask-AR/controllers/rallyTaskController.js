@@ -34,7 +34,7 @@ define(['app', 'underscore', 'jquery'],
             	$scope.SDCOnly = false;
             	$scope.TaijiOnly = true;
             	$scope.DEOnly = false;
-            	$scope.ShowP1 = true;
+            	$scope.ShowSwiftWater = true;
             	$scope.ShowP2 = true;
             	$scope.ShowOthers = false;
             	$scope.ShowInDefine = true;
@@ -57,6 +57,47 @@ define(['app', 'underscore', 'jquery'],
             	$scope.OrderByOptionIndex = 0;
             	$scope.OrderByValue = $scope.OrderByValues[0];
 
+
+            	var crossroadsPhaseII = {
+            		Name: "Crossroads Phase II",
+            		Url: rallyRestApi.UrlOpenDefectCRP2,
+
+            		inScope: function (release) {
+            			return /\[Phase II]/i.test(release);
+            		},
+
+            		process: function (list) {
+            			// Remove the items that has no tag "1.7" or "CR Phase II"
+            			return list.filter(item => {
+            				if (!item.Tags || item.Count < 1 || !item.Tags._tagsNameArray) return false;
+            				var ret = false;
+            				_.forEach(item.Tags._tagsNameArray, function (tag) {
+            					if (/CR Phase II|1.7/i.test(tag.Name)) {
+            						ret = true;
+            						return;
+            					}
+            				})
+
+            				return ret;
+            			});
+            		}
+            	};
+
+            	var swiftwater = {
+            		Name: "Swiftwater",
+            		Url: rallyRestApi.UrlOpenDefectSwiftwater,
+
+            		inScope: function (release) {
+            			return /\Swiftwater/i.test(release);
+            		},
+
+            		process: function (list) {
+            			return list;
+            		}
+            	};
+
+            	function getCurrentProject() { return swiftwater; }
+
 				// Re-enable the Tooltip since the filtered the tasks changed
             	$scope.$watch('filteredRecords', function () {
             		$scope.enableHtmlFormatTooltip();
@@ -73,7 +114,7 @@ define(['app', 'underscore', 'jquery'],
             	function saveCurrentParameters() {
             		if (!$scope.CanUseLocalStorage) { return; }
 
-            		localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner + ':' + $scope.sprint + ':' + $scope.ShowP1 + ':' + $scope.ShowP2 + ':' + $scope.ShowOthers + ':' + $scope.IfSaveOtherInfo2Local + ':' + $scope.OtherInfoLabel);
+            		localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner + ':' + $scope.sprint + ':' + $scope.ShowP2 + ':' + $scope.ShowSwiftWater + ':' + $scope.ShowOthers + ':' + $scope.IfSaveOtherInfo2Local + ':' + $scope.OtherInfoLabel);
             	}
 
             	/**
@@ -92,8 +133,8 @@ define(['app', 'underscore', 'jquery'],
             		var paramLen = parameters.length;
             		if (paramLen > 0) { $scope.owner = parameters[0]; }
             		if (paramLen > 1) { $scope.sprint = parseInt(parameters[1]); }
-            		if (paramLen > 2) { $scope.ShowP1 = parameters[2] == 'true'; }
-            		if (paramLen > 3) { $scope.ShowP2 = parameters[3] == 'true'; }
+            		if (paramLen > 2) { $scope.ShowP2 = parameters[2] == 'true'; }
+            		if (paramLen > 3) { $scope.ShowSwiftWater = parameters[3] == 'true'; }
             		if (paramLen > 4) { $scope.ShowOthers = parameters[4] == 'true'; }
             		if (paramLen > 5) { $scope.IfSaveOtherInfo2Local = parameters[5] == 'true'; }
             		if (paramLen > 6) { $scope.OtherInfoLabel = parameters[6]; }
@@ -212,16 +253,18 @@ define(['app', 'underscore', 'jquery'],
             	/**
 				 * @name	getOpenDefects
 				 *
-				 * @descriptions	Gets all open defects of Crossroads phase II
+				 * @descriptions	Gets all open defects of current project
 				 *
 				 */
             	$scope.getOpenDefects = function () {
             		$scope.initBeforeQuery();
-            		$scope.QueryType = ' --- ALL Crossroads Phase II open defect @' + new Date().toLocaleTimeString();
 
+            		var currentProject = getCurrentProject();
             		var token = rallyAuthService.getAuthenticationToken();
-            		rallyQueryService.getOpenDefectCRP2(token).then(function (list) {
-            														$scope.TaskList = list;
+
+            		$scope.QueryType = ' --- ALL ' + currentProject.Name + ' open defect @' + new Date().toLocaleTimeString();
+            		rallyQueryService.getFromRally(currentProject.Url, token).then(function (list) {
+            														$scope.TaskList = currentProject.process(list);
 
             														// Load the other info from local storage
             														loadSavedParameters();
@@ -298,11 +341,11 @@ define(['app', 'underscore', 'jquery'],
             	$scope.scheduleStateFilter = function (task) {
             		if (!$scope.ShowFakeTask && task.FakeTask) return false;
 
-            		var isP1 = /\[Phase I]/i.test(task.Release);
-            		var isP2 = /\[Phase II]/i.test(task.Release);
-            		var isOthers = !(isP1 || isP2);
+            		var isSwiftWater = swiftwater.inScope(task.Release);
+            		var isP2 = crossroadsPhaseII.inScope(task.Release);
+            		var isOthers = !(isSwiftWater || isP2);
 
-            		if (!$scope.ShowP1 && isP1) return false;
+            		if (!$scope.ShowSwiftWater && isSwiftWater) return false;
 
             		if (!$scope.ShowP2 && isP2) return false;
 
@@ -326,7 +369,7 @@ define(['app', 'underscore', 'jquery'],
             			if (!find) return false;
             		}
 
-            		if (!$scope.ShowRejectedDefects && task.Reject) return false;
+            		if (!$scope.ShowRejectedDefects && (task.Reject || task.Postpone || task.Duplicate)) return false;
 
             		if ($scope.ShowFailedOnly) {
             			return task.EverFailed;
