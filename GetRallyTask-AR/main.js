@@ -3,7 +3,7 @@
 require.config({
 	paths: {
 		"jquery": "libs/jquery/3.2.1/jquery",
-		"angular": "libs/angularjs/1.4.6/angular",
+		"angular": "libs/angularjs/1.8.0/angular",
 		"domReady": "libs/require-domready/2.0.1/domReady",
 		"bootstrap": "libs/bootstrap/current/bootstrap",
 		"underscore": "libs/underscore/1.8.3/underscore",
@@ -33,6 +33,7 @@ require(['services/utility']);
 require(['services/rallyAuthService']);
 require(['services/rallyQueryService']);
 require(['directives/rallyLoginDirective']);
+require(['directives/labeledCheckboxDirective'])
 require(['controllers/rallyTaskController']);
 require(['controllers/rallyWorkStatController']);
 

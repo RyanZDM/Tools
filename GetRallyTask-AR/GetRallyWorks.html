@@ -6,8 +6,9 @@
 	<title>Get the task list from Rally</title> <!-- Using the AngularJS with RequireJS -->
 
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<script src="libs\requirejs\2.3.5\require.min.js" data-main="main.js"></script>
 
+	<!-- Html style Tooltip would not work if not include the following 2 files -->
+	<script src="libs\requirejs\2.3.5\require.min.js" data-main="main.js"></script>
 	<link rel="stylesheet" href="libs\bootstrap\current\bootstrap.min.css" />
 
 	<style>
@@ -84,9 +85,6 @@
 		</div>-->
 		<div class="container-fluid">
 			<div class="panel panel-default">
-				<!--<div class="text-primary text-center">
-					<h1>{{QueryType}}</h1>
-				</div>-->
 				<div class="panel-heading">
 					<div class="row alert alert-warning alert-dismissable pull-right" ng-show="(ErrorMsg)">
 						<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
@@ -150,7 +148,6 @@
 						</div>
 						<div class="col-md-4 pull-right">
 							<div class="input-group">
-								<!--<span class="input-group-addon">Buttons</span>-->
 								<span class="input-group-btn">
 									<button class="btn btn-md btn-block btn-default"
 											id="btnRefresh"
@@ -180,7 +177,7 @@
 											ng-click="getOpenDefects()"
 											data-toggle="tooltip"
 											data-placement="top"
-											title="Get all open defects of Crossroads Phase II">
+											title="Get all open defects of {{getCurrentProject().Name}}">
 										Open Defect
 									</button>
 								</span>
@@ -195,34 +192,13 @@
 						</div>
 						<div class="col-md-7">
 							<div class="pull-right">
-								<label for="other" class="btn btn-default">
-									Other
-									<input type="checkbox" ng-model="ShowOthers" ng-click="resetWorkloadStat()" id="other" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="p2" class="btn btn-info">
-									Phase II
-									<input type="checkbox" ng-model="ShowP2" ng-click="resetWorkloadStat()" id="p2" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="swiftwater" class="btn btn-primary">
-									Swiftwater
-									<input type="checkbox" ng-model="ShowSwiftWater" ng-click="resetWorkloadStat()" id="swiftwater" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="SDC" class="btn btn-warning" data-toggle="tooltip" title="Show tasks owned by SDC only">
-									SDC Only
-									<input type="checkbox" ng-model="SDCOnly" ng-click="resetWorkloadStat()" id="SDC" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="Taiji" class="btn btn-success" data-toggle="tooltip" title="Show team Taiji task only">
-									Taiji Only
-									<input type="checkbox" ng-model="TaijiOnly" ng-click="resetWorkloadStat()" id="Taiji" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="DE" class="btn btn-success" data-toggle="tooltip" title="Show defect only">
-									DE Only
-									<input type="checkbox" ng-model="DEOnly" ng-click="resetWorkloadStat()" id="DE" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="FakeTask" class="btn btn-default" data-toggle="tooltip" title="Show sub tasks if has one more owner for a task">
-									Sub Task
-									<input type="checkbox" ng-model="ShowFakeTask" ng-click="resetWorkloadStat()" id="FakeTask" class="badgebox"><span class="badge">&check;</span>
-								</label>
+								<labeled-checkbox class="btn-default" uid="other" label="Other" ng-model="ShowOthers" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-info" uid="p2" label="Phase II" ng-model="ShowP2" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-primary" uid="swiftwater" label="Swiftwater" ng-model="ShowSwiftWater" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-warning" uid="SDC" label="SDC Only" ng-model="SDCOnly" action="resetWorkloadStat()" title="Show tasks owned by SDC only"></labeled-checkbox>
+								<labeled-checkbox class="btn-success" uid="Taiji" label="Taiji Only" ng-model="TaijiOnly" action="resetWorkloadStat()" title="Show team Taiji task only"></labeled-checkbox>
+								<labeled-checkbox class="btn-success" uid="DE" label="DE Only" ng-model="DEOnly" action="resetWorkloadStat()" title="Show defect only"></labeled-checkbox>
+								<labeled-checkbox class="btn-default" uid="FakeTask" label="Sub Task" ng-model="ShowFakeTask" action="resetWorkloadStat()" title="Show sub tasks if has one more owner for a task"></labeled-checkbox>
 							</div>
 						</div>
 					</div>
@@ -255,42 +231,15 @@
 								</select>
 							</div>
 						</div>
-						<!--<div class="col-md-2">
-							<div class="input-group">
-								<span class="input-group-addon">Order By:</span>
-								<select class="btn btn-default" ng-model="OrderByOptionIndex" ng-options="item.value as item.name for item in OrderByOptions" ng-change="orderChanged()"></select>
-							</div>
-						</div>-->
 						<div class="col-md-9" ng-show="IgnoreScheduleState">
 							<div class="pull-right">
-								<label for="indefine" class="btn btn-default">
-									In Definition
-									<input type="checkbox" ng-model="ShowInDefine" ng-click="resetWorkloadStat()" id="indefine" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="defined" class="btn btn-info">
-									Defined
-									<input type="checkbox" ng-model="ShowDefined" ng-click="resetWorkloadStat()" id="defined" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="wip" class="btn btn-primary">
-									In-Progress
-									<input type="checkbox" ng-model="ShowWIP" ng-click="resetWorkloadStat()" id="wip" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="completed" class="btn btn-warning">
-									Completed
-									<input type="checkbox" ng-model="ShowCompleted" ng-click="resetWorkloadStat()" id="completed" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="accepted" class="btn btn-success">
-									Accepted
-									<input type="checkbox" ng-model="ShowAccepted" ng-click="resetWorkloadStat()" id="accepted" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="failed" class="btn btn-danger">
-									Failed Only
-									<input type="checkbox" ng-model="ShowFailedOnly" id="failed" class="badgebox"><span class="badge">&check;</span>
-								</label>
-								<label for="rejected" class="btn btn-default">
-									Reject/Postpone
-									<input type="checkbox" ng-model="ShowRejectedDefects" id="rejected" class="badgebox" /><span class="badge">&check;</span>
-								</label>
+								<labeled-checkbox class="btn-default" uid="indefine" label="In Definition" ng-model="ShowInDefine" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-info" uid="defined" label="Defined" ng-model="ShowDefined" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-primary" uid="wip" label="In-Progress" ng-model="ShowWIP" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-warning" uid="completed" label="Completed" ng-model="ShowCompleted" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-success" uid="accepted" label="Accepted" ng-model="ShowAccepted" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-danger" uid="failed" label="Failed Only" ng-model="ShowFailedOnly" action="resetWorkloadStat()" title="Show verify failed tasks only"></labeled-checkbox>
+								<labeled-checkbox class="btn-default" uid="rejected" label="Reject/Postpone" ng-model="ShowRejectedDefects" action="resetWorkloadStat()" title="If to show tasks that mark as Rejected/Reject Requested/Postponed/Postpone Requested/Duplicate"></labeled-checkbox>
 							</div>
 						</div>
 					</div>

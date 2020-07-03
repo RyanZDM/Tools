@@ -96,8 +96,6 @@ define(['app', 'underscore', 'jquery'],
             		}
             	};
 
-            	function getCurrentProject() { return swiftwater; }
-
 				// Re-enable the Tooltip since the filtered the tasks changed
             	$scope.$watch('filteredRecords', function () {
             		$scope.enableHtmlFormatTooltip();
@@ -167,6 +165,8 @@ define(['app', 'underscore', 'jquery'],
             			list[index].Other = value;
             		}
             	}
+
+            	$scope.getCurrentProject = function () { return swiftwater; }
 
             	$scope.SaveOtherInfo2Local = function () {
             		if (!$scope.IfSaveOtherInfo2Local) { return; }
@@ -259,7 +259,7 @@ define(['app', 'underscore', 'jquery'],
             	$scope.getOpenDefects = function () {
             		$scope.initBeforeQuery();
 
-            		var currentProject = getCurrentProject();
+            		var currentProject = $scope.getCurrentProject();
             		var token = rallyAuthService.getAuthenticationToken();
 
             		$scope.QueryType = ' --- ALL ' + currentProject.Name + ' open defect @' + new Date().toLocaleTimeString();

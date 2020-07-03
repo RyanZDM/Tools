@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "controllers", "controllers"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "directives", "directives", "{A3B54627-9A49-4DAB-BA9E-7763F28DA423}"
 	ProjectSection(SolutionItems) = preProject
+		directives\labeledCheckboxDirective.js = directives\labeledCheckboxDirective.js
 		directives\rallyLoginDirective.js = directives\rallyLoginDirective.js
 	EndProjectSection
 EndProject
