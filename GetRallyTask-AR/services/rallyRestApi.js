@@ -199,7 +199,7 @@ define(['app'], function (app) {
 			 * @return		Url used for Ajax call for getting defect and user story list from Rally 
 			 */
 			getApiUrlTask: function (parameters, target) {
-				var ownerStateCondition = (!parameters.IgnoreScheduleState) ? '((ScheduleState = Accepted) OR (ScheduleState = Completed))' : '';
+				var ownerStateCondition = '';	//(!parameters.IgnoreScheduleState) ? '((ScheduleState = Accepted) OR (ScheduleState = Completed))' : '';
 
 				if (parameters.Owner !== '') {
 					if (ownerStateCondition !== '') {
