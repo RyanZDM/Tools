@@ -23,7 +23,6 @@ define(['app', 'underscore', 'jquery'],
             	$scope.inQuerying = false;
             	$scope.ErrorMsg = '';
             	$scope.sprint = 0;
-            	$scope.IgnoreScheduleState = true;
             	$scope.emailList = Object.values(rallyRestApi.OwnerEmailMapping);
             	$scope.OwnerNameList = Object.keys(rallyRestApi.OwnerEmailMapping);
             	$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
@@ -45,7 +44,9 @@ define(['app', 'underscore', 'jquery'],
             	$scope.ShowFailedOnly = false;
             	$scope.ShowFakeTask = false;
             	$scope.ShowRejectedDefects = true;
-            	$scope.QueryType = '';
+            	$scope.QueryForOpenDefect = false;
+            	$scope.QueryTypeString = '';
+				
 
             	$scope.OrderByOptions = [{ value: 0, name: 'Default' },
                 { value: 1, name: 'Priority' },
@@ -209,8 +210,9 @@ define(['app', 'underscore', 'jquery'],
 				 */
             	$scope.refreshTaskList = function () {
             		$scope.initBeforeQuery();
-            		$scope.QueryType = ' --- ' + $scope.owner + '\'s Rally task in sprint ' + $scope.sprint + ' @' + new Date().toLocaleTimeString();
-            		$scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': true }, $q)
+            		$scope.QueryForOpenDefect = false;
+            		$scope.QueryTypeString = ' --- ' + $scope.owner + '\'s Rally task in sprint ' + $scope.sprint + ' @' + new Date().toLocaleTimeString();
+            		$scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'ClearDataFirst': true }, $q)
                         .then(function (result) {
                         	$scope.TaskList = result;
 
@@ -230,9 +232,10 @@ define(['app', 'underscore', 'jquery'],
 				 */
             	$scope.refreshAll = function () {
             		$scope.initBeforeQuery();
-            		$scope.QueryType = ' --- Rally task in sprint ' + $scope.sprint + ' for ALL person @' + new Date().toLocaleTimeString();
+            		$scope.QueryForOpenDefect = false;
+            		$scope.QueryTypeString = ' --- Rally task in sprint ' + $scope.sprint + ' for ALL person @' + new Date().toLocaleTimeString();
             		var promises = [];
-            		promises.push($scope.refreshTaskByOwner({ 'Owner': '', 'Sprint': $scope.sprint, 'IgnoreScheduleState': $scope.IgnoreScheduleState, 'ClearDataFirst': false }, $q));
+            		promises.push($scope.refreshTaskByOwner({ 'Owner': '', 'Sprint': $scope.sprint, 'ClearDataFirst': false }, $q));
 
             		$q.all(promises)
                         .then(function (result) {
@@ -262,7 +265,8 @@ define(['app', 'underscore', 'jquery'],
             		var currentProject = $scope.getCurrentProject();
             		var token = rallyAuthService.getAuthenticationToken();
 
-            		$scope.QueryType = ' --- ALL ' + currentProject.Name + ' open defect @' + new Date().toLocaleTimeString();
+            		$scope.QueryForOpenDefect = true;
+            		$scope.QueryTypeString = ' --- ALL ' + currentProject.Name + ' open defect @' + new Date().toLocaleTimeString();
             		rallyQueryService.getFromRally(currentProject.Url, token).then(function (list) {
             														$scope.TaskList = currentProject.process(list);
 
@@ -374,8 +378,6 @@ define(['app', 'underscore', 'jquery'],
             		if ($scope.ShowFailedOnly) {
             			return task.EverFailed;
             		}
-
-            		if (!$scope.IgnoreScheduleState) return true;
 
             		switch (task.ScheduleState) {
             			case 'Completed':
@@ -507,6 +509,8 @@ define(['app', 'underscore', 'jquery'],
 				 * @returns	If the current user has permission to see the data stat table/charter
 				 */
             	$scope.checkStatPermision = function () {
+            		if ($scope.QueryForOpenDefect) return false;
+
             		if (document.getElementById('userId').value === 'dameng.zhang@carestream.com') {
             			return true;
             		} else {

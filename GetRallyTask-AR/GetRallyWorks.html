@@ -11,78 +11,17 @@
 	<script src="libs\requirejs\2.3.5\require.min.js" data-main="main.js"></script>
 	<link rel="stylesheet" href="libs\bootstrap\current\bootstrap.min.css" />
 
-	<style>
-		input.ng-invalid {
-			background-color: lightblue;
-		}
-
-		table th {
-			text-align: center;
-		}
-
-		table, th, td {
-			border: 1px solid grey;
-			border-collapse: collapse;
-			padding: 5px;
-		}
-
-			table tr:nth-child(odd) {
-				background-color: #f1f1f1;
-			}
-
-			table tr:nth-child(even) {
-				background-color: #ffffff;
-			}
-
-		.badgebox {
-			opacity: 0;
-		}
-
-			.badgebox + .badge {
-				/* Move the check mark away when unchecked */
-				text-indent: -999999px;
-				/* Makes the badge's width stay the same checked and unchecked */
-				width: 27px;
-			}
-
-			.badgebox:focus + .badge {
-				/* Set something to make the badge looks focused */
-				/* This really depends on the application, in my case it was: */
-				/* Adding a light border */
-				box-shadow: inset 0px 0px 5px;
-				/* Taking the difference out of the padding */
-			}
-
-			.badgebox:checked + .badge {
-				/* Move the check mark back when checked */
-				text-indent: 0;
-			}
-
-		.tooltip-inner {
-			text-align:left;
-			max-width: none;
-			white-space: normal;
-			color: black;
-			background: lightgray;
-			border: 1px solid gray;
-			box-shadow: 0px 3px 3px 0px rgba(0,0,0,0.3);
-			margin: 10px;
-			padding: 10px;
-		}
-	</style>
+	<link rel="stylesheet" href="rallytask.css" />
 </head>
 <body>
 	<form name="taskForm" ng-controller="rallyTaskController">
 		<!--<form name="taskForm" ng-app="getRallyWorksApp" ng-controller="rallyTaskController">-->
 		<div class="page-header text-primary text-center">
-			<h1>Get Rally Tasks <small>{{QueryType}}</small></h1>
+			<h1>Get Rally Tasks <small>{{QueryTypeString}}</small></h1>
 			<div ng-if="checkStatPermision()" class="text-right">
 				<a href="RallyWorkStatitics.html">Rally Warning Report</a>
 			</div>
 		</div>
-		<!--<div class="jumbotron text-center">
-			<h1>Get Rally Tasks</h1>
-		</div>-->
 		<div class="container-fluid">
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -132,18 +71,6 @@
 									   ng-model="sprint"
 									   required
 									   placeholder="Enter target sprint" />
-							</div>
-						</div>
-						<div class="col-md-1">
-							<div class="input-group">
-								<input type="checkbox" class="custom-control-input" ng-model="IgnoreScheduleState" />
-								<span class="input-group-addon"
-									  style="border:0;background:transparent;"
-									  data-toggle="tooltip"
-									  data-placement="top"
-									  title="Check if need to get all tasks even though they are not completed or accepted.">
-									Ignore<br />ScheduleState
-								</span>
 							</div>
 						</div>
 						<div class="col-md-4 pull-right">
@@ -231,14 +158,14 @@
 								</select>
 							</div>
 						</div>
-						<div class="col-md-9" ng-show="IgnoreScheduleState">
+						<div class="col-md-9">
 							<div class="pull-right">
 								<labeled-checkbox class="btn-default" uid="indefine" label="In Definition" ng-model="ShowInDefine" action="resetWorkloadStat()"></labeled-checkbox>
 								<labeled-checkbox class="btn-info" uid="defined" label="Defined" ng-model="ShowDefined" action="resetWorkloadStat()"></labeled-checkbox>
 								<labeled-checkbox class="btn-primary" uid="wip" label="In-Progress" ng-model="ShowWIP" action="resetWorkloadStat()"></labeled-checkbox>
-								<labeled-checkbox class="btn-warning" uid="completed" label="Completed" ng-model="ShowCompleted" action="resetWorkloadStat()"></labeled-checkbox>
-								<labeled-checkbox class="btn-success" uid="accepted" label="Accepted" ng-model="ShowAccepted" action="resetWorkloadStat()"></labeled-checkbox>
-								<labeled-checkbox class="btn-danger" uid="failed" label="Failed Only" ng-model="ShowFailedOnly" action="resetWorkloadStat()" title="Show verify failed tasks only"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-warning" uid="completed" label="Completed" ng-model="ShowCompleted" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-success" uid="accepted" label="Accepted" ng-model="ShowAccepted" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-danger" uid="failed" label="Failed Only" ng-model="ShowFailedOnly" action="resetWorkloadStat()" title="Show verify failed tasks only"></labeled-checkbox>
 								<labeled-checkbox class="btn-default" uid="rejected" label="Reject/Postpone" ng-model="ShowRejectedDefects" action="resetWorkloadStat()" title="If to show tasks that mark as Rejected/Reject Requested/Postponed/Postpone Requested/Duplicate"></labeled-checkbox>
 							</div>
 						</div>
@@ -249,17 +176,16 @@
 								<tr>
 									<th>#</th>
 									<th data-toggle="tooltip" title="Highlight in bold means was changed today">ID</th>
-									<th data-toggle="tooltip" data-html="true">Description</th>
+									<th data-toggle="tooltip">Description</th>
 									<th>Priority</th>
 									<th>Est.<br />(Day)</th>
 									<th>Act.<br />(Hour)</th>
 									<th>Owner</th>
 									<th>Iteration</th>
-									<th ng-show="IgnoreScheduleState" data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
-									<th>Reject</th>
-									<th>Ever Failed</th>
-									<th data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>
-									<!--<th>Testable</th>-->
+									<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
+									<th ng-hide="QueryForOpenDefect" >Reject</th>
+									<th ng-hide="QueryForOpenDefect">Ever Failed</th>
+									<!--<th ng-hide="QueryForOpenDefect'" data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>-->
 									<th class="col-3" width="10%">
 										<div class="input-group">
 											<input type="checkbox" ng-model="IfSaveOtherInfo2Local" />
@@ -268,7 +194,6 @@
 										</div>
 									</th>
 									<th>BlockedReason</th>
-									<!--<th>AC</th>-->
 								</tr>
 							</thead>
 							<tbody>
@@ -293,22 +218,20 @@
 									<td align="right">{{task.Actuals}}</td>
 									<td align="center">{{task.Owner}}</td>
 									<td align="center">{{task.Iteration}}</td>
-									<td align="center" ng-show="IgnoreScheduleState">
+									<td align="center">
 										<div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.ScheduleState}}</div>
 									</td>
-									<td align="center">{{task.Reject ? 'Y' : ''}}</td>
-									<td align="center">
+									<td ng-hide="QueryForOpenDefect" align="center">{{task.Reject ? 'Y' : ''}}</td>
+									<td ng-hide="QueryForOpenDefect" align="center">
 										<div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div>
 									</td>
-									<td align="center">
+									<!--<td ng-hide="QueryForOpenDefect" align="center">
 										<div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div>
-									</td>
-									<!--<td align="center">{{task.Testable ? '' : 'No'}}</td>-->
+									</td>-->
 									<td class="col-3" width="10%">
 										<textarea style="word-break:break-all" class="form-control" ng-model="task.Other"></textarea>
 									</td>
 									<td>{{task.BlockedReason}}</td>
-									<!--<td>{{task.AC}}</td>-->
 								</tr>
 							</tbody>
 						</table>
