@@ -46,6 +46,7 @@ define(['app', 'underscore', 'jquery'],
             	$scope.ShowRejectedDefects = true;
             	$scope.QueryForOpenDefect = false;
             	$scope.QueryTypeString = '';
+            	$scope.DeOrUs = 'ALL'
 				
 
             	$scope.OrderByOptions = [{ value: 0, name: 'Default' },
@@ -61,7 +62,7 @@ define(['app', 'underscore', 'jquery'],
 
             	var crossroadsPhaseII = {
             		Name: "Crossroads Phase II",
-            		Url: rallyRestApi.UrlOpenDefectCRP2,
+            		Urls: [rallyRestApi.UrlOpenDefectCRP2],
 
             		inScope: function (release) {
             			return /\[Phase II]/i.test(release);
@@ -86,7 +87,7 @@ define(['app', 'underscore', 'jquery'],
 
             	var swiftwater = {
             		Name: "Swiftwater",
-            		Url: rallyRestApi.UrlOpenDefectSwiftwater,
+            		Urls: [rallyRestApi.UrlOpenDefectSwiftwater, rallyRestApi.UrlOpenUsSwiftwater],
 
             		inScope: function (release) {
             			return /\Swiftwater/i.test(release);
@@ -266,21 +267,26 @@ define(['app', 'underscore', 'jquery'],
             		var token = rallyAuthService.getAuthenticationToken();
 
             		$scope.QueryForOpenDefect = true;
-            		$scope.QueryTypeString = ' --- ALL ' + currentProject.Name + ' open defect @' + new Date().toLocaleTimeString();
-            		rallyQueryService.getFromRally(currentProject.Url, token).then(function (list) {
-            														$scope.TaskList = currentProject.process(list);
+            		$scope.QueryTypeString = ' --- ALL ' + currentProject.Name + ' open tasks @' + new Date().toLocaleTimeString();
+            		var promises = [];
+            		currentProject.Urls.forEach(function (url) {
+            			promises.push(rallyQueryService.getFromRally(url, token));
+            		});
 
-            														// Load the other info from local storage
-            														loadSavedParameters();
-            													},
-																function (error) {
-																	reportError(error);
-																})
-            													.then(function () { 
-            														$scope.inQuerying = false;
-            														$scope.$apply();
-            														$scope.enableHtmlFormatTooltip();
-            													});
+            		$q.all(promises).then(function (list) {
+									$scope.TaskList = currentProject.process(_.union(list[0], list[1]));
+
+										// Load the other info from local storage
+										loadSavedParameters();
+									},
+									function (error) {
+										reportError(error);
+									})
+									.then(function () {
+										$scope.inQuerying = false;
+										//$scope.$apply();
+										$scope.enableHtmlFormatTooltip();
+									});
             	}
 
             	/**
@@ -355,7 +361,9 @@ define(['app', 'underscore', 'jquery'],
 
             		if (!$scope.ShowOthers && isOthers) return false;
 
-            		if ($scope.DEOnly && task.id.indexOf("DE") === -1) return false;
+            		if ($scope.DeOrUs === 'DE Only' && task.id.indexOf("DE") === -1) return false;
+
+            		if ($scope.DeOrUs === 'US Only' && task.id.indexOf("US") === -1) return false;
 
             		if ($scope.TaijiOnly) {
             			if (task.Project != "Team Taiji") return false;

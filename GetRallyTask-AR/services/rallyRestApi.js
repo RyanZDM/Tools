@@ -14,7 +14,8 @@ define(['app'], function (app) {
 								&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Tags\
 								&pagesize=1999';
 
-		var urlOpenDefectSwiftwater = 'https://rally1.rallydev.com/slm/webservice/v2.0/defect?\
+		var urlOpenTaskSwiftwater = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
+										<target>?\
 										query=((Release.Name = "Swiftwater") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
 										&order=FormattedID\
 										&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Tags\
@@ -125,7 +126,9 @@ define(['app'], function (app) {
 
 			UrlOpenDefectCRP2: urlOpenDefectCRP2.replace(/\t/g, ''),
 
-			UrlOpenDefectSwiftwater: urlOpenDefectSwiftwater.replace(/\t/g, ''),
+			UrlOpenDefectSwiftwater: urlOpenTaskSwiftwater.replace(/\t/g, '').replace(/<target>/g, 'defect'),
+
+			UrlOpenUsSwiftwater: urlOpenTaskSwiftwater.replace(/\t/g, '').replace(/<target>/g, 'hierarchicalrequirement'),
 
 			UrlTaskSummary: urlTaskSummary,
 

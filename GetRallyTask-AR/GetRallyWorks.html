@@ -126,6 +126,14 @@
 								<labeled-checkbox class="btn-success" uid="Taiji" label="Taiji Only" ng-model="TaijiOnly" action="resetWorkloadStat()" title="Show team Taiji task only"></labeled-checkbox>
 								<labeled-checkbox class="btn-success" uid="DE" label="DE Only" ng-model="DEOnly" action="resetWorkloadStat()" title="Show defect only"></labeled-checkbox>
 								<labeled-checkbox class="btn-default" uid="FakeTask" label="Sub Task" ng-model="ShowFakeTask" action="resetWorkloadStat()" title="Show sub tasks if has one more owner for a task"></labeled-checkbox>
+								<span>
+									<select class="btn btn-primary" ng-model="DeOrUs">
+											<option>ALL</option>
+											<option>DE Only</option>
+											<option>US Only</option>
+											<!--ng-change="orderChanged()">-->
+									</select>
+								</span>
 							</div>
 						</div>
 					</div>
@@ -183,9 +191,9 @@
 									<th>Owner</th>
 									<th>Iteration</th>
 									<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
-									<th ng-hide="QueryForOpenDefect" >Reject</th>
-									<th ng-hide="QueryForOpenDefect">Ever Failed</th>
-									<!--<th ng-hide="QueryForOpenDefect'" data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>-->
+									<th ng-if="!QueryForOpenDefect" >Reject</th>
+									<th ng-if="!QueryForOpenDefect">Ever Failed</th>
+									<!--<th ng-if="!QueryForOpenDefect'" data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>-->
 									<th class="col-3" width="10%">
 										<div class="input-group">
 											<input type="checkbox" ng-model="IfSaveOtherInfo2Local" />
@@ -221,11 +229,11 @@
 									<td align="center">
 										<div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.ScheduleState}}</div>
 									</td>
-									<td ng-hide="QueryForOpenDefect" align="center">{{task.Reject ? 'Y' : ''}}</td>
-									<td ng-hide="QueryForOpenDefect" align="center">
+									<td ng-if="!QueryForOpenDefect" align="center">{{task.Reject ? 'Y' : ''}}</td>
+									<td ng-if="!QueryForOpenDefect" align="center">
 										<div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div>
 									</td>
-									<!--<td ng-hide="QueryForOpenDefect" align="center">
+									<!--<td ng-if="!QueryForOpenDefect" align="center">
 										<div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div>
 									</td>-->
 									<td class="col-3" width="10%">

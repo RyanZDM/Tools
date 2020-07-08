@@ -22,6 +22,7 @@ table, th, td {
 
 .badgebox {
 	opacity: 0;
+	width: 0px;
 }
 
 .badgebox + .badge {
