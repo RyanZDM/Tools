@@ -119,19 +119,18 @@
 						</div>
 						<div class="col-md-7">
 							<div class="pull-right">
-								<labeled-checkbox class="btn-default" uid="other" label="Other" ng-model="ShowOthers" action="resetWorkloadStat()"></labeled-checkbox>
-								<labeled-checkbox class="btn-info" uid="p2" label="Phase II" ng-model="ShowP2" action="resetWorkloadStat()"></labeled-checkbox>
-								<labeled-checkbox class="btn-primary" uid="swiftwater" label="Swiftwater" ng-model="ShowSwiftWater" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="!QueryForOpenDefect" class="btn-info" uid="unassigned" label="Unassigned Only" ng-model="ShowUnassignedOnly" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-default" uid="other" label="Other" ng-model="ShowOthers" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-info" uid="p2" label="Phase II" ng-model="ShowP2" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-primary" uid="swiftwater" label="Swiftwater" ng-model="ShowSwiftWater" action="resetWorkloadStat()"></labeled-checkbox>
 								<labeled-checkbox class="btn-warning" uid="SDC" label="SDC Only" ng-model="SDCOnly" action="resetWorkloadStat()" title="Show tasks owned by SDC only"></labeled-checkbox>
 								<labeled-checkbox class="btn-success" uid="Taiji" label="Taiji Only" ng-model="TaijiOnly" action="resetWorkloadStat()" title="Show team Taiji task only"></labeled-checkbox>
-								<labeled-checkbox class="btn-success" uid="DE" label="DE Only" ng-model="DEOnly" action="resetWorkloadStat()" title="Show defect only"></labeled-checkbox>
 								<labeled-checkbox class="btn-default" uid="FakeTask" label="Sub Task" ng-model="ShowFakeTask" action="resetWorkloadStat()" title="Show sub tasks if has one more owner for a task"></labeled-checkbox>
 								<span>
-									<select class="btn btn-primary" ng-model="DeOrUs">
-											<option>ALL</option>
-											<option>DE Only</option>
-											<option>US Only</option>
-											<!--ng-change="orderChanged()">-->
+									<select class="btn btn-primary" ng-model="DeOrUs" ng-change="resetWorkloadStat()">
+										<option>ALL</option>
+										<option>DE Only</option>
+										<option>US Only</option>
 									</select>
 								</span>
 							</div>
@@ -173,8 +172,8 @@
 								<labeled-checkbox class="btn-primary" uid="wip" label="In-Progress" ng-model="ShowWIP" action="resetWorkloadStat()"></labeled-checkbox>
 								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-warning" uid="completed" label="Completed" ng-model="ShowCompleted" action="resetWorkloadStat()"></labeled-checkbox>
 								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-success" uid="accepted" label="Accepted" ng-model="ShowAccepted" action="resetWorkloadStat()"></labeled-checkbox>
-								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-danger" uid="failed" label="Failed Only" ng-model="ShowFailedOnly" action="resetWorkloadStat()" title="Show verify failed tasks only"></labeled-checkbox>
 								<labeled-checkbox class="btn-default" uid="rejected" label="Reject/Postpone" ng-model="ShowRejectedDefects" action="resetWorkloadStat()" title="If to show tasks that mark as Rejected/Reject Requested/Postponed/Postpone Requested/Duplicate"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-danger" uid="failed" label="Failed Only" ng-model="ShowFailedOnly" action="resetWorkloadStat()" title="Show verify failed tasks only"></labeled-checkbox>
 							</div>
 						</div>
 					</div>
@@ -215,7 +214,7 @@
 									<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
 									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
 									<td data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "50" }'>
-										<a href='{{task.Link}}'>
+										<a href='{{task.Link}}' target="_blank">
 											<b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>
 											<b ng-show="task.Duplicate"><font color="black">[Duplicate] &nbsp;</font></b>
 											{{task.Title}}

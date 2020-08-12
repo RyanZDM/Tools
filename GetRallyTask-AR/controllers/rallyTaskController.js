@@ -29,7 +29,8 @@ define(['app', 'underscore', 'jquery'],
             	$scope.IfSaveOtherInfo2Local = true;
             	$scope.OtherInfoLabel = 'Comments';
             	$scope.LastFilteredCount = 0;
-            	$scope.LastRecordCount = 0;
+				$scope.LastRecordCount = 0;
+				$scope.ShowUnassignedOnly = false;
             	$scope.SDCOnly = false;
             	$scope.TaijiOnly = true;
             	$scope.DEOnly = false;
@@ -359,7 +360,9 @@ define(['app', 'underscore', 'jquery'],
 
             		if (!$scope.ShowP2 && isP2) return false;
 
-            		if (!$scope.ShowOthers && isOthers) return false;
+					if (!$scope.ShowOthers && isOthers) return false;
+
+					if ($scope.QueryForOpenDefect && $scope.ShowUnassignedOnly && task.Owner !== '') return false;
 
             		if ($scope.DeOrUs === 'DE Only' && task.id.indexOf("DE") === -1) return false;
 

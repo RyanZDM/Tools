@@ -26,7 +26,7 @@ define(['app'], function (app) {
 		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
 							query=((Iteration.Name = "Sprint <sprint>")\
-									 And ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "OTC") Or (Project.Name = "Team Taiji"))))\
+									 And ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "Swiftwater") Or (Project.Name = "Team Taiji"))))\
 							&order=Iteration,LastUpdateDate\
 							&fetch=FormattedID,PlanEstimate,TaskEstimateTotal,Release,ScheduleState,State,Blocked\
 							&pagesize=1999';
@@ -35,7 +35,7 @@ define(['app'], function (app) {
         // Change the query checking condition for different team/project
 		var urlTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
-							query=( ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "OTC") Or (Project.Name = "Team Taiji")))\
+							query=( ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "Swiftwater") Or (Project.Name = "Team Taiji")))\
 									 And (<dateCondition> <ownerStateCondition>)\
 								  )\
 							&order=Iteration,LastUpdateDate\
@@ -51,11 +51,14 @@ define(['app'], function (app) {
 			"Gary Liu": "gary.liu@carestream.com",
 			"Benny Liu": "lei.liu@carestream.com",
 			"Sail Feng": "liming.feng@carestream.com",
+			"Wei Pi": "wei.pi@carestream.com",
+			"Yusheng Liao": "yusheng.liao@carestream.com",
+			"Siyuan Li": "siyuan.li@carestream.com",
 			// Dunhuang
 			"Taylor Tao": "lian.tao@carestream.com",
-			"Peter Y": "qinqiang.yan@carestream.com",
 			"Xianjun Z": "xianjun.zhan@carestream.com",
-			"Iris J": "lili.jiang@carestream.com",
+			"Sen Gao": "sen.gao@carestream.com",
+			"Chunxu Shi": "chunxun.shi@carestream.com",
 			// Wudang
 			"Terry Zhou": "jun.zhou@carestream.com",
 			"Bryan C": "bryan.chen@carestream.com",
@@ -63,8 +66,16 @@ define(['app'], function (app) {
 			"Tidi Zhu": "tidi.zhu@carestream.com",
 			"Dean Peng": "dean.peng@carestream.com",
 			"Cheng Luo": "cheng.luo@carestream.com",
-			"Lyman M": "liang.ma@carestream.com",
 			"Jun Sun": "jun.sun@carestream.com",
+			"Vivi Wang": "vivi.wang@carestream.com",
+			"Nianshuang Li": "nianshuang.li@carestream.com",
+			"Iris J": "lili.jiang@carestream.com",
+			// Team PengLai
+			"Peter Y": "qinqiang.yan@carestream.com",
+			"Lyman M": "liang.ma@carestream.com",
+			"Donny Liu": "donny.liu@carestream.com",
+			"San Shi": "zhan.shi@carestream.com",
+			"Scott Wu": "scott.wu@carestream.com",
 			// CPE
 			"Kaliven Lee": "kaliven.li@carestream.com",
 			"David Yang": "deqing.yang@carestream.com",
@@ -108,7 +119,7 @@ define(['app'], function (app) {
 					dateCondition = ' ((AcceptedDate >= "2019-01-01") OR (InProgressDate >= "2019-01-01")) ';
 					//dateCondition = ' (Iteration.Name > "Sprint 47") ';
 					break;
-				default:	// is > 0  Note: Do NOT use the condition "Iteration.Name = Sprint xxx" because that the comparation is case sensitive
+				default:	// is > 0  Note: Do NOT use the condition "Iteration.Name = Sprint xxx" because that the comparision is case sensitive
 					dateCondition = ' (Iteration.Name Contains "' + sprint + '") ';
 			}
 
@@ -132,7 +143,7 @@ define(['app'], function (app) {
 
 			UrlTaskSummary: urlTaskSummary,
 
-			// <target> must be either 'defect' or 'hierarchicalrequirement', the blank spack befor and operator are MUST
+			// <target> must be either 'defect' or 'hierarchicalrequirement', the blank space before and operator are MUST
 			UrlTask: urlTask,
 
 			UrlWarnings: {
@@ -242,7 +253,7 @@ define(['app'], function (app) {
 			 */
 			getApiUrlSubTask: function (taskUrl) {
 				//return taskUrl + "?query=(State = Completed) &fetch=Owner,TimeSpent,Actuals&pagesize=1999";
-				return taskUrl + "?&fetch=FormattedID,Owner,Actuals,State&pagesize=1999";
+				return taskUrl + "?&fetch=FormattedID,Owner,Actuals,State,Title&pagesize=1999";
 			},
 
 			/**

@@ -278,7 +278,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 										// If the task is assigned to different owner, create a new Task for it.
 										// If the owner of sub task is null, assume it is the same with parent
 										var otherOwner = subTask.Owner._refObjectName;
-										var anotherTask = { Owner: otherOwner, Actuals: subTask.Actuals, State: subTask.State, FormattedID: subTask.FormattedID };
+										var anotherTask = { Owner: otherOwner, Actuals: subTask.Actuals, State: subTask.State, FormattedID: subTask.FormattedID, Title: subTask.Name };
 										if (task["OtherOwnerTasks"]) {
 											task.OtherOwnerTasks.push(anotherTask);
 										} else {
@@ -321,6 +321,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 									otherTask.ScheduleState = state;
 									otherTask.SubTasks = subTasks;
 									otherTask.id = task.id + " (" + otherTask.SubTasks.trimRight() + ")";
+									//otherTask.Title = 
 									otherTask.FakeTask = true;	// This is not a real Rally task
 									return otherTask;
 								});
