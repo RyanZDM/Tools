@@ -11,8 +11,9 @@ define(['app', 'underscore', 'jquery'],
             'rallyQueryService',
             'rallyRestApi',
             'utility',
+            'CurrentSettings',
 
-            function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi, utility) {
+            function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi, utility, CurrentSettings) {
             	$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
             	$scope.SAVED_PARAMETERS = 'RallyTaskQueryParameters';
             	$scope.SAVED_OTHERINFO = 'RallyTaskOtherInfo';
@@ -32,9 +33,11 @@ define(['app', 'underscore', 'jquery'],
 				$scope.LastRecordCount = 0;
 				$scope.ShowUnassignedOnly = false;
             	$scope.SDCOnly = false;
-            	$scope.TaijiOnly = true;
+                $scope.CurrentTeamOnly = true;
+                $scope.CurrentTeam = CurrentSettings.TeamShortName;
             	$scope.DEOnly = false;
-            	$scope.ShowSwiftWater = true;
+                $scope.ShowCurrentRelease = true;
+                $scope.CurrentRelease = CurrentSettings.Release;
             	$scope.ShowP2 = true;
             	$scope.ShowOthers = false;
             	$scope.ShowInDefine = true;
@@ -97,14 +100,22 @@ define(['app', 'underscore', 'jquery'],
             		process: function (list) {
             			return list;
             		}
-            	};
+                };
+
+                // #Configurable here#
+                // Add new object for new added release, refer to "crossradsPhseII" or "swiftwater" about how to...
+                $scope.getCurrentProject = function () {
+                    if (CurrentRelease === 'SwiftWater') return swiftwater;
+                    if (CurrentRelease === 'Crossroads') return crossroadsPhaseII;
+
+	                return swiftwater;
+                }
+                // #Configurable end#
 
 				// Re-enable the Tooltip since the filtered the tasks changed
             	$scope.$watch('filteredRecords', function () {
             		$scope.enableHtmlFormatTooltip();
             	});
-
-            	loadSavedParameters();
 
             	/**
 				 * @name	saveCurrentParameters()
@@ -115,7 +126,7 @@ define(['app', 'underscore', 'jquery'],
             	function saveCurrentParameters() {
             		if (!$scope.CanUseLocalStorage) { return; }
 
-            		localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner + ':' + $scope.sprint + ':' + $scope.ShowP2 + ':' + $scope.ShowSwiftWater + ':' + $scope.ShowOthers + ':' + $scope.IfSaveOtherInfo2Local + ':' + $scope.OtherInfoLabel);
+            		localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner + ':' + $scope.sprint + ':' + $scope.ShowP2 + ':' + $scope.ShowCurrentRelease + ':' + $scope.ShowOthers + ':' + $scope.IfSaveOtherInfo2Local + ':' + $scope.OtherInfoLabel);
             	}
 
             	/**
@@ -135,7 +146,7 @@ define(['app', 'underscore', 'jquery'],
             		if (paramLen > 0) { $scope.owner = parameters[0]; }
             		if (paramLen > 1) { $scope.sprint = parseInt(parameters[1]); }
             		if (paramLen > 2) { $scope.ShowP2 = parameters[2] == 'true'; }
-            		if (paramLen > 3) { $scope.ShowSwiftWater = parameters[3] == 'true'; }
+            		if (paramLen > 3) { $scope.ShowCurrentRelease = parameters[3] == 'true'; }
             		if (paramLen > 4) { $scope.ShowOthers = parameters[4] == 'true'; }
             		if (paramLen > 5) { $scope.IfSaveOtherInfo2Local = parameters[5] == 'true'; }
             		if (paramLen > 6) { $scope.OtherInfoLabel = parameters[6]; }
@@ -155,7 +166,9 @@ define(['app', 'underscore', 'jquery'],
             				updateOtherInfo($scope.TaskList, id, value);
             			}
             		}
-            	}
+                }
+
+                loadSavedParameters();
 
             	function updateOtherInfo(list, id, value) {
             		var index = _.findIndex(list, function (task) {
@@ -168,8 +181,6 @@ define(['app', 'underscore', 'jquery'],
             			list[index].Other = value;
             		}
             	}
-
-            	$scope.getCurrentProject = function () { return swiftwater; }
 
             	$scope.SaveOtherInfo2Local = function () {
             		if (!$scope.IfSaveOtherInfo2Local) { return; }
@@ -265,18 +276,18 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 */
             	$scope.getOpenDefects = function () {
-            		$scope.initBeforeQuery();
+                    $scope.initBeforeQuery();
 
-            		var currentProject = $scope.getCurrentProject();
             		var token = rallyAuthService.getAuthenticationToken();
 
             		$scope.QueryForOpenDefect = true;
-            		$scope.QueryTypeString = ' --- ALL ' + currentProject.Name + ' open tasks @' + new Date().toLocaleTimeString();
+            		$scope.QueryTypeString = ' --- ALL ' + CurrentRelease + ' open tasks @' + new Date().toLocaleTimeString();
             		var promises = [];
             		currentProject.Urls.forEach(function (url) {
             			promises.push(rallyQueryService.getFromRally(url, token));
             		});
 
+                    var currentProject = $scope.getCurrentProject();
             		$q.all(promises).then(function (list) {
 									$scope.TaskList = currentProject.process(_.union(list[0], list[1]));
 
@@ -355,11 +366,11 @@ define(['app', 'underscore', 'jquery'],
             	$scope.scheduleStateFilter = function (task) {
             		if (!$scope.ShowFakeTask && task.FakeTask) return false;
 
-            		var isSwiftWater = swiftwater.inScope(task.Release);
+                    var isCurrentRelease = $scope.getCurrentProject().inScope(task.Release);
             		var isP2 = crossroadsPhaseII.inScope(task.Release);
-            		var isOthers = !(isSwiftWater || isP2);
+            		var isOthers = !(isCurrentRelease || isP2);
 
-            		if (!$scope.ShowSwiftWater && isSwiftWater) return false;
+            		if (!$scope.ShowCurrentRelease && isCurrentRelease) return false;
 
             		if (!$scope.ShowP2 && isP2) return false;
 
@@ -371,12 +382,10 @@ define(['app', 'underscore', 'jquery'],
 
             		if ($scope.DeOrUs === 'US Only' && task.id.indexOf("US") === -1) return false;
 
-            		if ($scope.TaijiOnly) {
-            			if (task.Project != "Team Taiji") return false;
+            		if ($scope.CurrentTeamOnly) {
+            			if (task.Project != CurrentSettings.Team) return false;
             		}
 
-            		// #Configurable here#
-            		// Change the condition for different project
             		if ($scope.SDCOnly) {
             			if (!task.Owner || task.Owner == '') return false;
             			var ower = task.Owner.toLowerCase();

@@ -1,7 +1,12 @@
 'use strict';
 
 define(['app'], function (app) {
-	app.service('rallyRestApi', function () {
+	// #Configurable here#
+	// Change the query checking condition for different team/project
+	app.constant('CurrentSettings', { Release: 'Swiftwater', Team: 'Team Taiji', TeamShortName: 'Taiji' });
+	// #Configurable end#
+
+	app.service('rallyRestApi', function (CurrentSettings) {
 		var urlFeature = 'https://rally1.rallydev.com/slm/webservice/v2.0/PortfolioItem/Feature?\
 							query=(<QueryString>)\
 							&order=FormattedID\
@@ -22,26 +27,26 @@ define(['app'], function (app) {
 										&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Tags\
 										&pagesize=1999';
 
-        // #Configurable here#
-        // Change the query checking condition for different team/project
 		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
 							query=((Iteration.Name = "Sprint <sprint>")\
-									 And ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "Swiftwater") Or (Project.Name = "Team Taiji"))))\
+									 And ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "<release>") Or (Project.Name = "<team>"))))\
 							&order=Iteration,LastUpdateDate\
 							&fetch=FormattedID,PlanEstimate,TaskEstimateTotal,Release,ScheduleState,State,Blocked\
-							&pagesize=1999';
-
-        // #Configurable here#
-        // Change the query checking condition for different team/project
+							&pagesize=1999'
+							.replace('<release>', CurrentSettings.Release)
+							.replace('<team>', CurrentSettings.Team);
+		
 		var urlTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
-							query=( ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "Swiftwater") Or (Project.Name = "Team Taiji")))\
+							query=( ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "<release>") Or (Project.Name = "<team>")))\
 									 And (<dateCondition> <ownerStateCondition>)\
 								  )\
 							&order=Iteration,LastUpdateDate\
 							&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Requirement\
-							&pagesize=1999';
+							&pagesize=1999'
+							.replace('<release>', CurrentSettings.Release)
+							.replace('<team>', CurrentSettings.Team);
 
         // #Configurable here#
         // Change the developers for different feature team
@@ -102,6 +107,7 @@ define(['app'], function (app) {
 			"Jun Peng": "jun.peng1@carestream.com",
 			"Rita Xiong": "bing.xiong@carestream.com",
 		};
+        // #Configurable end#
 
 		/**
 		 * @name	getDateCondition
@@ -203,7 +209,7 @@ define(['app'], function (app) {
 			 * @return		Url used for Ajax call for getting feature list from Rally 
 			 */
 			getApiUrlFeature: function (release) {
-				var qry = 'Release.Name Contains' + (release !== '') ? '"' + release + '"' : "Swiftwater";
+				var qry = 'Release.Name Contains' + (release !== '') ? '"' + release + '"' : CurrentSettings.Release;
 				var url = urlFeature.replace('<QueryString>', qry)
 									.replace(/\t/g, '');
 				return url;
