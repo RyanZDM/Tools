@@ -3,121 +3,311 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta charset="utf-8" />
-	<title>Get the task list from Rally via REST API - Using the AngularJS</title>
+	<title>Get the task list from Rally</title> <!-- Using the Angular with RequireJS -->
 
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<script src=".\libs\requirejs\2.3.5\require.js" data-main="main.js"></script>
-	<link rel="stylesheet" href=".\libs\bootstrap\3.3.7\bootstrap.min.css"/>
-	
-	<style>
-		input.ng-invalid {
-			background-color: lightblue;
-		}
 
-		table th {
-			text-align: center;
-		}
+	<!-- Html style Tooltip would not work if not include the following 2 files -->
+	<script src="libs\requirejs\2.3.5\require.min.js" data-main="main.js"></script>
+	<link rel="stylesheet" href="libs\bootstrap\current\bootstrap.min.css" />
 
-		table, th, td {
-			border: 1px solid grey;
-			border-collapse: collapse;
-			padding: 5px;
-		}
-
-		table tr:nth-child(odd) {
-			background-color: #f1f1f1;
-		}
-
-		table tr:nth-child(even) {
-			background-color: #ffffff;
-		}
-	</style>
+	<link rel="stylesheet" href="rallytask.css" />
 </head>
 <body>
 	<form name="taskForm" ng-controller="rallyTaskController">
-	<!--<form name="taskForm" ng-app="getRallyWorksApp" ng-controller="rallyTaskController">-->
-			<div class="page-header text-primary text-center">
-				<h1>Get Rally Tasks</h1>
+		<!--<form name="taskForm" ng-app="getRallyWorksApp" ng-controller="rallyTaskController">-->
+		<div class="page-header text-primary text-center">
+			<h1>Get Rally Tasks <small>{{QueryTypeString}}</small></h1>
+			<div ng-if="checkStatPermision()" class="text-right">
+				<a href="RallyWorkStatitics.html">Rally Warning Report</a>
 			</div>
-			<!--<div class="jumbotron text-center">
-				<h1>Get Rally Tasks</h1>
-			</div>-->
-			<div class="container">
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<div class="row alert alert-warning alert-dismissable pull-right" ng-show="(ErrorMsg)">
-							<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-							<strong>Warning:</strong>{{ErrorMsg}}
+		</div>
+		<div class="container-fluid">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="row alert alert-warning alert-dismissable pull-right" ng-show="(ErrorMsg)">
+						<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+						<strong>Warning:</strong>{{ErrorMsg}}
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<rally-login></rally-login>
 						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<rally-login></rally-login>
+						<span class="col-md-3 text-right alert alert-warning pull-right"
+							  ng-show="taskForm.owner.$error.email">
+							The email address is invalid
+						</span>
+					</div>
+					<p></p>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="input-group">
+								<span class="input-group-addon">Owner</span>
+								<input class="form-control"
+									   type="email"
+									   id="owner"
+									   name="owner"
+									   list="emailOptions"
+									   ng-model="owner"
+									   required
+									   placeholder="Enter owner's Rally account here" />
+								<datalist id="emailOptions">
+									<option ng-repeat="email in emailList | orderBy: email" value={{email}}></option>
+								</datalist>
 							</div>
-							<span class="col-md-3 text-right alert alert-warning pull-right"
-								  ng-show="taskForm.owner.$error.email">
-								The email address is invalid
-							</span>
 						</div>
-						<p></p>
-						<div class="row">
-							<div class="col-md-5">
-								<div class="input-group">
-									<span class="input-group-addon">Owner</span>
-									<input class="form-control"
-										   type="email"
-										   id="owner"
-										   name="owner"
-										   list="emailOptions"
-										   ng-model="owner"
-										   required
-										   placeholder="Enter owner's Rally account here" />
-									<datalist id="emailOptions">
-										<option ng-repeat="email in emailList | orderBy: email" value={{email}}></option>
-									</datalist>
-								</div>
+						<div class="col-md-2">
+							<div class="input-group">
+								<span class="input-group-addon"
+									  data-toggle="tooltip"
+									  data-placement="top"
+									  title="0 means get all tasks after 2019-01-01; >0 means just get the tasks belong to the specified sprint">
+									Sprint
+								</span>
+								<input class="form-control"
+									   type="number" min="-1" max="999"
+									   id="sprint"
+									   name="sprint"
+									   ng-model="sprint"
+									   required
+									   placeholder="Enter target sprint" />
 							</div>
-							<div class="col-md-2">
-								<button class="btn btn-md btn-block btn_primary"
-										id="btnRefresh"
-										ng-disabled="inQuerying"
-										ng-click="refreshTaskList()">
-									Refresh Task List
-								</button>
-							</div>
-							<div class="col-md-2">
-								<button class="btn btn-md btn-block"
-										id="btnRefreshAll"
-										ng-disabled="inQuerying"
-										ng-click="refreshAll()">
-									Get All
-								</button>
+						</div>
+						<div class="col-md-4 pull-right">
+							<div class="input-group">
+								<span class="input-group-btn">
+									<button class="btn btn-md btn-block btn-default"
+											id="btnRefresh"
+											ng-disabled="inQuerying"
+											ng-click="refreshTaskList()"
+											data-toggle="tooltip"
+											data-placement="top"
+											title="Get tasks belongs to the [Owner] of the specified [Sprint]">
+										Refresh Task List
+									</button>
+								</span>
+								<span class="input-group-btn">
+									<button class="btn btn-md btn-block btn-default"
+											id="btnRefreshAll"
+											ng-disabled="inQuerying"
+											ng-click="refreshAll()"
+											data-toggle="tooltip"
+											data-placement="top"
+											title="Get all tasks of all person according to the specified [Sprint]">
+										Get All
+									</button>
+								</span>
+								<span class="input-group-btn">
+									<button class="btn btn-md btn-block btn-default"
+											id="btnGetOpenDefects"
+											ng-disabled="inQuerying"
+											ng-click="getOpenDefects()"
+											data-toggle="tooltip"
+											data-placement="top"
+											title="Get all open defects of {{getCurrentProject().Name}}">
+										Open Defect
+									</button>
+								</span>
 							</div>
 						</div>
 					</div>
-					<div class="panel-body">
-						<h4 class="text-primary">Query Results: {{TaskList.length}}</h4>
-						<div class="row">
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-md-5">
+							<h4 class="text-primary"><b>Query Results</b> [{{filteredRecords.length}}({{filteredRecords.length-LastFilteredCount}}) / {{TaskList.length}}({{TaskList.length-LastRecordCount}})] <span style="font-size:15px">{{getWorkload(filteredRecords)}}</span></h4>
+						</div>
+						<div class="col-md-7">
+							<div class="pull-right">
+								<labeled-checkbox ng-hide="!QueryForOpenDefect" class="btn-info" uid="unassigned" label="Unassigned Only" ng-model="ShowUnassignedOnly" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-default" uid="other" label="Other" ng-model="ShowOthers" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-info" uid="p2" label="Phase II" ng-model="ShowP2" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-primary" uid="swiftwater" label="Swiftwater" ng-model="ShowSwiftWater" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-warning" uid="SDC" label="SDC Only" ng-model="SDCOnly" action="resetWorkloadStat()" title="Show tasks owned by SDC only"></labeled-checkbox>
+								<labeled-checkbox class="btn-success" uid="Taiji" label="Taiji Only" ng-model="TaijiOnly" action="resetWorkloadStat()" title="Show team Taiji task only"></labeled-checkbox>
+								<labeled-checkbox class="btn-default" uid="FakeTask" label="Sub Task" ng-model="ShowFakeTask" action="resetWorkloadStat()" title="Show sub tasks if has one more owner for a task"></labeled-checkbox>
+								<span>
+									<select class="btn btn-primary" ng-model="DeOrUs" ng-change="resetWorkloadStat()">
+										<option>ALL</option>
+										<option>DE Only</option>
+										<option>US Only</option>
+									</select>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-3">
+							<div class="input-group">
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-primary" style="width:auto"
+											data-toggle="tooltip"
+											data-placement="right"
+											title="Enable HTML format Tooltip"
+											ng-click="enableHtmlFormatTooltip()">
+										Tooltip
+									</button>
+								</span>
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-primary" style="width:auto"
+											data-toggle="tooltip"
+											data-placement="right"
+											title="Export data to Clipboard"
+											ng-click="export()">
+										Clipboard
+									</button>
+								</span>
+								<span class="input-group-addon">Order By:</span>
+								<select class="btn btn-default" 
+										ng-model="OrderByOptionIndex" 
+										ng-options="item.value as item.name for item in OrderByOptions" 
+										ng-change="orderChanged()">
+								</select>
+							</div>
+						</div>
+						<div class="col-md-9">
+							<div class="pull-right">
+								<labeled-checkbox class="btn-default" uid="indefine" label="In Definition" ng-model="ShowInDefine" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-info" uid="defined" label="Defined" ng-model="ShowDefined" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-primary" uid="wip" label="In-Progress" ng-model="ShowWIP" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-warning" uid="completed" label="Completed" ng-model="ShowCompleted" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-success" uid="accepted" label="Accepted" ng-model="ShowAccepted" action="resetWorkloadStat()"></labeled-checkbox>
+								<labeled-checkbox class="btn-default" uid="rejected" label="Reject/Postpone" ng-model="ShowRejectedDefects" action="resetWorkloadStat()" title="If to show tasks that mark as Rejected/Reject Requested/Postponed/Postpone Requested/Duplicate"></labeled-checkbox>
+								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-danger" uid="failed" label="Failed Only" ng-model="ShowFailedOnly" action="resetWorkloadStat()" title="Show verify failed tasks only"></labeled-checkbox>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<table class="table table-hover table-bordered table-responsive" border="1" id="result">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th data-toggle="tooltip" title="Highlight in bold means was changed today">ID</th>
+									<th data-toggle="tooltip">Description</th>
+									<th>Priority</th>
+									<th>Est.<br />(Day)</th>
+									<th>Act.<br />(Hour)</th>
+									<th>Owner</th>
+									<th>Iteration</th>
+									<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
+									<th ng-if="!QueryForOpenDefect" >Reject</th>
+									<th ng-if="!QueryForOpenDefect">Ever Failed</th>
+									<!--<th ng-if="!QueryForOpenDefect'" data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>-->
+									<th class="col-3" width="10%">
+										<div class="input-group">
+											<input type="checkbox" ng-model="IfSaveOtherInfo2Local" />
+											<label class="btn btn-default btn-sm h-50" ng-click="SaveOtherInfo2Local()">S</label>
+											<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label" />
+										</div>
+									</th>
+									<th>BlockedReason</th>
+								</tr>
+							</thead>
+							<tbody>
+								<!-- TODO: special color for the fake task? -->
+								<tr ng-repeat="task in TaskList | orderBy:OrderByValue |filter: scheduleStateFilter as filteredRecords"
+									ng-style="{ 'textDecoration' : (task.Reject || task.Duplicate || task.Postpone) ? 'line-through' : 'none'
+												, 'fontStyle' : task.Testable ? 'normal' : 'italic'
+												, 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray'))
+												, 'fontSize': task.FakeTask ? '80%' : '100%'
+											}">
+									<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
+									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
+									<td data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "50" }'>
+										<a href='{{task.Link}}' target="_blank">
+											<b ng-show="task.Blocked"><font color="red">[Blocked]</font></b>
+											<b ng-show="task.Requirement == '' && task.Feature == ''"><font color="red">[No Parent]</font></b>
+											<b ng-show="task.Duplicate"><font color="black">[Duplicate]</font></b>
+											{{task.Title}}
+										</a>
+									</td>
+									<td align="center">{{task.Priority}}</td>
+									<td align="right">{{task.Estimate}}</td>
+									<td align="right">{{task.Actuals}}</td>
+									<td align="center">{{task.Owner}}</td>
+									<td align="center">{{task.Iteration}}</td>
+									<td align="center">
+										<div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.ScheduleState}}</div>
+									</td>
+									<td ng-if="!QueryForOpenDefect" align="center">{{task.Reject ? 'Y' : ''}}</td>
+									<td ng-if="!QueryForOpenDefect" align="center">
+										<div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div>
+									</td>
+									<!--<td ng-if="!QueryForOpenDefect" align="center">
+										<div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div>
+									</td>-->
+									<td class="col-3" width="10%">
+										<textarea style="word-break:break-all" class="form-control" ng-model="task.Other"></textarea>
+									</td>
+									<td>{{task.BlockedReason}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="row"></div>
+					<div class="row" ng-if="checkStatPermision()">
+						<div class="col-md-2">
+							<button class="btn btn-block" ng-click="collectWorkloadStatData()">Workload Summary</button>
+						</div>
+					</div>
+					<div class="row" ng-if="checkStatPermision()">
+						<div class="col-md-4">
 							<table class="table table-hover table-bordered table-responsive" border="1">
 								<thead>
 									<tr>
 										<th>#</th>
-										<th>ID</th>
-										<th>Description</th>
-										<th>Estimate<br />(Day)</th>
-										<th>TimeSpent<br />(Hour)</th>
-										<th>Owner</th>
-										<th>Iteration</th>
+										<th>Name</th>
+										<th>Count</th>
+										<th>Est. Days</th>
+										<th>Act. Hours</th>
 									</tr>
 								</thead>
 								<tbody>
-									<tr ng-repeat="task in TaskList | orderBy:['Owner', 'Iteration']">
-										<td>{{$index + 1}}</td>
-										<td>{{task.id}}</td>
-										<td><a href='{{task.Link}}'>{{task.Description}}</a></td>
-										<td>{{task.Estimate}}</td>
-										<td>{{task.TimeSpent}}</td>
-										<td>{{task.Owner}}</td>
-										<td>{{task.Iteration}}</td>
+									<tr ng-repeat="data in workloadStat.WorkLoad ">
+										<td align="center">{{$index + 1}}</td>
+										<td>{{data.Owner}}</td>
+										<td align="center">{{data.Count}}</td>
+										<td align="right">{{data.Days}}</td>
+										<td align="right">{{data.Hours}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="col-md-8">
+							<canvas class="chart chart-bar"
+									height="{{workloadStat.ChartHeight}}"
+									chart-data="workloadStat.ChartData"
+									chart-labels="workloadStat.ChartLabels"
+									chart-series="workloadStat.ChartSeries"
+									chart-options="workloadStat.ChartOptions"></canvas>
+						</div>
+					</div>
+					<div class="row" ng-if="checkStatPermision()">
+						<div class="col-md-2">
+							<button class="btn btn-block" ng-click="getProjectSummaryReport()">Project Status Summary</button>
+						</div>
+					</div>
+					<div class="row" ng-if=checkStatePermision()>
+						<div class="col-md-12">
+							<table class="table table-hover table-bordered table-responsive" border="1" size="auto">
+								<thead>
+									<tr>
+										<th>Project</th>
+										<th>Not Start</th>
+										<th>In Progress</th>
+										<th>Completed</th>
+										<th>Accepted</th>
+										<th>Total</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="(project, data) in projectSummary">
+										<td align="left">{{project}}</td>
+										<td align="right">{{data["Not Start"]._Count + ' (' + data["Not Start"].Estimate + 'D)'}}</td>
+										<td align="right">{{data["In-Progress"]._Count + ' (' + data["In-Progress"].Estimate + 'D)'}}</td>
+										<td align="right">{{data["Completed"]._Count + ' (' + data["Completed"].Estimate + 'D)'}}</td>
+										<td align="right">{{data["Accepted"]._Count + ' (' + data["Accepted"].Estimate + 'D)'}}</td>
+										<td align="right">{{projectSummary[project].Total}}</td>
 									</tr>
 								</tbody>
 							</table>
@@ -125,6 +315,7 @@
 					</div>
 				</div>
 			</div>
-		</form>
+		</div>
+	</form>
 </body>
 </html>

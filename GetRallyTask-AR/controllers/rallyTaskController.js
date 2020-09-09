@@ -241,7 +241,10 @@ define(['app', 'underscore', 'jquery'],
 
             		$q.all(promises)
                         .then(function (result) {
-                        	result = _.flatten(result);
+	                        result = _.filter(_.flatten(result),
+		                        function(task) {
+			                        return !(/^US/.test(task.id) && /\-(\s)?QA$/i.test(task.Title)); // Ignore the -QA user stories, not ignore for single query
+		                        });
                         	$scope.TaskList = result;
 
                         	// Load the other info from local storage

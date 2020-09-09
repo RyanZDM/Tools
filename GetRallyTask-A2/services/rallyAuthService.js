@@ -5,13 +5,7 @@ define(['app'], function (app) {
 		var LOCAL_STORAGE_KEY = 'rallyTaskQueryAccount';
 
 		function canUseLocalStorage() {
-			return (typeof (Storage) !== "undefined");
-		};
-
-		function updateLocalStorage(userId, pwd) {
-			if (typeof (Storage) === "undefined") return;
-
-			localStorage.setItem(LOCAL_STORAGE_KEY, userId + ':' + pwd);
+			return (typeof (Storage) !== 'undefined');
 		};
 
 		function updateLocalStorage(userId, pwd) {
@@ -46,7 +40,7 @@ define(['app'], function (app) {
 			},
 
 			updateAuthToken: function (userId, pwd) {
-				var token = btoa(userId + ":" + pwd);
+				var token = btoa(userId + ':' + pwd);
 				if ($rootScope.Globals) {
 					_.extend($rootScope.Globals, { AuthenticationToken: token });
 				} else {

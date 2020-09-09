@@ -14,6 +14,7 @@ define(['app'], function (app) {
 								&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Tags\
 								&pagesize=1999';
 
+		// <target> can be either 'hierarchicalrequirement' or 'defect'
 		var urlOpenTaskSwiftwater = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 										<target>?\
 										query=((Release.Name = "Swiftwater") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
@@ -39,37 +40,39 @@ define(['app'], function (app) {
 									 And (<dateCondition> <ownerStateCondition>)\
 								  )\
 							&order=Iteration,LastUpdateDate\
-							&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature\
+							&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Requirement\
 							&pagesize=1999';
 
         // #Configurable here#
         // Change the developers for different feature team
-		var ownerEmailMapping = {
-			// Taiji
-			"Ryan Zhang": "dameng.zhang@carestream.com",
-			"Song Zhao": "song.zhao@carestream.com",
-			"Gary Liu": "gary.liu@carestream.com",
-			"Benny Liu": "lei.liu@carestream.com",
-			"Sail Feng": "liming.feng@carestream.com",
-			"Wei Pi": "wei.pi@carestream.com",
-			"Yusheng Liao": "yusheng.liao@carestream.com",
-			"Siyuan Li": "siyuan.li@carestream.com",
-			// Dunhuang
-			"Taylor Tao": "lian.tao@carestream.com",
-			"Xianjun Z": "xianjun.zhan@carestream.com",
-			"Sen Gao": "sen.gao@carestream.com",
+        var ownerEmailMapping = {
+	        // Taiji
+	        "Ryan Zhang": "dameng.zhang@carestream.com",
+	        "Song Zhao": "song.zhao@carestream.com",
+	        "Gary Liu": "gary.liu@carestream.com",
+	        "Benny Liu": "lei.liu@carestream.com",
+	        "Sail Feng": "liming.feng@carestream.com",
+	        "Wei Pi": "wei.pi@carestream.com",
+	        "Yusheng Liao": "yusheng.liao@carestream.com",
+	        "Siyuan Li": "siyuan.li@carestream.com",
+	        // Dunhuang
+	        "Taylor Tao": "lian.tao@carestream.com",
+	        "Xianjun Z": "xianjun.zhan@carestream.com",
+	        "Sen Gao": "sen.gao@carestream.com",
 			"Chunxu Shi": "chunxun.shi@carestream.com",
-			// Wudang
-			"Terry Zhou": "jun.zhou@carestream.com",
-			"Bryan C": "bryan.chen@carestream.com",
-			"Tony Zhao": "huaqing.zhao@carestream.com",
-			"Tidi Zhu": "tidi.zhu@carestream.com",
-			"Dean Peng": "dean.peng@carestream.com",
-			"Cheng Luo": "cheng.luo@carestream.com",
-			"Jun Sun": "jun.sun@carestream.com",
-			"Vivi Wang": "vivi.wang@carestream.com",
-			"Nianshuang Li": "nianshuang.li@carestream.com",
-			"Iris J": "lili.jiang@carestream.com",
+			"Jason Hu": "xiaorong.hu@carestream.com",
+	        // Wudang
+	        "Terry Zhou": "jun.zhou@carestream.com",
+	        "Bryan C": "bryan.chen@carestream.com",
+	        "Tony Zhao": "huaqing.zhao@carestream.com",
+	        "Tidi Zhu": "tidi.zhu@carestream.com",
+	        "Dean Peng": "dean.peng@carestream.com",
+	        "Cheng Luo": "cheng.luo@carestream.com",
+	        "Jun Sun": "jun.sun@carestream.com",
+	        "Vivi Wang": "vivi.wang@carestream.com",
+	        "Nianshuang Li": "nianshuang.li@carestream.com",
+	        "Iris J": "lili.jiang@carestream.com",
+	        "Fuqin Zhang": "fuqin.zhang@carestream.com",
 			// Team PengLai
 			"Peter Y": "qinqiang.yan@carestream.com",
 			"Lyman M": "liang.ma@carestream.com",
@@ -79,7 +82,6 @@ define(['app'], function (app) {
 			// CPE
 			"Kaliven Lee": "kaliven.li@carestream.com",
 			"David Yang": "deqing.yang@carestream.com",
-			"Mercy Gong": "yitao.gong@carestream.com",
 			"DongXiao L": "dongxiao.liu@carestream.com",
 			// Others
 			"Cheng Song": "cheng.song@carestream.com",
@@ -94,9 +96,11 @@ define(['app'], function (app) {
 			"Ben Tang": "xiaowei.tang@carestream.com",
 			"Yufang X": "yufang.xu@carestream.com",
 			"Xueqing Wang": "xueqing.wang@carestream.com",
-			"Annie He": "yanhong.he@carestream.com",
+			"Annie H": "yanhong.he@carestream.com",
 			"Sherry Hu": "yan.hu@carestream.com",
 			"Yanjun Li": "yanjun.li@carestream.com",
+			"Jun Peng": "jun.peng1@carestream.com",
+			"Rita Xiong": "bing.xiong@carestream.com",
 		};
 
 		/**

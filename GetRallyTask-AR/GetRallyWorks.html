@@ -215,8 +215,9 @@
 									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
 									<td data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "50" }'>
 										<a href='{{task.Link}}' target="_blank">
-											<b ng-show="task.Blocked"><font color="red">[Blocked] &nbsp;</font></b>
-											<b ng-show="task.Duplicate"><font color="black">[Duplicate] &nbsp;</font></b>
+											<b ng-show="task.Blocked"><font color="red">[Blocked]</font></b>
+											<b ng-show="task.Requirement == '' && task.Feature == ''"><font color="red">[No Parent]</font></b>
+											<b ng-show="task.Duplicate"><font color="black">[Duplicate]</font></b>
 											{{task.Title}}
 										</a>
 									</td>
