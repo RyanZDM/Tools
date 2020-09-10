@@ -279,15 +279,15 @@ define(['app', 'underscore', 'jquery'],
                     $scope.initBeforeQuery();
 
             		var token = rallyAuthService.getAuthenticationToken();
+					var currentProject = $scope.getCurrentProject();
 
             		$scope.QueryForOpenDefect = true;
-            		$scope.QueryTypeString = ' --- ALL ' + CurrentRelease + ' open tasks @' + new Date().toLocaleTimeString();
+            		$scope.QueryTypeString = ' --- ALL ' + $scope.CurrentRelease + ' open tasks @' + new Date().toLocaleTimeString();
             		var promises = [];
             		currentProject.Urls.forEach(function (url) {
             			promises.push(rallyQueryService.getFromRally(url, token));
             		});
 
-                    var currentProject = $scope.getCurrentProject();
             		$q.all(promises).then(function (list) {
 									$scope.TaskList = currentProject.process(_.union(list[0], list[1]));
 
