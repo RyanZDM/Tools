@@ -1,0 +1,58 @@
+﻿input.ng-invalid {
+	background-color: lightblue;
+}
+
+table th {
+	text-align: center;
+}
+
+table, th, td {
+	border: 1px solid grey;
+	border-collapse: collapse;
+	padding: 5px;
+}
+
+	table tr:nth-child(odd) {
+		background-color: #f1f1f1;
+	}
+
+	table tr:nth-child(even) {
+		background-color: #ffffff;
+	}
+
+.badgebox {
+	opacity: 0;
+	width: 0px;
+}
+
+.badgebox + .badge {
+	/* Move the check mark away when unchecked */
+	text-indent: -999999px;
+	/* Makes the badge's width stay the same checked and unchecked */
+	width: 27px;
+}
+
+.badgebox:focus + .badge {
+	/* Set something to make the badge looks focused */
+	/* This really depends on the application, in my case it was: */
+	/* Adding a light border */
+	box-shadow: inset 0px 0px 5px;
+	/* Taking the difference out of the padding */
+}
+
+.badgebox:checked + .badge {
+	/* Move the check mark back when checked */
+	text-indent: 0;
+}
+
+.tooltip-inner {
+	text-align:left;
+	max-width: none;
+	white-space: normal;
+	color: black;
+	background: lightgray;
+	border: 1px solid gray;
+	box-shadow: 0px 3px 3px 0px rgba(0,0,0,0.3);
+	margin: 10px;
+	padding: 10px;
+}

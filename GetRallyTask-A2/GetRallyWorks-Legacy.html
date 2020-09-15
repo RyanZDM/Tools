@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="utf-8" />
+	<title>Get the task list from Rally via REST API</title>
+
+	
+	<!--<script src="https://code.jquery.com/jquery.min.js"></script>-->
+	<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>-->	
+	<!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>-->
+	<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />-->
+	<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>-->
+
+	<!--<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+	<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="http://apps.bdimg.com/libs/angular.js/1.4.6/angular.min.js"></script>
+	<script src="https://cdn.bootcss.com/underscore.js/1.8.3/underscore-min.js"></script>-->
+	
+	<script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
+	<script type="text/javascript" src="getRallyWorks-Legacy.js"></script>
+
+	<style>
+		table th {
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<input type="email" id="owner" list="ownerList" />
+	<datalist id="ownerList">
+		<option value="dameng.zhang@carestream.com"/>
+		<option value="joe.zhang@carestream.com"/>
+		<option value="qinqiang.zhang@carestream.com"/>
+	</datalist>
+	<button id="btnRefresh" onclick="refreshTask(this.id)">Refresh Task List</button>
+	<div id="TaskListTableDiv"></div>
+
+	<script>
+		function refreshTask(btnId) {
+			$('#' + btnId)[0].disabled = true;
+			var owner = $('#owner')[0].value;
+			$.when(getTasksFromRally(owner, 'defect', true),
+				   getTasksFromRally(owner, 'hierarchicalrequirement', true))
+				.done(function (defects, userStories) {
+					var div = $("#TaskListTableDiv")[0];
+					var list = $.merge(defects, userStories);
+					var tableStr = "<table border='1'>\
+										<tr>\
+											<th>#</th>\
+											<th>ID</th>\
+											<th>Description</th>\
+											<th>Estimate</th>\
+											<th>TimeSpent</th>\
+											<th>Owner</th>\
+											<th>Iteration</th>\
+										</tr>";
+					for (var row = 0; row < list.length; row++) {
+						tableStr += "<tr>";
+
+						tableStr += "<td>" + (row + 1) + "</td>";
+						tableStr += "<td>" + list[row].id + "</td>";
+						tableStr += "<td><a href='" + list[row].Link + "'>" + list[row].Description + "</a></td>";
+						tableStr += "<td>" + list[row].Estimate + "</td>";
+						tableStr += "<td>" + list[row].TimeSpent + "</td>";
+						tableStr += "<td>" + list[row].Owner + "</td>";
+						tableStr += "<td>" + list[row].Iteration + "</td>";
+
+						tableStr += "</tr>";
+					}
+
+					div.innerHTML = tableStr;
+				})
+				.fail(function (error) { console.error(error); })
+				.always(function () { $('#' + btnId)[0].disabled = false; });
+		}
+	</script>
+</body>
+</html>
