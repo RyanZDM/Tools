@@ -185,6 +185,7 @@
 									<th data-toggle="tooltip" title="Highlight in bold means was changed today">ID</th>
 									<th data-toggle="tooltip">Description</th>
 									<th>Priority</th>
+									<th width="5%">Product</th>
 									<th>Est.<br />(Day)</th>
 									<th>Act.<br />(Hour)</th>
 									<th>Owner</th>
@@ -200,7 +201,7 @@
 											<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label" />
 										</div>
 									</th>
-									<th>BlockedReason</th>
+									<th width="10%">BlockedReason</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -222,6 +223,7 @@
 										</a>
 									</td>
 									<td align="center">{{task.Priority}}</td>
+									<td align="center" width="5%">{{task.Product}}</td>
 									<td align="right">{{task.Estimate}}</td>
 									<td align="right">{{task.Actuals}}</td>
 									<td align="center">{{task.Owner}}</td>
@@ -239,7 +241,7 @@
 									<td class="col-3" width="10%">
 										<textarea style="word-break:break-all" class="form-control" ng-model="task.Other"></textarea>
 									</td>
-									<td>{{task.BlockedReason}}</td>
+									<td width="10%">{{task.BlockedReason}}</td>
 								</tr>
 							</tbody>
 						</table>

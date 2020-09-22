@@ -24,7 +24,7 @@ define(['app'], function (app) {
 										<target>?\
 										query=((Release.Name = "Swiftwater") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
 										&order=FormattedID\
-										&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Tags\
+										&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Tags,c_FoundInProduct\
 										&pagesize=1999';
 
 		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
@@ -43,7 +43,7 @@ define(['app'], function (app) {
 									 And (<dateCondition> <ownerStateCondition>)\
 								  )\
 							&order=Iteration,LastUpdateDate\
-							&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Requirement\
+							&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Requirement,c_FoundInProduct\
 							&pagesize=1999'
 							.replace('<release>', CurrentSettings.Release)
 							.replace('<team>', CurrentSettings.Team);

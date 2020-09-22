@@ -34,6 +34,7 @@ function RallyTask(jsonObj) {
 	this.Rank = (jsonObj['DragAndDropRank']) ? jsonObj.DragAndDropRank : 'ZZ';		// ZZ means the priority is lowest
 	this.FlowStateChangedDate = (jsonObj['FlowStateChangedDate']) ? jsonObj['FlowStateChangedDate'] : '';
 	this.Project = (jsonObj['Project']) ? jsonObj['Project']._refObjectName : '';
+	this.Product = (jsonObj['c_FoundInProduct']) ? jsonObj['c_FoundInProduct']._refObjectName : '';
 	this.Feature = (jsonObj['Feature']) ? jsonObj['Feature']._refObjectName : '';
 	this.Requirement = (jsonObj['Requirement']) ? jsonObj['Requirement']._refObjectName : '';
 	this.Tags = (jsonObj['Tags']) ? jsonObj['Tags'] : null;
@@ -78,6 +79,24 @@ function RallyTask(jsonObj) {
 		}
 	}
 
+	// Gets the product on which issue occurred
+	function getProduct(desc) {
+		if (!desc || desc === '') return '';
+
+		var firstMatch = /Test Hardware:(.+)\n/i.exec(desc);
+		if (firstMatch && firstMatch.length > 1) {
+			// The second one is what we need, and may contains the HTML marker <xxx> at the end
+			var secondMatch = firstMatch[1].split('<')[0];
+
+			// Sometimes there is no product specified
+			if (/evo|ascend|drx|nano|q-?vision|compass|transportable|q-?rad|in-?room|mobile/i.test(secondMatch)) {
+				return secondMatch.replace(/&nbsp;/g, '');
+			}
+		}
+
+		return '';
+	}
+
 	switch (this.Priority) {
 		case 'Resolve Immediately':
 			this.Priority = '1 - ' + this.Priority;
@@ -96,9 +115,14 @@ function RallyTask(jsonObj) {
 	}
 
 	(function (that) {
+		if ((that.Product === '') && (that.id.indexOf('DE') != -1)) {
+			that.Product = that.Description ? getProduct(that.Description) : '';
+		}
+
 		if (that.Reject || (that.id.indexOf('US') != -1)) {
 			// NA for user story or a reject defect
 			that.UTNeed = 'NA';
+			that.Product = '';
 			return;
 		}
 
