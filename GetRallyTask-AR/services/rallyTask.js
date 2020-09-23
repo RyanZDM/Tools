@@ -34,7 +34,7 @@ function RallyTask(jsonObj) {
 	this.Rank = (jsonObj['DragAndDropRank']) ? jsonObj.DragAndDropRank : 'ZZ';		// ZZ means the priority is lowest
 	this.FlowStateChangedDate = (jsonObj['FlowStateChangedDate']) ? jsonObj['FlowStateChangedDate'] : '';
 	this.Project = (jsonObj['Project']) ? jsonObj['Project']._refObjectName : '';
-	this.Product = (jsonObj['c_FoundInProduct']) ? jsonObj['c_FoundInProduct']._refObjectName : '';
+	this.Product = (jsonObj['c_FoundInProduct']) ? jsonObj['c_FoundInProduct'] : '';
 	this.Feature = (jsonObj['Feature']) ? jsonObj['Feature']._refObjectName : '';
 	this.Requirement = (jsonObj['Requirement']) ? jsonObj['Requirement']._refObjectName : '';
 	this.Tags = (jsonObj['Tags']) ? jsonObj['Tags'] : null;
