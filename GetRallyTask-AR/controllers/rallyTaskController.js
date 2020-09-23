@@ -170,7 +170,8 @@ define(['app', 'underscore', 'jquery'],
 					if (paramLen > 7) { $scope.ShowProductField = parameters[7] == 'true'; }
 					if (paramLen > 8) { $scope.ShoIterationField = parameters[8] == 'true'; }
 					if (paramLen > 9) { $scope.ShowRejectField = parameters[9] == 'true'; }
-					if (paramLen > 10) { $scope.ShowBlockReasonField = parameters[10] == 'true'; }
+					if (paramLen > 10) { $scope.ShowEverFailedField = parameters[10] == 'true'; }
+					if (paramLen > 11) { $scope.ShowBlockReasonField = parameters[11] == 'true'; }
 
 					if ($scope.IfSaveOtherInfo2Local && $scope.TaskList.length > 0) {
 						var otherInfoString = localStorage.getItem($scope.SAVED_OTHERINFO);
@@ -579,9 +580,9 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 */
 				$scope.export = function () {
-					var data = 'ID\tTitle\tPriority\tOwner\tIteration\tState\tReject\t' + $scope.OtherInfoLabel;
+					var data = 'ID\tTitle\tPriority\tProduct\tOwner\tIteration\tState\tReject\t' + $scope.OtherInfoLabel;
 					_.each($scope.filteredRecords, function (record) {
-						data += '\r\n' + record.id + '\t' + record.Title + '\t' + record.Priority + '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject + '\t' + record.Other;
+						data += '\r\n' + record.id + '\t' + record.Title + '\t' + record.Priority + '\t' + record.Product + '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject + '\t' + record.Other;
 					});
 
 					window.alert(utility.copyToClipboard(data) ? 'Data get copied to clipboard.' : 'Copy to clipboard failed.');
