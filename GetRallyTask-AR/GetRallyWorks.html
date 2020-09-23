@@ -157,10 +157,53 @@
 										Clipboard
 									</button>
 								</span>
+								<div class="dropup">
+									<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+										Show/Hide <span class="caret"></span>
+									</button>
+									<ul class="dropdown-menu">
+										<li class="dropdown-header">Show/hide following fields:</li>
+										<li>
+											<div class="checkbox">
+												<label>
+													<input type="checkbox" ng-model="ShowProductField"/>Product
+												</label>
+											</div>
+										</li>
+										<li>
+											<div class="checkbox">
+												<label>
+													<input type="checkbox" ng-model="ShoIterationField"/>Iteration
+												</label>
+											</div>
+										</li>
+										<li>
+											<div class="checkbox">
+												<label>
+													<input type="checkbox" ng-model="ShowRejectField"/>Reject
+												</label>
+											</div>
+										</li>
+										<li>
+											<div class="checkbox">
+												<label>
+													<input type="checkbox" ng-model="ShowEverFailedField"/>Ever Failed
+												</label>
+											</div>
+										</li>
+										<li>
+											<div class="checkbox">
+												<label>
+													<input type="checkbox" ng-model="ShowBlockReasonField"/>Block Reason
+												</label>
+											</div>
+										</li>
+									</ul>
+								</div>
 								<span class="input-group-addon">Order By:</span>
-								<select class="btn btn-default" 
-										ng-model="OrderByOptionIndex" 
-										ng-options="item.value as item.name for item in OrderByOptions" 
+								<select class="btn btn-default"
+										ng-model="OrderByOptionIndex"
+										ng-options="item.value as item.name for item in OrderByOptions"
 										ng-change="orderChanged()">
 								</select>
 							</div>
@@ -185,14 +228,14 @@
 									<th data-toggle="tooltip" title="Highlight in bold means was changed today">ID</th>
 									<th data-toggle="tooltip">Description</th>
 									<th>Priority</th>
-									<th width="5%">Product</th>
+									<th ng-show="ShowProductField" width="5%">Product</th>
 									<th>Est.<br />(Day)</th>
 									<th>Act.<br />(Hour)</th>
 									<th>Owner</th>
-									<th>Iteration</th>
+									<th ng-show="ShoIterationField">Iteration</th>
 									<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
-									<th ng-if="!QueryForOpenDefect" >Reject</th>
-									<th ng-if="!QueryForOpenDefect">Ever Failed</th>
+									<th ng-show="ShowRejectField" ng-if="!QueryForOpenDefect" >Reject</th>
+									<th ng-show="ShowEverFailedField" ng-if="!QueryForOpenDefect">Ever Failed</th>
 									<!--<th ng-if="!QueryForOpenDefect'" data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>-->
 									<th class="col-3" width="10%">
 										<div class="input-group">
@@ -201,7 +244,7 @@
 											<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label" />
 										</div>
 									</th>
-									<th width="10%">BlockedReason</th>
+									<th ng-show="ShowBlockReasonField" width="10%">BlockedReason</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -214,7 +257,7 @@
 											}">
 									<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
 									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
-									<td data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "50" }'>
+									<td data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "1000" }'>
 										<a href='{{task.Link}}' target="_blank">
 											<b ng-show="task.Blocked"><font color="red">[Blocked]</font></b>
 											<b ng-show="task.Requirement == '' && task.Feature == ''"><font color="red">[No Parent]</font></b>
@@ -223,16 +266,16 @@
 										</a>
 									</td>
 									<td align="center">{{task.Priority}}</td>
-									<td align="center" width="5%">{{task.Product}}</td>
+									<td ng-show="ShowProductField" align="center" width="5%">{{task.Product}}</td>
 									<td align="right">{{task.Estimate}}</td>
 									<td align="right">{{task.Actuals}}</td>
 									<td align="center">{{task.Owner}}</td>
-									<td align="center">{{task.Iteration}}</td>
+									<td ng-show="ShoIterationField" align="center">{{task.Iteration}}</td>
 									<td align="center">
 										<div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.ScheduleState}}</div>
 									</td>
-									<td ng-if="!QueryForOpenDefect" align="center">{{task.Reject ? 'Y' : ''}}</td>
-									<td ng-if="!QueryForOpenDefect" align="center">
+									<td ng-show="ShowRejectField" ng-if="!QueryForOpenDefect" align="center">{{task.Reject ? 'Y' : ''}}</td>
+									<td ng-show="ShowEverFailedField" ng-if="!QueryForOpenDefect" align="center">
 										<div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div>
 									</td>
 									<!--<td ng-if="!QueryForOpenDefect" align="center">
@@ -241,7 +284,7 @@
 									<td class="col-3" width="10%">
 										<textarea style="word-break:break-all" class="form-control" ng-model="task.Other"></textarea>
 									</td>
-									<td width="10%">{{task.BlockedReason}}</td>
+									<td ng-show="ShowBlockReasonField" width="10%">{{task.BlockedReason}}</td>
 								</tr>
 							</tbody>
 						</table>

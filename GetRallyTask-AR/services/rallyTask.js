@@ -90,7 +90,9 @@ function RallyTask(jsonObj) {
 
 			// Sometimes there is no product specified
 			if (/evo|ascend|drx|nano|q-?vision|compass|transportable|q-?rad|in-?room|mobile/i.test(secondMatch)) {
-				return secondMatch.replace(/&nbsp;/g, '');
+				return secondMatch.replace(/&nbsp;/g, '')
+									.replace(/&lt;/g, '<')
+									.replace(/&gt;/g, '>');
 			}
 		}
 
