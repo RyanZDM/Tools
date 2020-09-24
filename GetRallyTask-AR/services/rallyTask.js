@@ -83,7 +83,8 @@ function RallyTask(jsonObj) {
 	function getProduct(desc) {
 		if (!desc || desc === '') return '';
 
-		var firstMatch = /Test Hardware:(.+)\n/i.exec(desc);
+		var newString = desc.replace(/</g, '<\n');		// Convert html marker <xxx> to \n for easy regex matching
+		var firstMatch = /Test Hardware:(.+)\n/i.exec(newString);
 		if (firstMatch && firstMatch.length > 1) {
 			// The second one is what we need, and may contains the HTML marker <xxx> at the end
 			var secondMatch = firstMatch[1].split('<')[0];
