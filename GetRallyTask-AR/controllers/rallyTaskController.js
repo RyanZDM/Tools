@@ -53,7 +53,7 @@ define(['app', 'underscore', 'jquery'],
 				$scope.DeOrUs = 'ALL'
 
 				$scope.ShowProductField = true;
-				$scope.ShoIterationField = true;
+				$scope.ShowIterationField = true;
 				$scope.ShowRejectField = true;
 				$scope.ShowEverFailedField = true;
 				$scope.ShowBlockReasonField = true;
@@ -140,7 +140,7 @@ define(['app', 'underscore', 'jquery'],
 						+ ':' + $scope.IfSaveOtherInfo2Local
 						+ ':' + $scope.OtherInfoLabel
 						+ ':' + $scope.ShowProductField
-						+ ':' + $scope.ShoIterationField
+						+ ':' + $scope.ShowIterationField
 						+ ':' + $scope.ShowRejectField
 						+ ':' + $scope.ShowEverFailedField
 						+ ':' + $scope.ShowBlockReasonField);
@@ -168,7 +168,7 @@ define(['app', 'underscore', 'jquery'],
 					if (paramLen > 5) { $scope.IfSaveOtherInfo2Local = parameters[5] == 'true'; }
 					if (paramLen > 6) { $scope.OtherInfoLabel = parameters[6]; }
 					if (paramLen > 7) { $scope.ShowProductField = parameters[7] == 'true'; }
-					if (paramLen > 8) { $scope.ShoIterationField = parameters[8] == 'true'; }
+					if (paramLen > 8) { $scope.ShowIterationField = parameters[8] == 'true'; }
 					if (paramLen > 9) { $scope.ShowRejectField = parameters[9] == 'true'; }
 					if (paramLen > 10) { $scope.ShowEverFailedField = parameters[10] == 'true'; }
 					if (paramLen > 11) { $scope.ShowBlockReasonField = parameters[11] == 'true'; }

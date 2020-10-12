@@ -73,7 +73,7 @@
 									   placeholder="Enter target sprint" />
 							</div>
 						</div>
-						<div class="col-md-4 pull-right">
+						<div draggable="true" class="col-md-4 pull-right">
 							<div class="input-group">
 								<span class="input-group-btn">
 									<button class="btn btn-md btn-block btn-default"
@@ -173,7 +173,7 @@
 										<li>
 											<div class="checkbox">
 												<label>
-													<input type="checkbox" ng-model="ShoIterationField"/>Iteration
+													<input type="checkbox" ng-model="ShowIterationField"/>Iteration
 												</label>
 											</div>
 										</li>
@@ -232,7 +232,7 @@
 									<th>Est.<br />(Day)</th>
 									<th>Act.<br />(Hour)</th>
 									<th>Owner</th>
-									<th ng-show="ShoIterationField">Iteration</th>
+									<th ng-show="ShowIterationField">Iteration</th>
 									<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
 									<th ng-show="ShowRejectField" ng-if="!QueryForOpenDefect" >Reject</th>
 									<th ng-show="ShowEverFailedField" ng-if="!QueryForOpenDefect">Ever Failed</th>
@@ -262,6 +262,7 @@
 											<b ng-show="task.Blocked"><font color="red">[Blocked]</font></b>
 											<b ng-show="task.Requirement == '' && task.Feature == ''"><font color="red">[No Parent]</font></b>
 											<b ng-show="task.Duplicate"><font color="black">[Duplicate]</font></b>
+											<b ng-show="task.Postpone"><font color="black">[Postpone]</font></b>
 											{{task.Title}}
 										</a>
 									</td>
@@ -270,9 +271,11 @@
 									<td align="right">{{task.Estimate}}</td>
 									<td align="right">{{task.Actuals}}</td>
 									<td align="center">{{task.Owner}}</td>
-									<td ng-show="ShoIterationField" align="center">{{task.Iteration}}</td>
+									<td ng-show="ShowIterationField" align="center">{{task.Iteration}}</td>
 									<td align="center">
-										<div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.ScheduleState}}</div>
+										<a href="{{task.Link}}" target="_blank" ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">
+											{{task.ScheduleState}}
+										</a>
 									</td>
 									<td ng-show="ShowRejectField" ng-if="!QueryForOpenDefect" align="center">{{task.Reject ? 'Y' : ''}}</td>
 									<td ng-show="ShowEverFailedField" ng-if="!QueryForOpenDefect" align="center">
