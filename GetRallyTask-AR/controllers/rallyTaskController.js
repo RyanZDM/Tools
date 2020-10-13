@@ -50,7 +50,7 @@ define(['app', 'underscore', 'jquery'],
 				$scope.ShowRejectedDefects = true;
 				$scope.QueryForOpenDefect = false;
 				$scope.QueryTypeString = '';
-				$scope.DeOrUs = 'ALL'
+				$scope.DeOrUs = 'ALL';
 
 				$scope.ShowProductField = true;
 				$scope.ShowIterationField = true;
@@ -83,12 +83,13 @@ define(['app', 'underscore', 'jquery'],
 						return list.filter(item => {
 							if (!item.Tags || item.Count < 1 || !item.Tags._tagsNameArray) return false;
 							var ret = false;
-							_.forEach(item.Tags._tagsNameArray, function (tag) {
-								if (/CR Phase II|1.7/i.test(tag.Name)) {
-									ret = true;
-									return;
-								}
-							})
+							_.forEach(item.Tags._tagsNameArray,
+								function(tag) {
+									if (/CR Phase II|1.7/i.test(tag.Name)) {
+										ret = true;
+										return;
+									}
+								});
 
 							return ret;
 						});
@@ -109,7 +110,7 @@ define(['app', 'underscore', 'jquery'],
 				};
 
 				// #Configurable here#
-				// Add new object for new added release, refer to "crossradsPhseII" or "swiftwater" about how to...
+				// Add new object for new added release, refer to "crossradsPhaseII" or "swiftwater" about how to...
 				$scope.getCurrentProject = function () {
 					if (CurrentRelease === 'SwiftWater') return swiftwater;
 					if (CurrentRelease === 'Crossroads') return crossroadsPhaseII;
@@ -162,16 +163,16 @@ define(['app', 'underscore', 'jquery'],
 					var paramLen = parameters.length;
 					if (paramLen > 0) { $scope.owner = parameters[0]; }
 					if (paramLen > 1) { $scope.sprint = parseInt(parameters[1]); }
-					if (paramLen > 2) { $scope.ShowP2 = parameters[2] == 'true'; }
-					if (paramLen > 3) { $scope.ShowCurrentRelease = parameters[3] == 'true'; }
-					if (paramLen > 4) { $scope.ShowOthers = parameters[4] == 'true'; }
-					if (paramLen > 5) { $scope.IfSaveOtherInfo2Local = parameters[5] == 'true'; }
+					if (paramLen > 2) { $scope.ShowP2 = parameters[2] === 'true'; }
+					if (paramLen > 3) { $scope.ShowCurrentRelease = parameters[3] === 'true'; }
+					if (paramLen > 4) { $scope.ShowOthers = parameters[4] === 'true'; }
+					if (paramLen > 5) { $scope.IfSaveOtherInfo2Local = parameters[5] === 'true'; }
 					if (paramLen > 6) { $scope.OtherInfoLabel = parameters[6]; }
-					if (paramLen > 7) { $scope.ShowProductField = parameters[7] == 'true'; }
-					if (paramLen > 8) { $scope.ShowIterationField = parameters[8] == 'true'; }
-					if (paramLen > 9) { $scope.ShowRejectField = parameters[9] == 'true'; }
-					if (paramLen > 10) { $scope.ShowEverFailedField = parameters[10] == 'true'; }
-					if (paramLen > 11) { $scope.ShowBlockReasonField = parameters[11] == 'true'; }
+					if (paramLen > 7) { $scope.ShowProductField = parameters[7] === 'true'; }
+					if (paramLen > 8) { $scope.ShowIterationField = parameters[8] === 'true'; }
+					if (paramLen > 9) { $scope.ShowRejectField = parameters[9] === 'true'; }
+					if (paramLen > 10) { $scope.ShowEverFailedField = parameters[10] === 'true'; }
+					if (paramLen > 11) { $scope.ShowBlockReasonField = parameters[11] === 'true'; }
 
 					if ($scope.IfSaveOtherInfo2Local && $scope.TaskList.length > 0) {
 						var otherInfoString = localStorage.getItem($scope.SAVED_OTHERINFO);
@@ -196,7 +197,7 @@ define(['app', 'underscore', 'jquery'],
 					var index = _.findIndex(list, function (task) {
 						if (!id || !task['id']) return false;
 
-						return (id.substring(0, 6).toLowerCase() == task.id.substring(0, 6).toLowerCase());
+						return (id.substring(0, 6).toLowerCase() === task.id.substring(0, 6).toLowerCase());
 					});
 
 					if (index > -1) {
@@ -209,7 +210,7 @@ define(['app', 'underscore', 'jquery'],
 
 					var otherInfo = '';
 					_.each($scope.TaskList, function (task) {
-						if (task['Other'] && task.Other != '') {
+						if (task['Other'] && task.Other !== '') {
 							otherInfo = otherInfo + task.id + '|' + task.Other + '|';
 						}
 					});
@@ -353,7 +354,7 @@ define(['app', 'underscore', 'jquery'],
 					])
 						.then(function (lists) {
 							// If directly Complete the user story or defect under which still contains incompleted tasks
-							// the SpentTime of those taks would not be counted any more. So need to accumulate all task hours
+							// the SpentTime of those task would not be counted any more. So need to accumulate all task hours
 							var tasks = _.union(lists[0], lists[1]);
 
 							result = _.union(result, tasks);
@@ -369,7 +370,7 @@ define(['app', 'underscore', 'jquery'],
 								.finally(function () { $scope.inQuerying = false; });
 						})
 						.catch(function (error) {
-							reportError(error)
+							reportError(error);
 							deferred.reject(error);
 						});
 
@@ -405,14 +406,14 @@ define(['app', 'underscore', 'jquery'],
 					if ($scope.DeOrUs === 'US Only' && task.id.indexOf("US") === -1) return false;
 
 					if ($scope.CurrentTeamOnly) {
-						if (task.Project != CurrentSettings.Team) return false;
+						if (task.Project !== CurrentSettings.Team) return false;
 					}
 
 					if ($scope.SDCOnly) {
-						if (!task.Owner || task.Owner == '') return false;
-						var ower = task.Owner.toLowerCase();
+						if (!task.Owner || task.Owner === '') return false;
+						var owner = task.Owner.toLowerCase();
 						var find = $scope.OwnerNameList.find(function (data) {
-							return ower == data.toLowerCase();
+							return owner === data.toLowerCase();
 						});
 
 						if (!find) return false;
@@ -443,20 +444,21 @@ define(['app', 'underscore', 'jquery'],
             	/**
 				 * @name	getWorkload
 				 *
-				 * @description	Accumulate the total estimation days and acutal working hours 
+				 * @description	Accumulate the total estimation days and actual working hours 
 				 *
-				 * @param	records	The records to accumlate.
+				 * @param	records	The records to accumulate.
 				 *
-				 * @returns	The accumlate result string.
+				 * @returns	The accumulate result string.
 				 */
 				$scope.getWorkload = function (records) {
 					var result = '';
 					if (records && records.length > 0) {
 						var totalDays = 0, actualHours = 0;
-						_.each(records, function (record) {
-							totalDays = totalDays + record.Estimate;
-							actualHours = actualHours + (record.Actuals ? record.Actuals : 0);
-						})
+						_.each(records,
+							function(record) {
+								totalDays = totalDays + record.Estimate;
+								actualHours = actualHours + (record.Actuals ? record.Actuals : 0);
+							});
 
 						result = '-- Est. Days:' + totalDays + ' | Act. Hours:' + Math.round(actualHours);
 					}
@@ -469,9 +471,9 @@ define(['app', 'underscore', 'jquery'],
             	/**
 				 * @name	collectWorkloadStatData
 				 *
-				 * @description	Summarize the totoal estimation days, working hours and task count by engineer
+				 * @description	Summarize the total estimation days, working hours and task count by engineer
 				 *
-				 * @returns	Ture if the workload stat data is generated successfully. False if no data.
+				 * @returns	True if the workload stat data is generated successfully. False if no data.
 				 */
 				$scope.collectWorkloadStatData = function () {
 					if (!$scope.filteredRecords) {
@@ -517,7 +519,7 @@ define(['app', 'underscore', 'jquery'],
 						orderedData.sort(function (a, b) {
 							if (a.Days > b.Days) {
 								return -1;
-							} else if (a.Days == b.Days) {
+							} else if (a.Days === b.Days) {
 								return (a.Count - b.Count);
 							} else { return 1; }
 						});
@@ -547,13 +549,13 @@ define(['app', 'underscore', 'jquery'],
 				};
 
             	/**
-				 * @name	checkStatPermision
+				 * @name	checkStatPermission
 				 *
-				 * @description	Check stat permision
+				 * @description	Check stat permission
 				 *
 				 * @returns	If the current user has permission to see the data stat table/charter
 				 */
-				$scope.checkStatPermision = function () {
+				$scope.checkStatPermission = function () {
 					if ($scope.QueryForOpenDefect) return false;
 
 					if (document.getElementById('userId').value === 'dameng.zhang@carestream.com') {
@@ -595,7 +597,7 @@ define(['app', 'underscore', 'jquery'],
 				 *
 				 * @param	token	The authorization token for querying the Rally tasks.
 				 *
-				 * @returns	Summary report is saved to $scope.projectcSummary.
+				 * @returns	Summary report is saved to $scope.projectSummary.
 				 */
 				$scope.getProjectSummaryReport = function (token) {
 					$scope.inQuerying = true;
@@ -646,7 +648,7 @@ define(['app', 'underscore', 'jquery'],
 				$scope.summaryByProject = function (sprint, token) {
 					var stateFunc = function (record) {
 						var state = 'Not Start';
-						if (record.ScheduleState == 'In-Progress' || record.ScheduleState == 'Completed' || record.ScheduleState == 'Accepted') {
+						if (record.ScheduleState === 'In-Progress' || record.ScheduleState === 'Completed' || record.ScheduleState === 'Accepted') {
 							state = record.ScheduleState;
 						};
 

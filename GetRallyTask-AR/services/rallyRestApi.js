@@ -209,7 +209,7 @@ define(['app'], function (app) {
 			 * @return		Url used for Ajax call for getting feature list from Rally 
 			 */
 			getApiUrlFeature: function (release) {
-				var qry = 'Release.Name Contains' + (release !== '') ? '"' + release + '"' : CurrentSettings.Release;
+				var qry = 'Release.Name Contains' + ((release !== '') ? ('"' + release + '"') : CurrentSettings.Release);
 				var url = urlFeature.replace('<QueryString>', qry)
 									.replace(/\t/g, '');
 				return url;

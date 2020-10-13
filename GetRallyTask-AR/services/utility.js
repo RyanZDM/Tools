@@ -20,10 +20,10 @@ define(['app', 'underscore'], function (app, _) {
 		 * @param	text	The text.
 		 */
 		function copyToClipboard(text) {
+			var flag = false;
 			if (window.clipboardData) {	// IE
 				window.clipboardData.clearData();
 				window.clipboardData.setData("Text", text);
-				return;
 			}
 
 			var textarea = document.createElement("textarea");
@@ -36,9 +36,9 @@ define(['app', 'underscore'], function (app, _) {
 			else
 				textarea.select();
 			try {
-				var flag = document.execCommand("copy");
+				flag = document.execCommand("copy");
 			} catch (eo) {
-				var flag = false;
+				flag = false;
 			}
 			document.body.removeChild(textarea);
 			currentFocus.focus();
@@ -74,9 +74,10 @@ define(['app', 'underscore'], function (app, _) {
 					for (var lastGroupItem in firstBy) {
 						var count = 0;
 						var cumulatedRecord = { };
-						_.each(cumulativeItems, function (item) {
-							cumulatedRecord[item] = 0;
-						})
+						_.each(cumulativeItems,
+							function(item) {
+								cumulatedRecord[item] = 0;
+							});
 
 						_.each(firstBy[lastGroupItem], function (record) {
 							_.each(cumulativeItems, function (item) {

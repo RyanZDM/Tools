@@ -110,7 +110,7 @@ define(['app', 'underscore', 'moment'],
 					}
 					var cc = 'kris.zhang@carestream.com;jiandong.gu@carestream.com';
 					var subject = 'Weekly Rally Warning Report - ' + moment().format("YYYYMMDD") + '  <!!!ACTION!!!> Please update the Rally task status per report ASAP!';
-					var body = 'Dear All, %0A%0APease update the Rally task satus ASAP!%0A';
+					var body = 'Dear All, %0A%0APlease update the Rally task status ASAP!%0A';
 					var attach = '"D:\\WarningReport-20190115.html"';
 					window.open('mailto:' + $scope.WarningReport.EmailList + '?cc=' + cc + '&subject=' + subject + '&body=' + body + '&attach=' + attach + '');
 				};
@@ -120,7 +120,7 @@ define(['app', 'underscore', 'moment'],
 				 *description Exports the generated warning report as a individual HTML file, would pop up a dialog for the downloading
 				 */
 				$scope.exportWarningReport = function () {
-					var bodyHtml = document.getElementById('warningReportDetail').innerHTML
+					var bodyHtml = document.getElementById('warningReportDetail').innerHTML;
 					var html = '<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml">\
 						<head><meta charset="utf-8"/>\
 							<style>\
@@ -148,8 +148,8 @@ define(['app', 'underscore', 'moment'],
 							</style>\
 						</head>\
 						<body>' +
-									bodyHtml +
-									'</body></html>'
+						bodyHtml +
+						'</body></html>';
 
 					var file = new Blob([html], { type: "text/html" });
 					var link = document.createElement("a");

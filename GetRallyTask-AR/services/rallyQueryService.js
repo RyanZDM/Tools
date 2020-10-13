@@ -130,8 +130,10 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 		 */
 		function getList(type, jsonObj) {
 			var lowerType = type.toLowerCase();
-			if (lowerType == "task" || lowerType == "warning") return getTaskList(jsonObj);
-			if (lowerType == "feature") return getFeatureList(jsonObj);
+			if (lowerType === "task" || lowerType === "warning") return getTaskList(jsonObj);
+			if (lowerType === "feature") return getFeatureList(jsonObj);
+
+			return [];
 		}
 
 		/**
@@ -172,7 +174,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			for (var index in jsonObj.QueryResult.Results) {
 				var task = new RallyTask(jsonObj.QueryResult.Results[index]);
 				task.WasChangedToday = false;
-				if (task['FlowStateChangedDate'] && task['FlowStateChangedDate'] != '') {
+				if (task['FlowStateChangedDate'] && task['FlowStateChangedDate'] !== '') {
 					var changeDate = moment(task['FlowStateChangedDate']).format('YYYYMMDD');
 					if (changeDate === today) { task.WasChangedToday = true; }
 				}
@@ -257,7 +259,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 		/**
 		 * @name				reCalculateTaskSpentTime
 		 *
-		 * @description		Calculate the totoal time spent of a defect or user story by cumulate the Actuals of all the sub tasks.
+		 * @description		Calculate the total time spent of a defect or user story by cumulating the Actuals of all the sub tasks.
 		 *					Those sub tasks would be excluded if the owner is the other one
 		 *
 		 * @param taskList	The collection of Rally defects and/or user stories
@@ -271,14 +273,20 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 					var deferred = $.Deferred();
 					$http.get(rallyRestApi.getApiUrlSubTask(task.TaskLink), { headers: { "Authorization": "Basic " + authToken } })
 						.then(function (data) {
-							// accumulate the totoal time spent hours if have one more owner for this task
-							data.data.QueryResult.Results.forEach(function (subTask) {
+							// accumulate the total time spent hours if have one more owner for this task
+							data.data.QueryResult.Results.forEach(function(subTask) {
 								if ($.isNumeric(subTask.Actuals) && subTask.Actuals > 0) {
 									if (subTask["Owner"] && task.Owner !== subTask.Owner._refObjectName) {
 										// If the task is assigned to different owner, create a new Task for it.
 										// If the owner of sub task is null, assume it is the same with parent
 										var otherOwner = subTask.Owner._refObjectName;
-										var anotherTask = { Owner: otherOwner, Actuals: subTask.Actuals, State: subTask.State, FormattedID: subTask.FormattedID, Title: subTask.Name };
+										var anotherTask = {
+											Owner: otherOwner,
+											Actuals: subTask.Actuals,
+											State: subTask.State,
+											FormattedID: subTask.FormattedID,
+											Title: subTask.Name
+										};
 										if (task["OtherOwnerTasks"]) {
 											task.OtherOwnerTasks.push(anotherTask);
 										} else {
@@ -286,7 +294,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 										}
 									}
 								}
-							})
+							});
 
 							if (task["OtherOwnerTasks"]) { // Contains at least one task which belong to the different owner
 								var groupTasks = _.groupBy(task.OtherOwnerTasks, function (element) { return element.Owner; });
@@ -366,7 +374,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			
 			getWarningReport: getWarningReport,
 
-			reCalculateTaskSpentTime: reCalculateTaskSpentTime,
+			reCalculateTaskSpentTime: reCalculateTaskSpentTime
 		}
 	}]);
 });

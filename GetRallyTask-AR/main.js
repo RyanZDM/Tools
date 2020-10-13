@@ -33,7 +33,7 @@ require(['services/utility']);
 require(['services/rallyAuthService']);
 require(['services/rallyQueryService']);
 require(['directives/rallyLoginDirective']);
-require(['directives/labeledCheckboxDirective'])
+require(['directives/labeledCheckboxDirective']);
 require(['controllers/rallyTaskController']);
 require(['controllers/rallyWorkStatController']);
 

@@ -23,7 +23,7 @@ function RallyTask(jsonObj) {
 	this.Reject = ((jsonObj['State']) && (/rejected|reject requested/i.test(jsonObj['State']))) ? true : false;
 	this.Postpone = ((jsonObj['State']) && (/postponed|postpone requested/i.test(jsonObj['State']))) ? true : false;
 	this.Duplicate = ((jsonObj['State']) && (/duplicate/i.test(jsonObj['State']))) ? true : false;
-	this.EverFailed = (jsonObj['Description']) ? (jsonObj['Description'].toLowerCase().indexOf('[eetfail') != -1) : false;	// [EETFailed] or [EETFail]
+	this.EverFailed = (jsonObj['Description']) ? (jsonObj['Description'].toLowerCase().indexOf('[eetfail') !== -1) : false;	// [EETFailed] or [EETFail]
 	this.Blocked = jsonObj.Blocked;
 	this.BlockedReason = (this.Blocked && jsonObj['BlockedReason']) ? jsonObj.BlockedReason : '';
 	this.Priority = (jsonObj['Priority']) ? jsonObj['Priority'] : '';
@@ -115,22 +115,22 @@ function RallyTask(jsonObj) {
 			this.Priority = '4 - ' + this.Priority;
 			break;
 		default:
-			// do nothong
+			// do nothing
 	}
 
 	(function (that) {
-		if ((that.Product === '') && (that.id.indexOf('DE') != -1)) {
+		if ((that.Product === '') && (that.id.indexOf('DE') !== -1)) {
 			that.Product = that.Description ? getProduct(that.Description) : '';
 		}
 
-		if (that.Reject || (that.id.indexOf('US') != -1)) {
+		if (that.Reject || (that.id.indexOf('US') !== -1)) {
 			// NA for user story or a reject defect
 			that.UTNeed = 'NA';
 			that.Product = '';
 			return;
 		}
 
-		if (that.ScheduleState != 'Completed' && that.ScheduleState != 'Accepted') {
+		if (that.ScheduleState !== 'Completed' && that.ScheduleState !== 'Accepted') {
 			// Leave as empty since not complete yet
 			that.UTNeed = '';
 			return;
@@ -138,9 +138,9 @@ function RallyTask(jsonObj) {
 
 		if (jsonObj['c_RootCauseDescription']) {
 			var rootCause = jsonObj['c_RootCauseDescription'].toLowerCase();
-			if (rootCause.indexOf('[utyes]') != -1) {
+			if (rootCause.indexOf('[utyes]') !== -1) {
 				that.UTNeed = 'Y';
-			} else if (rootCause.indexOf('[utno]') != -1) {
+			} else if (rootCause.indexOf('[utno]') !== -1) {
 				that.UTNeed = 'N';
 			}
 		}
