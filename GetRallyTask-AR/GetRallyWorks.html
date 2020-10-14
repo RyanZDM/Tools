@@ -256,13 +256,14 @@
 												, 'fontSize': task.FakeTask ? '80%' : '100%'
 											}">
 									<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
-									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
-									<td data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "1000" }'>
-										<a href='{{task.Link}}' target="_blank">
-											<b ng-show="task.Blocked"><font color="red">[Blocked]</font></b>
-											<b ng-show="task.Requirement == '' && task.Feature == ''"><font color="red">[No Parent]</font></b>
-											<b ng-show="task.Duplicate"><font color="black">[Duplicate]</font></b>
-											<b ng-show="task.Postpone"><font color="black">[Postpone]</font></b>
+									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday == true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
+									<td data-toggle="tooltip1" title={{task.Description}} data-html1="true" data-placement="right" data-delay='{ "show": "1500", "hide": "1000" }'>
+										<b ng-show="task.Blocked" data-toggle="tooltip" data-html="true" title="<i><b>Blocked with the reason:</b><br>{{task.BlockedReason}}</i>"><font color="red">[Blocked]</font></b>
+										<b ng-show="task.Requirement == '' && task.Feature == ''" data-toggle="tooltip" data-html="true" title="<i>It should be associated with a feature or user story</i>"><font color="red">[No Parent]</font></b>
+										<b ng-show="task.Duplicate" data-toggle="tooltip" data-html="true" title="<i>Duplicate with another defect</i>"><font color="black">[Duplicate]</font></b>
+										<b ng-show="task.Postpone" data-toggle="tooltip" data-html="true" title="<i>Postpone requested or has been postponed</i>"><font color="black">[Postpone]</font></b>
+										<a href='{{task.Link}}' target="_blank"
+										   data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "1000" }'>
 											{{task.Title}}
 										</a>
 									</td>
