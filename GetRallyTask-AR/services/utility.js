@@ -2,7 +2,6 @@
 
 /**
  * Utility tool
- *
  * @description All common methods here
  */
 define(['app', 'underscore'], function (app, _) {
@@ -14,9 +13,7 @@ define(['app', 'underscore'], function (app, _) {
 
 		/**
 		 * @name	copyToClipboard
-		 *
 		 * @description	Copies text to clipboard
-		 *
 		 * @param	text	The text.
 		 */
 		function copyToClipboard(text) {
@@ -43,17 +40,14 @@ define(['app', 'underscore'], function (app, _) {
 			document.body.removeChild(textarea);
 			currentFocus.focus();
 			return flag;
-		}
+		};
 
 		/**
 		 * @name	groupByMultiple
-		 *
 		 * @description	Group by multiple
-		 *
 		 * @param	array								data array to be group by.
 		 * @param	{(string|function)[]}	iteratee	The iteratees to transform keys.
 		 * @param	cumulativeItems						items will be cumulated.
-		 *
 		 * @returns	The cumulated items specified by 'cumulativeItems' group by 'iteratee'.
 		 */
 		function groupByMultiple(array, iteratee, cumulativeItems) {
@@ -98,6 +92,6 @@ define(['app', 'underscore'], function (app, _) {
 			}
 
 			return firstBy;
-		}
+		};
 	});
 });

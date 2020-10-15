@@ -30,11 +30,8 @@
 						<strong>{{ErrorMsg}}</strong>
 					</div>
 					<div class="row">
-						<div class="col-md-6">
-							<rally-login></rally-login>
-						</div>
-						<span class="col-md-3 text-right alert alert-warning pull-right"
-						      ng-show="taskForm.owner.$error.email">
+						<div class="col-md-6"><rally-login></rally-login></div>
+						<span class="col-md-3 text-right alert alert-warning pull-right" ng-show="taskForm.owner.$error.email">
 							The email address is invalid
 						</span>
 					</div>
@@ -48,11 +45,11 @@
 									   id="owner"
 									   name="owner"
 									   list="emailOptions"
-									   ng-model="owner"
+									   ng-model="Owner"
 									   required
 									   placeholder="Enter owner's Rally account here" />
 								<datalist id="emailOptions">
-									<option ng-repeat="email in emailList | orderBy: email" value={{email}}></option>
+									<option ng-repeat="email in EmailList | orderBy: email" value={{email}}></option>
 								</datalist>
 							</div>
 						</div>
@@ -68,7 +65,7 @@
 									   type="number" min="-1" max="999"
 									   id="sprint"
 									   name="sprint"
-									   ng-model="sprint"
+									   ng-model="Sprint"
 									   required
 									   placeholder="Enter target sprint" />
 							</div>
@@ -78,7 +75,7 @@
 								<span class="input-group-btn">
 									<button class="btn btn-md btn-block btn-default"
 											id="btnRefresh"
-											ng-disabled="inQuerying"
+											ng-disabled="InQuerying"
 											ng-click="refreshTaskList()"
 											data-toggle="tooltip"
 											data-placement="top"
@@ -89,7 +86,7 @@
 								<span class="input-group-btn">
 									<button class="btn btn-md btn-block btn-default"
 											id="btnRefreshAll"
-											ng-disabled="inQuerying"
+											ng-disabled="InQuerying"
 											ng-click="refreshAll()"
 											data-toggle="tooltip"
 											data-placement="top"
@@ -100,7 +97,7 @@
 								<span class="input-group-btn">
 									<button class="btn btn-md btn-block btn-default"
 											id="btnGetOpenDefects"
-											ng-disabled="inQuerying"
+											ng-disabled="InQuerying"
 											ng-click="getOpenDefects()"
 											data-toggle="tooltip"
 											data-placement="top"
@@ -115,7 +112,10 @@
 				<div class="panel-body">
 					<div class="row">
 						<div class="col-md-5">
-							<h4 class="text-primary"><b>Query Results</b> [{{filteredRecords.length}}({{filteredRecords.length-LastFilteredCount}}) / {{TaskList.length}}({{TaskList.length-LastRecordCount}})] <span style="font-size:15px">{{getWorkload(filteredRecords)}}</span></h4>
+							<h4 class="text-primary"><b>Query Results</b>
+								[{{filteredRecords.length}}({{filteredRecords.length-LastFilteredCount}}) / {{TaskList.length}}({{TaskList.length-LastRecordCount}})]
+								<span style="font-size:15px">{{getWorkload(filteredRecords)}}</span>
+							</h4>
 						</div>
 						<div class="col-md-7">
 							<div class="pull-right">
@@ -240,7 +240,7 @@
 									<th class="col-3" width="10%">
 										<div class="input-group">
 											<input type="checkbox" ng-model="IfSaveOtherInfo2Local" />
-											<label class="btn btn-default btn-sm h-50" ng-click="SaveOtherInfo2Local()" datatoggle="tooltip" data-html="true" title="Save comments into the browser local stroage">S</label>
+											<label class="btn btn-default btn-sm h-50" ng-click="saveOtherInfo2Local()" datatoggle="tooltip" data-html="true" title="Save comments into the browser local stroage">S</label>
 											<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label" />
 										</div>
 									</th>

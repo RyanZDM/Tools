@@ -3,7 +3,6 @@
 define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 	/**
 	 * @name rallyQueryService
-	 *
 	 * @description - service for querying info from Rally
 	 */
 	app.service('rallyQueryService', ['$http', '$q', 'rallyRestApi', function ($http, q, rallyRestApi) {
@@ -12,9 +11,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 
 		/**
 		 * @name xhrGet
-		 *
 		 * @description		Query to Rally via the typical way
-		 *
 		 * @param type		"task" (defect or user story), or "feature"
 		 * @param url			The url(RESTful API) to the Rally for getting the info
 		 * @param authToken	The token string to be sent to Rally for the authentication
@@ -48,13 +45,11 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			xhr.send(null);
 
 			return deferred.promise();
-		}
+		};
 
 		/**
 		 * @name jQueryGet
-		 *
 		 * @description		Query to Rally via the JQuery
-		 *
 		 * @param type		"task" (defect or user story), or "feature"
 		 * @param url			The url(RESTful API) to the Rally for getting the info
 		 * @param authToken	The token string to be sent to Rally for the authentication
@@ -84,13 +79,11 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 				});
 
 			return deferred.promise();
-		}
+		};
 
 		/**
 		 * @name angularJsGet
-		 *
 		 * @description		Query to Rally by using the AngularJS $http
-		 *
 		 * @param type		"task" (defect or user story), or "feature"
 		 * @param httpSvc		A HTTP service for Ajax call, uses the $http in this service
 		 * @param url			The url(RESTful API) to the Rally for getting the info
@@ -116,17 +109,14 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 						});
 
 			return deferred.promise();
-		}
+		};
 
 		/**
 		 * @name getList
-		 *
 		 * @description		Analyze the JSON object and return the list against on the target type
-		 *
 		 * @param type		"task" (defect or user story), or "feature"
-		 * @param jsonObj		The json object contains records get from Rally
-		 *
-		 *return			The Rally record collection
+		 * @param jsonObj	The json object contains records get from Rally
+		 * @return			The Rally record collection
 		 */
 		function getList(type, jsonObj) {
 			var lowerType = type.toLowerCase();
@@ -134,15 +124,12 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			if (lowerType === "feature") return getFeatureList(jsonObj);
 
 			return [];
-		}
+		};
 
 		/**
 		 * @name getFeatureList
-		 *
 		 * @description		Analyze the JSON object and return the Rally feature list
-		 *
 		 * @param jsonObj		The json object contains Rally features
-		 *
 		 * @return			The Rally feature collection
 		 */
 		function getFeatureList(jsonObj) {
@@ -155,15 +142,12 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			}
 
 			return featureList;
-		}
+		};
 
 		/**
 		 * @name getTaskList
-		 *
 		 * @description		Analyze the JSON object and return the Rally task list
-		 *
 		 * @param jsonObj		The json object contains Rally defects and/or user stories
-		 *
 		 * @return			The Rally task collection
 		 */
 		function getTaskList(jsonObj) {
@@ -182,15 +166,12 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			}
 
 			return taskList;
-		}
+		};
 
 		/**
 		 * @name getWarningReport
-		 *
 		 * @description		Get the warning report data
-		 *
 		 * @param token		The authentication token
-		 *
 		 * @return			The Rally warning report by category
 		 */
 		function getWarningReport(token) {
@@ -216,9 +197,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 
 		/**
 		 * @name getSingleWarningReport
-		 *
 		 * @description		Get the warning items according to the single provided condition
-		 *
 		 * @return			The warning items
 		 */
 		function getSingleWarningReport($http, url, token, category, desc) {
@@ -228,19 +207,13 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			});
 
 			return deferred.promise();
-		}
+		};
 
 		/**
 		 * @name	function mergeWarningReport(data)
-		 *
 		 * @description	Merge warning report
-		 *
-		 * @author	Ryan
-		 * @date	10/10/2019
-		 *
 		 * @param	data	The data.
-		 *
-		 * @returns	.
+		 * @returns	Merged report
 		 */
 		function mergeWarningReport(data) {
 			var reports = [];
@@ -254,14 +227,12 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			});
 
 			return reports;
-		}
+		};
 
 		/**
-		 * @name				reCalculateTaskSpentTime
-		 *
+		 * @name			reCalculateTaskSpentTime
 		 * @description		Calculate the total time spent of a defect or user story by cumulating the Actuals of all the sub tasks.
 		 *					Those sub tasks would be excluded if the owner is the other one
-		 *
 		 * @param taskList	The collection of Rally defects and/or user stories
 		 * @param authToken	The token string to be sent to Rally for the authentication
 		 */
@@ -349,7 +320,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			});
 
 			return promises;
-		}
+		};
 
 		return {
 			getTasksFromRally: function (parameters, target) {

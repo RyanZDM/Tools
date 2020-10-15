@@ -49,7 +49,7 @@ define(['app'], function (app) {
 							.replace('<team>', CurrentSettings.Team);
 
         // #Configurable here#
-        // Change the developers for different feature team
+        // Change here if new developers added in Rally
         var ownerEmailMapping = {
 	        // Taiji
 	        "Ryan Zhang": "dameng.zhang@carestream.com",

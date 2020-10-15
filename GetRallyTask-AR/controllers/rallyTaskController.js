@@ -20,11 +20,11 @@ define(['app', 'underscore', 'jquery'],
 				$scope.TaskList = [];
 				$scope.UserId = '';
 				$scope.UserPwd = '';
-				$scope.owner = '';
-				$scope.inQuerying = false;
+				$scope.Owner = '';
+				$scope.InQuerying = false;
 				$scope.ErrorMsg = '';
-				$scope.sprint = 0;
-				$scope.emailList = Object.values(rallyRestApi.OwnerEmailMapping);
+				$scope.Sprint = 0;
+				$scope.EmailList = Object.values(rallyRestApi.OwnerEmailMapping);
 				$scope.OwnerNameList = Object.keys(rallyRestApi.OwnerEmailMapping);
 				$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
 				$scope.IfSaveOtherInfo2Local = true;
@@ -60,12 +60,13 @@ define(['app', 'underscore', 'jquery'],
 
 
 				$scope.OrderByOptions = [{ value: 0, name: 'Default' },
-				{ value: 1, name: 'Priority' },
-				{ value: 2, name: 'ScheduleState' }
-				];
+										{ value: 1, name: 'Priority' },
+										{ value: 2, name: 'ScheduleState' }
+										];
 				$scope.OrderByValues = [['Owner', 'Iteration', '-ScheduleState', 'Rank', 'Priority'],
-				['Priority', '-ScheduleState'],
-				['-ScheduleState', 'Rank', 'Priority']];
+										['Priority', '-ScheduleState'],
+										['-ScheduleState', 'Rank', 'Priority']
+										];
 				$scope.OrderByOptionIndex = 0;
 				$scope.OrderByValue = $scope.OrderByValues[0];
 
@@ -84,7 +85,7 @@ define(['app', 'underscore', 'jquery'],
 							if (!item.Tags || item.Count < 1 || !item.Tags._tagsNameArray) return false;
 							var ret = false;
 							_.forEach(item.Tags._tagsNameArray,
-								function(tag) {
+								function (tag) {
 									if (/CR Phase II|1.7/i.test(tag.Name)) {
 										ret = true;
 										return;
@@ -110,8 +111,8 @@ define(['app', 'underscore', 'jquery'],
 				};
 
 				// #Configurable here#
-				// Add new object for new added release, refer to "crossradsPhaseII" or "swiftwater" about how to...
-				$scope.getCurrentProject = function () {
+				// Add new object if new added a release, refer to "crossradsPhaseII" or "swiftwater" about how to...
+				var getCurrentProject = function () {
 					if (CurrentRelease === 'SwiftWater') return swiftwater;
 					if (CurrentRelease === 'Crossroads') return crossroadsPhaseII;
 
@@ -126,15 +127,13 @@ define(['app', 'underscore', 'jquery'],
 
             	/**
 				 * @name	saveCurrentParameters()
-				 *
 				 * @description	Saves the current parameters (owner, sprint, scope etc.) to browser local cache
-				 *
 				 */
-				function saveCurrentParameters() {
+				var saveCurrentParameters = function () {
 					if (!$scope.CanUseLocalStorage) { return; }
 
-					localStorage.setItem($scope.SAVED_PARAMETERS, $scope.owner
-						+ ':' + $scope.sprint
+					localStorage.setItem($scope.SAVED_PARAMETERS, $scope.Owner
+						+ ':' + $scope.Sprint
 						+ ':' + $scope.ShowP2
 						+ ':' + $scope.ShowCurrentRelease
 						+ ':' + $scope.ShowOthers
@@ -149,11 +148,9 @@ define(['app', 'underscore', 'jquery'],
 
             	/**
 				 * @name	loadSavedParameters()
-				 *
 				 * @description	Loads saved parameters from browser local cache
-				 *
 				 */
-				function loadSavedParameters() {
+				var loadSavedParameters = function () {
 					if (!$scope.CanUseLocalStorage) { return; }
 
 					var savedParameters = localStorage.getItem($scope.SAVED_PARAMETERS);
@@ -161,8 +158,8 @@ define(['app', 'underscore', 'jquery'],
 
 					var parameters = savedParameters.split(':');
 					var paramLen = parameters.length;
-					if (paramLen > 0) { $scope.owner = parameters[0]; }
-					if (paramLen > 1) { $scope.sprint = parseInt(parameters[1]); }
+					if (paramLen > 0) { $scope.Owner = parameters[0]; }
+					if (paramLen > 1) { $scope.Sprint = parseInt(parameters[1]); }
 					if (paramLen > 2) { $scope.ShowP2 = parameters[2] === 'true'; }
 					if (paramLen > 3) { $scope.ShowCurrentRelease = parameters[3] === 'true'; }
 					if (paramLen > 4) { $scope.ShowOthers = parameters[4] === 'true'; }
@@ -193,7 +190,13 @@ define(['app', 'underscore', 'jquery'],
 
 				loadSavedParameters();
 
-				function updateOtherInfo(list, id, value) {
+				/**
+				 * @name	Applys the comments according to id if it exist in list
+				 * @param list	The task list
+				 * @param id	The task ID
+				 * @param value	The message to be updated
+				 */
+				var updateOtherInfo = function (list, id, value) {
 					var index = _.findIndex(list, function (task) {
 						if (!id || !task['id']) return false;
 
@@ -203,48 +206,52 @@ define(['app', 'underscore', 'jquery'],
 					if (index > -1) {
 						list[index].Other = value;
 					}
-				}
+				};
 
-				$scope.SaveOtherInfo2Local = function () {
-					if (!$scope.IfSaveOtherInfo2Local) { return; }
-					
+				var initBeforeQuery = function () {
+					// Record the last time record count so that we know if have changes between two query
+					$scope.LastRecordCount = $scope.TaskList.length;
+					$scope.LastFilteredCount = $scope.filteredRecords ? $scope.filteredRecords.length : 0;
+
+					saveCurrentParameters();
+					$scope.InQuerying = true;
+					$scope.clearError();
+					$scope.TaskList = [];
+					$scope.resetWorkloadStat();
+				};
+
+				/**
+				 * @name	saveOtherInfo2Local()
+				 */
+				$scope.saveOtherInfo2Local = function () {
+					if (!$scope.IfSaveOtherInfo2Local) {
+						return;
+					}
+
 					var otherInfo = '';
-					_.each($scope.TaskList, function (task) {
-						if (task['Other'] && task.Other !== '') {
-							otherInfo = otherInfo + task.id + '|' + task.Other + '|';
-						}
-					});
+					_.each($scope.TaskList,
+						function (task) {
+							if (task['Other'] && task.Other !== '') {
+								otherInfo = otherInfo + task.id + '|' + task.Other + '|';
+							}
+						});
 
 					if (otherInfo !== '') {
 						otherInfo = otherInfo.substring(0, otherInfo.length - 1);
 					}
 
 					localStorage.setItem($scope.SAVED_OTHERINFO, otherInfo);
-				}
-
-				$scope.initBeforeQuery = function () {
-					// Record the last time record count so that we know if have changes between two query
-					$scope.LastRecordCount = $scope.TaskList.length;
-					$scope.LastFilteredCount = $scope.filteredRecords ? $scope.filteredRecords.length : 0;
-
-					saveCurrentParameters();
-					$scope.inQuerying = true;
-					$scope.clearError();
-					$scope.TaskList = [];
-					$scope.resetWorkloadStat();
 				};
 
-            	/**
-				 * @name	$scope.refreshTaskList = function ()
-				 *
+				/**
+				 * @name	refreshTaskList()
 				 * @description	Get the task list of specified engineer from Rally, save to $scope.TaskList
-				 *
 				 */
 				$scope.refreshTaskList = function () {
-					$scope.initBeforeQuery();
+					initBeforeQuery();
 					$scope.QueryForOpenDefect = false;
-					$scope.QueryTypeString = ' --- ' + $scope.owner + '\'s Rally task in sprint ' + $scope.sprint + ' @' + new Date().toLocaleTimeString();
-					$scope.refreshTaskByOwner({ 'Owner': $scope.owner, 'Sprint': $scope.sprint, 'ClearDataFirst': true }, $q)
+					$scope.QueryTypeString = ' --- ' + $scope.Owner + '\'s Rally task in sprint ' + $scope.Sprint + ' @' + new Date().toLocaleTimeString();
+					$scope.refreshTaskByOwner({ 'Owner': $scope.Owner, 'Sprint': $scope.Sprint, 'ClearDataFirst': true }, $q)
 						.then(function (result) {
 							$scope.TaskList = result;
 
@@ -257,17 +264,15 @@ define(['app', 'underscore', 'jquery'],
 				};
 
             	/**
-				 * @name	refreshAll
-				 *
+				 * @name	refreshAll()
 				 * @description	Gets the task list of all engineers from Rally, save to $scope.TaskList
-				 * 
 				 */
 				$scope.refreshAll = function () {
-					$scope.initBeforeQuery();
+					initBeforeQuery();
 					$scope.QueryForOpenDefect = false;
-					$scope.QueryTypeString = ' --- Rally task in sprint ' + $scope.sprint + ' for ALL person @' + new Date().toLocaleTimeString();
+					$scope.QueryTypeString = ' --- Rally task in sprint ' + $scope.Sprint + ' for ALL person @' + new Date().toLocaleTimeString();
 					var promises = [];
-					promises.push($scope.refreshTaskByOwner({ 'Owner': '', 'Sprint': $scope.sprint, 'ClearDataFirst': false }, $q));
+					promises.push($scope.refreshTaskByOwner({ 'Owner': '', 'Sprint': $scope.Sprint, 'ClearDataFirst': false }, $q));
 
 					$q.all(promises)
 						.then(function (result) {
@@ -290,15 +295,13 @@ define(['app', 'underscore', 'jquery'],
 
             	/**
 				 * @name	getOpenDefects
-				 *
 				 * @descriptions	Gets all open defects of current project
-				 *
 				 */
 				$scope.getOpenDefects = function () {
-					$scope.initBeforeQuery();
+					initBeforeQuery();
 
 					var token = rallyAuthService.getAuthenticationToken();
-					var currentProject = $scope.getCurrentProject();
+					var currentProject = getCurrentProject();
 
 					$scope.QueryForOpenDefect = true;
 					$scope.QueryTypeString = ' --- ALL ' + $scope.CurrentRelease + ' open tasks @' + new Date().toLocaleTimeString();
@@ -317,21 +320,18 @@ define(['app', 'underscore', 'jquery'],
 							reportError(error);
 						})
 						.then(function () {
-							$scope.inQuerying = false;
+							$scope.InQuerying = false;
 							//$scope.$apply();
 							$scope.enableHtmlFormatTooltip();
 						});
 				}
 
             	/**
-				 * @name	refreshTaskByOwner
-				 *
+				 * @name	refreshTaskByOwner()
 				 * @description	Get the Rally task according to the specified parameters. Called by refreshTaskList() and refreshAll()
-				 *
 				 * @param	parameters	Options for querying the tasks from Rally.
 				 * @param	q		  	$q object.
 				 * @param	taskList  	Append the list to the query result if it is not empty.
-				 *
 				 * @returns	Promise to the task for querying task from Rally
 				 */
 				$scope.refreshTaskByOwner = function (parameters, q, taskList) {
@@ -363,7 +363,7 @@ define(['app', 'underscore', 'jquery'],
 									deferred.resolve(result);
 								})
 								.catch(function (error) { reportError(error); })
-								.finally(function () { $scope.inQuerying = false; });
+								.finally(function () { $scope.InQuerying = false; });
 						})
 						.catch(function (error) {
 							reportError(error);
@@ -374,18 +374,15 @@ define(['app', 'underscore', 'jquery'],
 				};
 
             	/**
-				 * @name	scheduleStateFilter
-				 *
+				 * @name	scheduleStateFilter()
 				 * @description	Schedule state filter
-				 *
 				 * @param	task	The task record to be filtered.
-				 *
 				 * @returns	false if do not want to show
 				 */
 				$scope.scheduleStateFilter = function (task) {
 					if (!$scope.ShowFakeTask && task.FakeTask) return false;
 
-					var isCurrentRelease = $scope.getCurrentProject().inScope(task.Release);
+					var isCurrentRelease = getCurrentProject().inScope(task.Release);
 					var isP2 = crossroadsPhaseII.inScope(task.Release);
 					var isOthers = !(isCurrentRelease || isP2);
 
@@ -435,15 +432,12 @@ define(['app', 'underscore', 'jquery'],
 					}
 
 					return false;
-				}
+				};
 
             	/**
 				 * @name	getWorkload
-				 *
 				 * @description	Accumulate the total estimation days and actual working hours 
-				 *
 				 * @param	records	The records to accumulate.
-				 *
 				 * @returns	The accumulate result string.
 				 */
 				$scope.getWorkload = function (records) {
@@ -451,7 +445,7 @@ define(['app', 'underscore', 'jquery'],
 					if (records && records.length > 0) {
 						var totalDays = 0, actualHours = 0;
 						_.each(records,
-							function(record) {
+							function (record) {
 								totalDays = totalDays + record.Estimate;
 								actualHours = actualHours + (record.Actuals ? record.Actuals : 0);
 							});
@@ -466,9 +460,7 @@ define(['app', 'underscore', 'jquery'],
 
             	/**
 				 * @name	collectWorkloadStatData
-				 *
 				 * @description	Summarize the total estimation days, working hours and task count by engineer
-				 *
 				 * @returns	True if the workload stat data is generated successfully. False if no data.
 				 */
 				$scope.collectWorkloadStatData = function () {
@@ -546,9 +538,7 @@ define(['app', 'underscore', 'jquery'],
 
             	/**
 				 * @name	checkStatPermission
-				 *
 				 * @description	Check stat permission
-				 *
 				 * @returns	If the current user has permission to see the data stat table/charter
 				 */
 				$scope.checkStatPermission = function () {
@@ -565,6 +555,10 @@ define(['app', 'underscore', 'jquery'],
 					$scope.OrderByValue = $scope.OrderByValues[$scope.OrderByOptionIndex];
 				};
 
+				/**
+				 * @name	enableHtmlFormatTooltip()
+				 * @description	Enables the HTML format Tooltip
+				 */
 				$scope.enableHtmlFormatTooltip = function () {
 					setTimeout(function () {
 						$('[data-html="true"]').tooltip();
@@ -573,9 +567,7 @@ define(['app', 'underscore', 'jquery'],
 
             	/**
 				 * @name	export
-				 *
 				 * @description	Copy the current filtered data to clipboard
-				 *
 				 */
 				$scope.export = function () {
 					var data = 'ID\tTitle\tPriority\tProduct\tOwner\tIteration\tState\tReject\t' + $scope.OtherInfoLabel;
@@ -588,21 +580,18 @@ define(['app', 'underscore', 'jquery'],
 
             	/**
 				 * @name	getProjectSummaryReport
-				 *
 				 * @description	Accumulate the total estimation days, actual working hours, task count group by project and ScheduleState
-				 *
 				 * @param	token	The authorization token for querying the Rally tasks.
-				 *
 				 * @returns	Summary report is saved to $scope.projectSummary.
 				 */
 				$scope.getProjectSummaryReport = function (token) {
-					$scope.inQuerying = true;
+					$scope.InQuerying = true;
 					$scope.projectSummary = {};
 					if (!token) {
 						token = rallyAuthService.getAuthenticationToken();
 					}
 
-					$scope.summaryByProject($scope.sprint, token)
+					summaryByProject($scope.Sprint, token)
 						.then(function (result) {
 							for (var project in result) {
 								if (!result[project]['Not Start']) {
@@ -628,20 +617,17 @@ define(['app', 'underscore', 'jquery'],
 
 							$scope.projectSummary = result;
 						})
-						.finally(function () { $scope.inQuerying = false; });;
+						.finally(function () { $scope.InQuerying = false; });;
 				};
 
             	/**
 				 * @name	summaryByProject
-				 *
 				 * @description	Gets the rally task summary group by Release/ScheduleState
-				 *
 				 * @param	sprint	The sprint.
 				 * @param	token 	The authorization token for querying the Rally tasks.
-				 *
 				 * @returns	Promise to the summary result.
 				 */
-				$scope.summaryByProject = function (sprint, token) {
+				var summaryByProject = function (sprint, token) {
 					var stateFunc = function (record) {
 						var state = 'Not Start';
 						if (record.ScheduleState === 'In-Progress' || record.ScheduleState === 'Completed' || record.ScheduleState === 'Accepted') {
@@ -674,13 +660,11 @@ define(['app', 'underscore', 'jquery'],
 
             	/**
 				 * @name	getProjectSummaryReportPeriodically
-				 *
 				 * @description	After called this function, will gets project summary report periodically
-				 *
 				 * @returns	The project summary report periodically.
 				 */
 				$scope.getProjectSummaryReportPeriodically = function () {
-					if (!$scope.sprint || $scope.sprint < 1) { return; }
+					if (!$scope.Sprint || $scope.Sprint < 1) { return; }
 
 					var token = "ZGFtZW5nLnpoYW5nQGNhcmVzdHJlYW0uY29tOjFxYXoyV1NY";
 
@@ -689,17 +673,14 @@ define(['app', 'underscore', 'jquery'],
 					setTimeout($scope.getProjectSummaryReportPeriodically, 60000 * 10);
 				};
 
-				$scope.clearError = function () {
+				$scope.clearError = function() {
 					$scope.ErrorMsg = '';
-				}
+				};
 
             	/**
 				 * @name	reportError
-				 *
 				 * @description	Reports an error
-				 *
 				 * @param	error	The error object.
-				 *
 				 */
 				function reportError(error) {
 					console.error(error.statusText);
