@@ -1,6 +1,6 @@
 'use strict';
 
-define(['app'], function (app) {
+define(['app', 'underscore'], function (app, _) {
 	app.service('rallyAuthService', ['$rootScope', function ($rootScope) {
 		var LOCAL_STORAGE_KEY = 'rallyTaskQueryAccount';
 

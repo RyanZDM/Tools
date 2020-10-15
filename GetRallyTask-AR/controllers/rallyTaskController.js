@@ -207,7 +207,7 @@ define(['app', 'underscore', 'jquery'],
 
 				$scope.SaveOtherInfo2Local = function () {
 					if (!$scope.IfSaveOtherInfo2Local) { return; }
-
+					
 					var otherInfo = '';
 					_.each($scope.TaskList, function (task) {
 						if (task['Other'] && task.Other !== '') {
@@ -220,10 +220,6 @@ define(['app', 'underscore', 'jquery'],
 					}
 
 					localStorage.setItem($scope.SAVED_OTHERINFO, otherInfo);
-				}
-
-				$scope.clearError = function () {
-					$scope.ErrorMsg = '';
 				}
 
 				$scope.initBeforeQuery = function () {
@@ -655,7 +651,6 @@ define(['app', 'underscore', 'jquery'],
 						return state;
 					};
 
-
 					var deferred = $q.defer();
 
 					$q.all([
@@ -693,6 +688,10 @@ define(['app', 'underscore', 'jquery'],
 					$scope.LastUpdate = "Last update at " + new Date().toLocaleTimeString();
 					setTimeout($scope.getProjectSummaryReportPeriodically, 60000 * 10);
 				};
+
+				$scope.clearError = function () {
+					$scope.ErrorMsg = '';
+				}
 
             	/**
 				 * @name	reportError

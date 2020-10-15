@@ -25,16 +25,16 @@
 		<div class="container-fluid">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<div class="row alert alert-warning alert-dismissable pull-right" ng-show="(ErrorMsg)">
-						<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-						<strong>Warning:</strong>{{ErrorMsg}}
+					<div id="PoppedMsg" class="row alert alert-warning alert-dismissable pull-right" ng-show="ErrorMsg !== ''">
+						<a href="#" class="close" aria-label="close" ng-click="$event.preventDefault();clearError()">&times;</a>
+						<strong>{{ErrorMsg}}</strong>
 					</div>
 					<div class="row">
 						<div class="col-md-6">
 							<rally-login></rally-login>
 						</div>
 						<span class="col-md-3 text-right alert alert-warning pull-right"
-							  ng-show="taskForm.owner.$error.email">
+						      ng-show="taskForm.owner.$error.email">
 							The email address is invalid
 						</span>
 					</div>
@@ -240,7 +240,7 @@
 									<th class="col-3" width="10%">
 										<div class="input-group">
 											<input type="checkbox" ng-model="IfSaveOtherInfo2Local" />
-											<label class="btn btn-default btn-sm h-50" ng-click="SaveOtherInfo2Local()">S</label>
+											<label class="btn btn-default btn-sm h-50" ng-click="SaveOtherInfo2Local()" datatoggle="tooltip" data-html="true" title="Save comments into the browser local stroage">S</label>
 											<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label" />
 										</div>
 									</th>
@@ -257,7 +257,7 @@
 											}">
 									<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
 									<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday == true) ? 'bold' : 'normal' }">{{task.id}}</div></td>
-									<td data-toggle="tooltip1" title={{task.Description}} data-html1="true" data-placement="right" data-delay='{ "show": "1500", "hide": "1000" }'>
+									<td>
 										<b ng-show="task.Blocked" data-toggle="tooltip" data-html="true" title="<i><b>Blocked with the reason:</b><br>{{task.BlockedReason}}</i>"><font color="red">[Blocked]</font></b>
 										<b ng-show="task.Requirement == '' && task.Feature == ''" data-toggle="tooltip" data-html="true" title="<i>It should be associated with a feature or user story</i>"><font color="red">[No Parent]</font></b>
 										<b ng-show="task.Duplicate" data-toggle="tooltip" data-html="true" title="<i>Duplicate with another defect</i>"><font color="black">[Duplicate]</font></b>
