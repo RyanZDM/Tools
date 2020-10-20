@@ -2,7 +2,7 @@
 
 require.config({
 	paths: {
-		"jquery": "libs/jquery/3.2.1/jquery",
+		"jquery": "libs/jquery/3.5.1/jquery",
 		"angular": "libs/angularjs/1.8.0/angular",
 		"domReady": "libs/require-domready/2.0.1/domReady",
 		"bootstrap": "libs/bootstrap/current/bootstrap",

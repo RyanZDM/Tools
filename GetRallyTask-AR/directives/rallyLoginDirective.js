@@ -8,7 +8,7 @@ define(['app'], function (app) {
 						<span class="input-group-addon">Authorization</span>\
 						<input class="form-control" type="text" id="userId" ng-model="UserId" ng-change="onChange()" placeholder="Enter the query account" />\
 						<input class="form-control" type="password" id="userPwd" ng-model="UserPwd" ng-change="onChange()" placeholder="Enter password" />\
-						<span class="input-group-addon" style="border:0;background:transparent;" ng-show="CanUseLocalStorage"><input type="checkbox" ng-model="RememberAccount" ng-click="toggleRememberSetting()" />&nbsp;Remember</span>\
+						<span class="input-group-addon" style="border:0;background:transparent;" ng-show="CanUseLocalStorage"><input type="checkbox" ng-model="RememberAccount" ng-change="toggleRememberSetting()" />&nbsp;Remember</span>\
 					</div>',
 			link: function (scope, element, attrs) {
 				var key;
