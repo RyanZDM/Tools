@@ -70,7 +70,7 @@ function RallyTask(jsonObj) {
 
 	if (jsonObj['c_AcceptanceCriteria']) {
 		this.AC = jsonObj['c_AcceptanceCriteria'];
-		if (/no testable|not testable|non-testable|No need for QA verification/i.test(this.AC)) {
+		if (/no test|not test|non-test|No need/i.test(this.AC)) {
 			this.Testable = false;
 		}
 	} else {
