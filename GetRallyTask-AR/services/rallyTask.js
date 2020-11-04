@@ -85,7 +85,7 @@ function RallyTask(jsonObj) {
 
 		var newString = desc.replace(/</g, '<\n')					// Convert html marker <xxx> to \n for easy regex matching
 							.replace(/(3. Test Case:)/i, '\n');		// Search ends when find the keywords "3. Test Case:"
-		var firstMatch = /Test Hardware:(.+)\n/i.exec(newString);//3. Test Case:
+		var firstMatch = /Test Hardware:(.+)\n/i.exec(newString);
 		if (firstMatch && firstMatch.length > 1) {
 			// The second one is what we need, and may contains the HTML marker <xxx> at the end
 			var secondMatch = firstMatch[1].split('<')[0];

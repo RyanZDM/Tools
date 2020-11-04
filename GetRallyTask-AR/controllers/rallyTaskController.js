@@ -132,18 +132,22 @@ define(['app', 'underscore', 'jquery'],
 				var saveCurrentParameters = function () {
 					if (!$scope.CanUseLocalStorage) { return; }
 
-					localStorage.setItem($scope.SAVED_PARAMETERS, $scope.Owner
-						+ ':' + $scope.Sprint
-						+ ':' + $scope.ShowP2
-						+ ':' + $scope.ShowCurrentRelease
-						+ ':' + $scope.ShowOthers
-						+ ':' + $scope.IfSaveOtherInfo2Local
-						+ ':' + $scope.OtherInfoLabel
-						+ ':' + $scope.ShowProductField
-						+ ':' + $scope.ShowIterationField
-						+ ':' + $scope.ShowRejectField
-						+ ':' + $scope.ShowEverFailedField
-						+ ':' + $scope.ShowBlockReasonField);
+					var data = {
+						Owner: $scope.Owner,
+						Sprint: $scope.Sprint,
+						ShowP2: $scope.ShowP2,
+						ShowCurrentRelease: $scope.ShowCurrentRelease,
+						ShowOthers: $scope.ShowOthers,
+						IfSaveOtherInfo2Local: $scope.IfSaveOtherInfo2Local,
+						OtherInfoLabel: $scope.OtherInfoLabel,
+						ShowProductField: $scope.ShowProductField,
+						ShowIterationField: $scope.ShowIterationField,
+						ShowRejectField: $scope.ShowRejectField,
+						ShowEverFailedField: $scope.ShowEverFailedField,
+						ShowBlockReasonField: $scope.ShowBlockReasonField
+					};
+
+					localStorage.setItem($scope.SAVED_PARAMETERS, JSON.stringify(data));
 				}
 
             	/**
@@ -155,36 +159,29 @@ define(['app', 'underscore', 'jquery'],
 
 					var savedParameters = localStorage.getItem($scope.SAVED_PARAMETERS);
 					if (!savedParameters) { return; }
+					savedParameters = JSON.parse(savedParameters);
 
-					var parameters = savedParameters.split(':');
-					var paramLen = parameters.length;
-					if (paramLen > 0) { $scope.Owner = parameters[0]; }
-					if (paramLen > 1) { $scope.Sprint = parseInt(parameters[1]); }
-					if (paramLen > 2) { $scope.ShowP2 = parameters[2] === 'true'; }
-					if (paramLen > 3) { $scope.ShowCurrentRelease = parameters[3] === 'true'; }
-					if (paramLen > 4) { $scope.ShowOthers = parameters[4] === 'true'; }
-					if (paramLen > 5) { $scope.IfSaveOtherInfo2Local = parameters[5] === 'true'; }
-					if (paramLen > 6) { $scope.OtherInfoLabel = parameters[6]; }
-					if (paramLen > 7) { $scope.ShowProductField = parameters[7] === 'true'; }
-					if (paramLen > 8) { $scope.ShowIterationField = parameters[8] === 'true'; }
-					if (paramLen > 9) { $scope.ShowRejectField = parameters[9] === 'true'; }
-					if (paramLen > 10) { $scope.ShowEverFailedField = parameters[10] === 'true'; }
-					if (paramLen > 11) { $scope.ShowBlockReasonField = parameters[11] === 'true'; }
+					if (savedParameters['Owner']) { $scope.Owner = savedParameters.Owner; }
+					if (savedParameters['Sprint']) { $scope.Sprint = savedParameters.Sprint; }
+					if (savedParameters['ShowP2']) { $scope.ShowP2 = savedParameters.ShowP2; }
+					if (savedParameters['ShowCurrentRelease']) { $scope.ShowCurrentRelease = savedParameters.ShowCurrentRelease; }
+					if (savedParameters['ShowOthers']) { $scope.ShowOthers = savedParameters.ShowOthers; }
+					if (savedParameters['IfSaveOtherInfo2Local']) { $scope.IfSaveOtherInfo2Local = savedParameters.IfSaveOtherInfo2Local; }
+					if (savedParameters['OtherInfoLabel']) { $scope.OtherInfoLabel = savedParameters.OtherInfoLabel; }
+					if (savedParameters['ShowProductField']) { $scope.ShowProductField = savedParameters.ShowProductField; }
+					if (savedParameters['ShowIterationField']) { $scope.ShowIterationField = savedParameters.ShowIterationField; }
+					if (savedParameters['ShowRejectField']) { $scope.ShowRejectField = savedParameters.ShowRejectField; }
+					if (savedParameters['ShowEverFailedField']) { $scope.ShowEverFailedField = savedParameters.ShowEverFailedField; }
+					if (savedParameters['ShowBlockReasonField']) { $scope.ShowBlockReasonField = savedParameters.ShowBlockReasonField; }
 
 					if ($scope.IfSaveOtherInfo2Local && $scope.TaskList.length > 0) {
-						var otherInfoString = localStorage.getItem($scope.SAVED_OTHERINFO);
-						if (!otherInfoString) { return; }
-
-						var otherInfoList = otherInfoString.split('|');
-						var total = otherInfoList.length;
-						var remainCount = total;
-						while (remainCount > 1) {
-							var id = otherInfoList[total - remainCount];
-							var value = otherInfoList[total - remainCount + 1];
-							remainCount = remainCount - 2;
-
-							updateOtherInfo($scope.TaskList, id, value);
-						}
+						var otherInfo = localStorage.getItem($scope.SAVED_OTHERINFO);
+						if (!otherInfo) { return; }
+						otherInfo = JSON.parse(otherInfo);
+						_.each(_.keys(otherInfo),
+							function(key) {
+								updateOtherInfo($scope.TaskList, key, otherInfo[key]);
+							});
 					}
 				}
 
@@ -228,19 +225,15 @@ define(['app', 'underscore', 'jquery'],
 						return;
 					}
 
-					var otherInfo = '';
+					var otherInfo = {};
 					_.each($scope.TaskList,
 						function (task) {
 							if (task['Other'] && task.Other !== '') {
-								otherInfo = otherInfo + task.id + '|' + task.Other + '|';
+								otherInfo[task.id] = task.Other;
 							}
 						});
 
-					if (otherInfo !== '') {
-						otherInfo = otherInfo.substring(0, otherInfo.length - 1);
-					}
-
-					localStorage.setItem($scope.SAVED_OTHERINFO, otherInfo);
+					localStorage.setItem($scope.SAVED_OTHERINFO, JSON.stringify(otherInfo));
 				};
 
 				/**
