@@ -237,6 +237,50 @@ define(['app', 'underscore', 'jquery'],
 				};
 
 				/**
+				 * @name exportOtherInfoFromLocal
+				 */
+				$scope.exportOtherInfoFromLocal = function () {
+					var otherInfo = localStorage.getItem($scope.SAVED_OTHERINFO);
+					if (!otherInfo) {
+						window.alert('Did not find the data in local storage.');
+						 return;
+					}
+
+					var file = new Blob([otherInfo], { type: "application/json" });
+					var link = document.createElement("a");
+					link.download = "RallyTaskComments.dat";
+					link.href = URL.createObjectURL(file);
+					link.click();
+				}
+
+				/**
+				 * @name importOtherInfo2Local
+				 */
+				$scope.importOtherInfo2Local = function() {
+					var input = document.createElement('input');
+					input.type = 'file';
+					input.onchange = function(e) {
+						var file = e.target.files[0];
+						var reader = new FileReader();
+						reader.onload = function(e) {
+							var content = e.target.result;
+							var otherInfo = JSON.parse(content);
+
+							_.each($scope.TaskList,
+								function (task) {
+									if (task['Other'] && task.Other !== '') {
+										otherInfo[task.id] = task.Other;
+									}
+								});
+
+							localStorage.setItem($scope.SAVED_OTHERINFO, JSON.stringify(otherInfo));
+						}
+						reader.readAsText(file, 'UTF-8');
+					};
+					input.click();
+				}
+
+				/**
 				 * @name	refreshTaskList()
 				 * @description	Get the task list of specified engineer from Rally, save to $scope.TaskList
 				 */

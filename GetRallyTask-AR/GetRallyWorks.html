@@ -240,7 +240,10 @@
 									<th class="col-3" width="10%">
 										<div class="input-group">
 											<input type="checkbox" ng-model="IfSaveOtherInfo2Local" />
+											&nbsp;
 											<label class="btn btn-default btn-sm h-50" ng-click="saveOtherInfo2Local()" datatoggle="tooltip" data-html="true" title="Save comments into the browser local stroage">S</label>
+											<label class="btn btn-default btn-sm h-50" ng-click="exportOtherInfoFromLocal()" datatoggle="tooltip" data-html="true" title="Export comments to another machine">E</label>
+											<label class="btn btn-default btn-sm h-50" ng-click="importOtherInfo2Local()" datatoggle="tooltip" data-html="true" title="Import comments to this machine">I</label>
 											<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label" />
 										</div>
 									</th>
