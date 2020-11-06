@@ -5,7 +5,7 @@ define(['app'], function (app) {
 	// Change the query checking condition for different team/project
 	app.constant('CurrentSettings', { Release: 'Swiftwater', Team: 'Team Taiji', TeamShortName: 'Taiji' });
 	// #Configurable end#
-
+	
 	app.service('rallyRestApi', function (CurrentSettings) {
 		var urlFeature = 'https://rally1.rallydev.com/slm/webservice/v2.0/PortfolioItem/Feature?\
 							query=(<QueryString>)\

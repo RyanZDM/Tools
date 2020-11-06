@@ -1,9 +1,11 @@
 'use strict';
 
 define(['app', 'underscore'], function (app, _) {
-	app.service('rallyAuthService', ['$rootScope', function ($rootScope) {
-		var LOCAL_STORAGE_KEY = 'rallyTaskQueryAccount';
+	app.constant('LocalStorageKey', { LOCAL_STORAGE_KEY: 'rallyTaskQueryAccount', 
+										SAVED_PARAMETERS: 'RallyTaskQueryParameters', 
+										SAVED_OTHERINFO: 'RallyTaskOtherInfo' });
 
+	app.service('rallyAuthService', ['$rootScope', 'LocalStorageKey', function ($rootScope, LocalStorageKey) {
 		function canUseLocalStorage() {
 			return (typeof (Storage) !== 'undefined');
 		};
@@ -11,7 +13,7 @@ define(['app', 'underscore'], function (app, _) {
 		function updateLocalStorage(userId, pwd) {
 			if (!canUseLocalStorage()) return;
 
-			localStorage.setItem(LOCAL_STORAGE_KEY, userId + ':' + pwd);
+			localStorage.setItem(LocalStorageKey.LOCAL_STORAGE_KEY, userId + ':' + pwd);
 		};
 
 		var authService = {
@@ -20,7 +22,7 @@ define(['app', 'underscore'], function (app, _) {
 			getTokenFromLocalStorage: function () {
 				if (!canUseLocalStorage) return undefined;
 
-				return localStorage.getItem(LOCAL_STORAGE_KEY);
+				return localStorage.getItem(LocalStorageKey.LOCAL_STORAGE_KEY);
 			},
 
 			getAuthenticationToken: function() {
@@ -35,7 +37,7 @@ define(['app', 'underscore'], function (app, _) {
 				if (scope.RememberAccount) {
 					updateLocalStorage(scope.UserId, scope.UserPwd);
 				} else {
-					localStorage.removeItem(LOCAL_STORAGE_KEY);
+					localStorage.removeItem(LocalStorageKey.LOCAL_STORAGE_KEY);
 				}
 			},
 

@@ -12,11 +12,10 @@ define(['app', 'underscore', 'jquery'],
 			'rallyRestApi',
 			'utility',
 			'CurrentSettings',
+			'LocalStorageKey',
 
-			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi, utility, CurrentSettings) {
+			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi, utility, CurrentSettings, LocalStorageKey) {
 				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
-				$scope.SAVED_PARAMETERS = 'RallyTaskQueryParameters';
-				$scope.SAVED_OTHERINFO = 'RallyTaskOtherInfo';
 				$scope.TaskList = [];
 				$scope.UserId = '';
 				$scope.UserPwd = '';
@@ -147,7 +146,7 @@ define(['app', 'underscore', 'jquery'],
 						ShowBlockReasonField: $scope.ShowBlockReasonField
 					};
 
-					localStorage.setItem($scope.SAVED_PARAMETERS, JSON.stringify(data));
+					localStorage.setItem(LocalStorageKey.SAVED_PARAMETERS, JSON.stringify(data));
 				}
 
             	/**
@@ -157,31 +156,37 @@ define(['app', 'underscore', 'jquery'],
 				var loadSavedParameters = function () {
 					if (!$scope.CanUseLocalStorage) { return; }
 
-					var savedParameters = localStorage.getItem($scope.SAVED_PARAMETERS);
-					if (!savedParameters) { return; }
-					savedParameters = JSON.parse(savedParameters);
+					var savedParameters = localStorage.getItem(LocalStorageKey.SAVED_PARAMETERS);
+					if (!savedParameters || savedParameters.trim() === '') { return; }
+					try {
+						savedParameters = JSON.parse(savedParameters);
 
-					if (savedParameters['Owner']) { $scope.Owner = savedParameters.Owner; }
-					if (savedParameters['Sprint']) { $scope.Sprint = savedParameters.Sprint; }
-					if (savedParameters['ShowP2']) { $scope.ShowP2 = savedParameters.ShowP2; }
-					if (savedParameters['ShowCurrentRelease']) { $scope.ShowCurrentRelease = savedParameters.ShowCurrentRelease; }
-					if (savedParameters['ShowOthers']) { $scope.ShowOthers = savedParameters.ShowOthers; }
-					if (savedParameters['IfSaveOtherInfo2Local']) { $scope.IfSaveOtherInfo2Local = savedParameters.IfSaveOtherInfo2Local; }
-					if (savedParameters['OtherInfoLabel']) { $scope.OtherInfoLabel = savedParameters.OtherInfoLabel; }
-					if (savedParameters['ShowProductField']) { $scope.ShowProductField = savedParameters.ShowProductField; }
-					if (savedParameters['ShowIterationField']) { $scope.ShowIterationField = savedParameters.ShowIterationField; }
-					if (savedParameters['ShowRejectField']) { $scope.ShowRejectField = savedParameters.ShowRejectField; }
-					if (savedParameters['ShowEverFailedField']) { $scope.ShowEverFailedField = savedParameters.ShowEverFailedField; }
-					if (savedParameters['ShowBlockReasonField']) { $scope.ShowBlockReasonField = savedParameters.ShowBlockReasonField; }
+						if (savedParameters['Owner'] != undefined) { $scope.Owner = savedParameters.Owner; }
+						if (savedParameters['Sprint'] != undefined) { $scope.Sprint = savedParameters.Sprint; }
+						if (savedParameters['ShowP2'] != undefined) { $scope.ShowP2 = savedParameters.ShowP2; }
+						if (savedParameters['ShowCurrentRelease'] != undefined) { $scope.ShowCurrentRelease = savedParameters.ShowCurrentRelease; }
+						if (savedParameters['ShowOthers'] != undefined) { $scope.ShowOthers = savedParameters.ShowOthers; }
+						if (savedParameters['IfSaveOtherInfo2Local'] != undefined) { $scope.IfSaveOtherInfo2Local = savedParameters.IfSaveOtherInfo2Local; }
+						if (savedParameters['OtherInfoLabel'] != undefined) { $scope.OtherInfoLabel = savedParameters.OtherInfoLabel; }
+						if (savedParameters['ShowProductField'] != undefined) { $scope.ShowProductField = savedParameters.ShowProductField; }
+						if (savedParameters['ShowIterationField'] != undefined) { $scope.ShowIterationField = savedParameters.ShowIterationField; }
+						if (savedParameters['ShowRejectField'] != undefined) { $scope.ShowRejectField = savedParameters.ShowRejectField; }
+						if (savedParameters['ShowEverFailedField'] != undefined) { $scope.ShowEverFailedField = savedParameters.ShowEverFailedField; }
+						if (savedParameters['ShowBlockReasonField'] != undefined) { $scope.ShowBlockReasonField = savedParameters.ShowBlockReasonField; }
 
-					if ($scope.IfSaveOtherInfo2Local && $scope.TaskList.length > 0) {
-						var otherInfo = localStorage.getItem($scope.SAVED_OTHERINFO);
-						if (!otherInfo) { return; }
-						otherInfo = JSON.parse(otherInfo);
-						_.each(_.keys(otherInfo),
-							function(key) {
-								updateOtherInfo($scope.TaskList, key, otherInfo[key]);
-							});
+						if ($scope.IfSaveOtherInfo2Local && $scope.TaskList.length > 0) {
+							var otherInfo = localStorage.getItem(LocalStorageKey.SAVED_OTHERINFO);
+							if (!otherInfo) {
+								return;
+							}
+							otherInfo = JSON.parse(otherInfo);
+							_.each(_.keys(otherInfo),
+								function(key) {
+									updateOtherInfo($scope.TaskList, key, otherInfo[key]);
+								});
+						}
+					} catch (err) {
+						reportError(err);
 					}
 				}
 
@@ -233,14 +238,14 @@ define(['app', 'underscore', 'jquery'],
 							}
 						});
 
-					localStorage.setItem($scope.SAVED_OTHERINFO, JSON.stringify(otherInfo));
+					localStorage.setItem(LocalStorageKey.SAVED_OTHERINFO, JSON.stringify(otherInfo));
 				};
 
 				/**
 				 * @name exportOtherInfoFromLocal
 				 */
 				$scope.exportOtherInfoFromLocal = function () {
-					var otherInfo = localStorage.getItem($scope.SAVED_OTHERINFO);
+					var otherInfo = localStorage.getItem(LocalStorageKey.SAVED_OTHERINFO);
 					if (!otherInfo) {
 						window.alert('Did not find the data in local storage.');
 						 return;
@@ -266,18 +271,27 @@ define(['app', 'underscore', 'jquery'],
 							var content = e.target.result;
 							var otherInfo = JSON.parse(content);
 
-							_.each($scope.TaskList,
-								function (task) {
-									if (task['Other'] && task.Other !== '') {
-										otherInfo[task.id] = task.Other;
-									}
+							_.each(_.keys(otherInfo),
+								function(key) {
+									updateOtherInfo($scope.TaskList, key, otherInfo[key]);
 								});
 
-							localStorage.setItem($scope.SAVED_OTHERINFO, JSON.stringify(otherInfo));
+							localStorage.setItem(LocalStorageKey.SAVED_OTHERINFO, JSON.stringify(otherInfo));
 						}
 						reader.readAsText(file, 'UTF-8');
 					};
 					input.click();
+				}
+
+				/**
+				 * @name clearCache
+				 */
+				$scope.clearCache = function() {
+					if (confirm('This will clear all Rally related cache from this machine, are you sure?')) {
+						localStorage.removeItem(LocalStorageKey.LOCAL_STORAGE_KEY);
+						localStorage.removeItem(LocalStorageKey.SAVED_PARAMETERS);
+						localStorage.removeItem(LocalStorageKey.SAVED_OTHERINFO);
+					}
 				}
 
 				/**
@@ -720,11 +734,16 @@ define(['app', 'underscore', 'jquery'],
 				 * @param	error	The error object.
 				 */
 				function reportError(error) {
-					console.error(error.statusText);
-					if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
-						$scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
+					if (error.statusText) {
+						console.error(error.statusText);
+						if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
+							$scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
+						} else {
+							$scope.ErrorMsg = error.statusText;
+						}
 					} else {
-						$scope.ErrorMsg = error.statusText;
+						console.error(error.toString());
+						$scope.ErrorMsg = error.toString();
 					}
 				};
 			}]);

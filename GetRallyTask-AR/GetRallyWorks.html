@@ -31,9 +31,18 @@
 					</div>
 					<div class="row">
 						<div class="col-md-6"><rally-login></rally-login></div>
-						<span class="col-md-3 text-right alert alert-warning pull-right" ng-show="taskForm.owner.$error.email">
+						<span class="col-md-5 text-right alert alert-warning" ng-show="taskForm.owner.$error.email">
 							The email address is invalid
 						</span>
+						<div class="col-md-1 pull-right">
+							<button class="btn btn-warning"
+									data-toggle="tooltip"
+									title="Clear cache from this machine"
+									ng-click="clearCache()">
+								Clear Cache
+							</button>
+						</div>
+
 					</div>
 					<p></p>
 					<div class="row">
