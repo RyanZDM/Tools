@@ -128,13 +128,13 @@
 						</div>
 						<div class="col-md-8">
 							<div class="pull-right">
-								<labeled-checkbox ng-hide="!QueryForOpenDefect" class="btn-info" uid="unassigned" label="Unassigned Only" shortlabel="Unassigned" ng-model="ShowUnassignedOnly" action="resetWorkloadStat()" title="Show unassigned only"></labeled-checkbox>
+								<labeled-checkbox ng-hide="!QueryForOpenDefect" class="btn-info" uid="unassigned" label="Unassigned Only" ng-model="ShowUnassignedOnly" action="resetWorkloadStat()" title="Show unassigned only"></labeled-checkbox>
 								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-default" uid="other" label="Other" ng-model="ShowOthers" action="resetWorkloadStat()"></labeled-checkbox>
 								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-info" uid="p2" label="Phase II" ng-model="ShowP2" action="resetWorkloadStat()"></labeled-checkbox>
 								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-primary" uid="CurrentRelease" label="{{CurrentRelease}}" ng-model="ShowCurrentRelease" action="resetWorkloadStat()"></labeled-checkbox>
-								<labeled-checkbox class="btn-warning" uid="SDC" label="SDC Only" shortlabel="SDC" ng-model="SDCOnly" action="resetWorkloadStat()" title="Show tasks owned by SDC only"></labeled-checkbox>
-								<labeled-checkbox class="btn-success" uid="CurrentTeam" label="{{CurrentTeam}} Only" shortlabel="{{CurrentTeam}}" ng-model="CurrentTeamOnly" action="resetWorkloadStat()" title="Show team {{CurrentTeam}} task only"></labeled-checkbox>
-								<labeled-checkbox class="btn-default" uid="FakeTask" label="Sub Task" shortlabel="Task" ng-model="ShowFakeTask" action="resetWorkloadStat()" title="Show sub tasks if has one more owner for a task"></labeled-checkbox>
+								<labeled-checkbox class="btn-warning" uid="SDC" label="SDC Only" shortlabel="{{QueryForOpenDefect ? 'SDC Only' : 'SDC'}}" ng-model="SDCOnly" action="resetWorkloadStat()" title="Show tasks owned by SDC only"></labeled-checkbox>
+								<labeled-checkbox class="btn-success" uid="CurrentTeam" label="{{CurrentTeam}} Only" shortlabel="{{QueryForOpenDefect ? CurrentTeam + ' Only' : CurrentTeam}}" ng-model="CurrentTeamOnly" action="resetWorkloadStat()" title="Show team {{CurrentTeam}} task only"></labeled-checkbox>
+								<labeled-checkbox class="btn-default" uid="FakeTask" label="Sub Task" shortlabel="{{QueryForOpenDefect ? 'Sub Task' : 'Task'}}" ng-model="ShowFakeTask" action="resetWorkloadStat()" title="Show sub tasks if has one more owner for a task"></labeled-checkbox>
 								<span>
 									<select class="btn btn-primary" ng-model="DeOrUs" ng-change="resetWorkloadStat()">
 										<option>ALL</option>
@@ -219,12 +219,12 @@
 						</div>
 						<div class="col-md-9">
 							<div class="pull-right">
-								<labeled-checkbox class="btn-default" uid="indefine" label="In Definition" shortlabel="ID" ng-model="ShowInDefine" action="resetWorkloadStat()" title="In Definition"></labeled-checkbox>
-								<labeled-checkbox class="btn-info" uid="defined" label="Defined" shortlabel="D" ng-model="ShowDefined" action="resetWorkloadStat()" title="Defined"></labeled-checkbox>
-								<labeled-checkbox class="btn-primary" uid="wip" label="In-Progress" shortlabel="P" ng-model="ShowWIP" action="resetWorkloadStat()" title="In-Progress"></labeled-checkbox>
+								<labeled-checkbox class="btn-default" uid="indefine" label="In Definition" shortlabel="{{QueryForOpenDefect ? 'In Definition' : 'ID'}}" ng-model="ShowInDefine" action="resetWorkloadStat()" title="In Definition"></labeled-checkbox>
+								<labeled-checkbox class="btn-info" uid="defined" label="Defined" shortlabel="{{QueryForOpenDefect ? 'Defined' : 'D'}}" ng-model="ShowDefined" action="resetWorkloadStat()" title="Defined"></labeled-checkbox>
+								<labeled-checkbox class="btn-primary" uid="wip" label="In-Progress" shortlabel="{{QueryForOpenDefect ? 'In-Progress' : 'P'}}" ng-model="ShowWIP" action="resetWorkloadStat()" title="In-Progress"></labeled-checkbox>
 								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-warning" uid="completed" label="Completed" shortlabel="C" ng-model="ShowCompleted" action="resetWorkloadStat()" title="Completed"></labeled-checkbox>
 								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-success" uid="accepted" label="Accepted" shortlabel="A" ng-model="ShowAccepted" action="resetWorkloadStat()" title="Accepted"></labeled-checkbox>
-								<labeled-checkbox class="btn-default" uid="rejected" label="Reject/Postpone" shortlabel="R/P" ng-model="ShowRejectedDefects" action="resetWorkloadStat()" title="If to show tasks that mark as Rejected/Reject Requested/Postponed/Postpone Requested/Duplicate"></labeled-checkbox>
+								<labeled-checkbox class="btn-default" uid="rejected" label="Reject/Postpone" shortlabel="{{QueryForOpenDefect ? 'Reject/Postpone' : 'R/P'}}" ng-model="ShowRejectedDefects" action="resetWorkloadStat()" title="If to show tasks that mark as Rejected/Reject Requested/Postponed/Postpone Requested/Duplicate"></labeled-checkbox>
 								<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-danger" uid="failed" label="Failed Only" ng-model="ShowFailedOnly" action="resetWorkloadStat()" title="Show verify failed tasks only"></labeled-checkbox>
 							</div>
 						</div>
