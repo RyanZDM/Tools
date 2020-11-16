@@ -37,7 +37,8 @@ define(['app', 'underscore', 'jquery'],
 				$scope.DEOnly = false;
 				$scope.ShowCurrentRelease = true;
 				$scope.CurrentRelease = CurrentSettings.Release;
-				$scope.ShowP2 = true;
+				$scope.Show2ndRelease = true;
+				$scope.SecondRelease = CurrentSettings.SecondRelease;
 				$scope.ShowOthers = false;
 				$scope.ShowInDefine = true;
 				$scope.ShowDefined = true;
@@ -109,10 +110,26 @@ define(['app', 'underscore', 'jquery'],
 					}
 				};
 
+				var valhalla = {
+					Name: "Valhalla",
+					Urls: [rallyRestApi.UrlOpenDefectValhalla, rallyRestApi.UrlOpenUsValhalla],
+
+					inScope: function(release) {
+						return /\Valhalla/i.test(release);
+					},
+
+					process: function(list) {
+						return list;
+					}
+				};
+
 				// #Configurable here#
-				// Add new object if new added a release, refer to "crossradsPhaseII" or "swiftwater" about how to...
+				var secondRelease = valhalla;
+
+				// Add new object if new added a release, refer to "crossradsPhaseII", "valhalla" or "swiftwater" about how to...
 				var getCurrentProject = function () {
 					if (CurrentRelease === 'SwiftWater') return swiftwater;
+					if (CurrentRelease === 'Valhalla') return valhalla;
 					if (CurrentRelease === 'Crossroads') return crossroadsPhaseII;
 
 					return swiftwater;
@@ -134,7 +151,7 @@ define(['app', 'underscore', 'jquery'],
 					var data = {
 						Owner: $scope.Owner,
 						Sprint: $scope.Sprint,
-						ShowP2: $scope.ShowP2,
+						Show2ndRelease: $scope.Show2ndRelease,
 						ShowCurrentRelease: $scope.ShowCurrentRelease,
 						ShowOthers: $scope.ShowOthers,
 						IfSaveOtherInfo2Local: $scope.IfSaveOtherInfo2Local,
@@ -163,7 +180,7 @@ define(['app', 'underscore', 'jquery'],
 
 						if (savedParameters['Owner'] != undefined) { $scope.Owner = savedParameters.Owner; }
 						if (savedParameters['Sprint'] != undefined) { $scope.Sprint = savedParameters.Sprint; }
-						if (savedParameters['ShowP2'] != undefined) { $scope.ShowP2 = savedParameters.ShowP2; }
+						if (savedParameters['Show2ndRelease'] != undefined) { $scope.Show2ndRelease = savedParameters.Show2ndRelease; }
 						if (savedParameters['ShowCurrentRelease'] != undefined) { $scope.ShowCurrentRelease = savedParameters.ShowCurrentRelease; }
 						if (savedParameters['ShowOthers'] != undefined) { $scope.ShowOthers = savedParameters.ShowOthers; }
 						if (savedParameters['IfSaveOtherInfo2Local'] != undefined) { $scope.IfSaveOtherInfo2Local = savedParameters.IfSaveOtherInfo2Local; }
@@ -434,12 +451,12 @@ define(['app', 'underscore', 'jquery'],
 					if (!$scope.ShowFakeTask && task.FakeTask) return false;
 
 					var isCurrentRelease = getCurrentProject().inScope(task.Release);
-					var isP2 = crossroadsPhaseII.inScope(task.Release);
-					var isOthers = !(isCurrentRelease || isP2);
+					var is2ndRelease = secondRelease.inScope(task.Release);
+					var isOthers = !(isCurrentRelease || is2ndRelease);
 
 					if (!$scope.ShowCurrentRelease && isCurrentRelease) return false;
 
-					if (!$scope.ShowP2 && isP2) return false;
+					if (!$scope.Show2ndRelease && is2ndRelease) return false;
 
 					if (!$scope.ShowOthers && isOthers) return false;
 

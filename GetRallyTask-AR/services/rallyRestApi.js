@@ -3,7 +3,7 @@
 define(['app'], function (app) {
 	// #Configurable here#
 	// Change the query checking condition for different team/project
-	app.constant('CurrentSettings', { Release: 'Swiftwater', Team: 'Team Taiji', TeamShortName: 'Taiji' });
+	app.constant('CurrentSettings', { Release: 'Swiftwater', Team: 'Team Taiji', TeamShortName: 'Taiji', SecondRelease: 'Valhalla' });
 	// #Configurable end#
 	
 	app.service('rallyRestApi', function (CurrentSettings) {
@@ -20,17 +20,18 @@ define(['app'], function (app) {
 								&pagesize=1999';
 
 		// <target> can be either 'hierarchicalrequirement' or 'defect'
-		var urlOpenTaskSwiftwater = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
+		var urlOpenTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 										<target>?\
-										query=((Release.Name = "Swiftwater") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
+										query=((Release.Name = "<release>") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
 										&order=FormattedID\
 										&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Tags,c_FoundInProduct\
 										&pagesize=1999';
 
 		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
-							query=((Iteration.Name = "Sprint <sprint>")\
-									 And ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "<release>") Or (Project.Name = "<team>"))))\
+							query=( (Iteration.Name = "Sprint <sprint>")\
+									 And ((Release.Name Contains "<release>") Or (Project.Name = "<team>"))\
+								  )\
 							&order=Iteration,LastUpdateDate\
 							&fetch=FormattedID,PlanEstimate,TaskEstimateTotal,Release,ScheduleState,State,Blocked\
 							&pagesize=1999'
@@ -39,7 +40,7 @@ define(['app'], function (app) {
 		
 		var urlTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
-							query=( ((Release.Name Contains "Crossroads") Or ((Release.Name Contains "<release>") Or (Project.Name = "<team>")))\
+							query=( ((Release.Name Contains "<release>") Or (Project.Name = "<team>"))\
 									 And (<dateCondition> <ownerStateCondition>)\
 								  )\
 							&order=Iteration,LastUpdateDate\
@@ -126,7 +127,7 @@ define(['app'], function (app) {
 					break;
 				case 0:
 					// Get all sprint tasks
-					dateCondition = ' ((AcceptedDate >= "2019-01-01") OR (InProgressDate >= "2019-01-01")) ';
+					dateCondition = ' ((AcceptedDate >= "2020-01-01") OR (InProgressDate >= "2020-01-01")) ';
 					//dateCondition = ' (Iteration.Name > "Sprint 47") ';
 					break;
 				default:	// is > 0  Note: Do NOT use the condition "Iteration.Name = Sprint xxx" because that the comparision is case sensitive
@@ -147,9 +148,29 @@ define(['app'], function (app) {
 
 			UrlOpenDefectCRP2: urlOpenDefectCRP2.replace(/\t/g, ''),
 
-			UrlOpenDefectSwiftwater: urlOpenTaskSwiftwater.replace(/\t/g, '').replace(/<target>/g, 'defect'),
+			UrlOpenDefect: urlOpenTask.replace(/\t/g, '').replace(/<target>/g, 'defect'),
 
-			UrlOpenUsSwiftwater: urlOpenTaskSwiftwater.replace(/\t/g, '').replace(/<target>/g, 'hierarchicalrequirement'),
+			UrlOpenUs: urlOpenTask.replace(/\t/g, '').replace(/<target>/g, 'hierarchicalrequirement'),
+
+			UrlOpenUsSwiftwater: urlOpenTask.replace(/\t/g, '')
+				.replace(/<release>/g, 'Swiftwater')
+				.replace(/<target>/g, 'hierarchicalrequirement'),
+
+			UrlOpenDefectSwiftwater: urlOpenTask.replace(/\t/g, '')
+												.replace(/<target>/g, 'defect')
+												.replace(/<release>/g, 'Swiftwater'),
+
+			UrlOpenUsSwiftwater: urlOpenTask.replace(/\t/g, '')
+											.replace(/<release>/g, 'Swiftwater')
+											.replace(/<target>/g, 'hierarchicalrequirement'),
+
+			UrlOpenDefectValhalla: urlOpenTask.replace(/\t/g, '')
+												.replace(/<target>/g, 'defect')
+												.replace(/<release>/g, 'Valhalla'),
+
+			UrlOpenUsValhalla: urlOpenTask.replace(/\t/g, '')
+											.replace(/<release>/g, 'Valhalla')
+											.replace(/<target>/g, 'hierarchicalrequirement'),
 
 			UrlTaskSummary: urlTaskSummary,
 
