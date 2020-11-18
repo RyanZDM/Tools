@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{34E10FAC-2FFB-415D-9751-AF2A824242CA}"
 	ProjectSection(SolutionItems) = preProject
@@ -9,15 +9,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		GetRallyWorks.html = GetRallyWorks.html
 		main.js = main.js
 		rallyTask.css = rallyTask.css
-		RallyWorkStatitics.html = RallyWorkStatitics.html
-		StatByProjects.html = StatByProjects.html
 		web.config = web.config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "controllers", "controllers", "{F6EC5B66-3CD6-49F9-886D-3CDBC5D9A0EE}"
 	ProjectSection(SolutionItems) = preProject
 		controllers\rallyTaskController.js = controllers\rallyTaskController.js
-		controllers\rallyWorkStatController.js = controllers\rallyWorkStatController.js
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "directives", "directives", "{A3B54627-9A49-4DAB-BA9E-7763F28DA423}"
@@ -44,5 +41,8 @@ Global
 		{F6EC5B66-3CD6-49F9-886D-3CDBC5D9A0EE} = {34E10FAC-2FFB-415D-9751-AF2A824242CA}
 		{A3B54627-9A49-4DAB-BA9E-7763F28DA423} = {34E10FAC-2FFB-415D-9751-AF2A824242CA}
 		{AA64C870-D4CA-485A-A848-73D3FD3BDD43} = {34E10FAC-2FFB-415D-9751-AF2A824242CA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4605024-4A10-4EBE-B657-E3DC2AA91471}
 	EndGlobalSection
 EndGlobal

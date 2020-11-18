@@ -169,67 +169,6 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 		};
 
 		/**
-		 * @name getWarningReport
-		 * @description		Get the warning report data
-		 * @param token		The authentication token
-		 * @return			The Rally warning report by category
-		 */
-		function getWarningReport(token) {
-			var deferred = q.defer();
-			var promises = [];
-			var categories = rallyRestApi.UrlWarnings;
-			for (var cate in categories) {
-				var warning = categories[cate];
-				
-				_.each(warning.Urls, function (url) {
-					promises.push(getSingleWarningReport($http, url, token, cate, warning.Desc).then(function (data) {
-						return data;
-					}));
-				});
-			};
-
-			q.all(promises).then(function (data) {
-				deferred.resolve(mergeWarningReport(data));
-			});
-
-			return deferred.promise;
-		};
-
-		/**
-		 * @name getSingleWarningReport
-		 * @description		Get the warning items according to the single provided condition
-		 * @return			The warning items
-		 */
-		function getSingleWarningReport($http, url, token, category, desc) {
-			var deferred = $.Deferred();
-			angularJsGet("warning", $http, url, token, true).then(function (data) {
-				deferred.resolve({ Category: category, Desc: desc, Data: data });
-			});
-
-			return deferred.promise();
-		};
-
-		/**
-		 * @name	function mergeWarningReport(data)
-		 * @description	Merge warning report
-		 * @param	data	The data.
-		 * @returns	Merged report
-		 */
-		function mergeWarningReport(data) {
-			var reports = [];
-			_.each(data, function (item) {
-				var found = _.find(reports, function (rpt) { return rpt.Category === item.Category });
-				if (found) {
-					found.Data = _.union(found.Data, item.Data);
-				} else {
-					reports.push({ Category: item.Category, Desc: item.Desc, Data: item.Data });
-				}
-			});
-
-			return reports;
-		};
-
-		/**
 		 * @name			reCalculateTaskSpentTime
 		 * @description		Calculate the total time spent of a defect or user story by cumulating the Actuals of all the sub tasks.
 		 *					Those sub tasks would be excluded if the owner is the other one
@@ -342,8 +281,6 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			getFromRally: function(url, token) {
 				return angularJsGet("task", $http, url, token, true);
 			},
-			
-			getWarningReport: getWarningReport,
 
 			reCalculateTaskSpentTime: reCalculateTaskSpentTime
 		}

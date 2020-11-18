@@ -647,48 +647,6 @@ define(['app', 'underscore', 'jquery'],
 				};
 
             	/**
-				 * @name	getProjectSummaryReport
-				 * @description	Accumulate the total estimation days, actual working hours, task count group by project and ScheduleState
-				 * @param	token	The authorization token for querying the Rally tasks.
-				 * @returns	Summary report is saved to $scope.projectSummary.
-				 */
-				$scope.getProjectSummaryReport = function (token) {
-					$scope.InQuerying = true;
-					$scope.projectSummary = {};
-					if (!token) {
-						token = rallyAuthService.getAuthenticationToken();
-					}
-
-					summaryByProject($scope.Sprint, token)
-						.then(function (result) {
-							for (var project in result) {
-								if (!result[project]['Not Start']) {
-									result[project]['Not Start'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
-								}
-
-								if (!result[project]['In-Progress']) {
-									result[project]['In-Progress'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
-								}
-
-								if (!result[project]['Completed']) {
-									result[project]['Completed'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
-								}
-
-								if (!result[project]['Accepted']) {
-									result[project]['Accepted'] = { Estimate: 0, TimeSpent: 0, _Count: 0 };
-								}
-
-								result[project].Total = (result[project]['Not Start']._Count + result[project]['In-Progress']._Count + result[project]['Completed']._Count + result[project]['Accepted']._Count) + ' ('
-									+ (result[project]['Not Start'].Estimate + result[project]['In-Progress'].Estimate + result[project]['Completed'].Estimate + result[project]['Accepted'].Estimate)
-									+ 'D)';
-							}
-
-							$scope.projectSummary = result;
-						})
-						.finally(function () { $scope.InQuerying = false; });;
-				};
-
-            	/**
 				 * @name	summaryByProject
 				 * @description	Gets the rally task summary group by Release/ScheduleState
 				 * @param	sprint	The sprint.
@@ -724,21 +682,6 @@ define(['app', 'underscore', 'jquery'],
 						});
 
 					return deferred.promise;
-				};
-
-            	/**
-				 * @name	getProjectSummaryReportPeriodically
-				 * @description	After called this function, will gets project summary report periodically
-				 * @returns	The project summary report periodically.
-				 */
-				$scope.getProjectSummaryReportPeriodically = function () {
-					if (!$scope.Sprint || $scope.Sprint < 1) { return; }
-
-					var token = "ZGFtZW5nLnpoYW5nQGNhcmVzdHJlYW0uY29tOjFxYXoyV1NY";
-
-					$scope.getProjectSummaryReport(token);
-					$scope.LastUpdate = "Last update at " + new Date().toLocaleTimeString();
-					setTimeout($scope.getProjectSummaryReportPeriodically, 60000 * 10);
 				};
 
 				$scope.clearError = function() {

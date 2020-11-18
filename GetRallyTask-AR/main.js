@@ -35,7 +35,6 @@ require(['services/rallyQueryService']);
 require(['directives/rallyLoginDirective']);
 require(['directives/labeledCheckboxDirective']);
 require(['controllers/rallyTaskController']);
-require(['controllers/rallyWorkStatController']);
 
 /* If need to do some extra initialization when loaded the lib
 require(['jquery'], function ($) {

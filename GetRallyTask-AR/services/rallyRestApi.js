@@ -153,8 +153,8 @@ define(['app'], function (app) {
 			UrlOpenUs: urlOpenTask.replace(/\t/g, '').replace(/<target>/g, 'hierarchicalrequirement'),
 
 			UrlOpenUsSwiftwater: urlOpenTask.replace(/\t/g, '')
-				.replace(/<release>/g, 'Swiftwater')
-				.replace(/<target>/g, 'hierarchicalrequirement'),
+											.replace(/<release>/g, 'Swiftwater')
+											.replace(/<target>/g, 'hierarchicalrequirement'),
 
 			UrlOpenDefectSwiftwater: urlOpenTask.replace(/\t/g, '')
 												.replace(/<target>/g, 'defect')
@@ -176,49 +176,6 @@ define(['app'], function (app) {
 
 			// <target> must be either 'defect' or 'hierarchicalrequirement', the blank space before and operator are MUST
 			UrlTask: urlTask,
-
-			UrlWarnings: {
-				NoRelease: {
-					Desc: 'USER STORIES OR DEFECTS IN A SPRINT THAT HAVE NO RELEASE (SHOULD HAVE A RELEASE)',
-					Urls: ['https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=((Iteration != null) AND (Release = null)) &order=Owner&fetch=FormattedID,Name,Owner,Iteration',
-							'https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=((Iteration != null) AND (Release = null)) &order=Owner&fetch=FormattedID,Name,Owner,Iteration']
-				},
-
-				NoEstimation: {
-					Desc: "USER STORIES OR DEFECTS IN A SPRINT THAT DON'T HAVE A PLAN ESTIMATE (SHOULD HAVE A PLAN ESTIMATE)",
-					Urls: ['https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=((((Release.Name contains "1.4") AND (ScheduleState > "Defined")) AND (PlanEstimate = null)) AND (Iteration != null))&order=Owner&fetch=FormattedID,Name,Owner,Iteration',
-							'https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=((((Release.Name contains "1.4") AND (ScheduleState > "Defined")) AND (PlanEstimate = null)) AND (Iteration != null))&order=Owner&fetch=FormattedID,Name,Owner,Iteration']
-				},
-
-				NoFeature: {
-					Desc: 'USER STORIES THAT ARE NOT ASSOCIATED WITH A FEATURE (ALL USER STORIES SHOULD BE UNDER A FEATURE)',
-					Urls: ['https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=(((Release.Name contains "1.4") AND (Feature = null)) AND (Iteration != null))&order=Owner&fetch=FormattedID,Name,Owner,Iteration']
-				},
-
-				NoTask: {
-					Desc: "USER STORIES IN A SPRINT THAT DON'T HAVE ANY TASK ESTIMATES (OR HAVE NO TASK CREATED)",
-					Urls: ['https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=((((Release.Name contains "1.4") AND (ScheduleState > "Defined")) AND (Iteration != null)) AND (TaskEstimateTotal = 0))&order=Owner&fetch=FormattedID,Name,Owner,Iteration',
-							'https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=((((Release.Name contains "1.4") AND (ScheduleState > "Defined")) AND (Iteration != null)) AND (TaskEstimateTotal = 0))&order=Owner&fetch=FormattedID,Name,Owner,Iteration']
-				},
-
-				NoAC: {
-					Desc: 'COMPLETED OR ACCEPTED USER STORIES WITH NO SPECIFIED ACCEPTANCE CRITERIA (ALL USER STORIES SHOULD HAVE ACCEPTANCE CRITERIA BEFORE THEY ARE ACCEPTED BY EET)',
-					Urls: ['https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=(((Release.Name contains "1.4") AND (ScheduleState >= "Completed")) AND (c_AcceptanceCriteria = null))&order=Owner&fetch=FormattedID,Name,Owner,Iteration']
-				},
-
-				NoBlockReason: {
-					Desc: 'TASKS THAT ARE BLOCKED WITHOUT A BLOCKED REASON',
-					Urls: ['https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=(((Release.Name contains "1.4") AND (Blocked = true)) AND (BlockedReason = null))&order=Owner&fetch=FormattedID,Name,Owner,Iteration',
-							'https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=(((Release.Name contains "1.4") AND (Blocked = true)) AND (BlockedReason = null))&order=Owner&fetch=FormattedID,Name,Owner,Iteration']
-				},
-
-				// Check the Actuals hours start from sprint 44 (2019-06-10)
-				NoTimeSpent: {
-					Desc: 'TASKS THAT ARE IN PROCESS OR COMPLETED, BUT THERE IS NO ACTUALS TIME SPECIFIED (UPDATE ACTUALS HOURS IN TASK)',
-					Urls: ['https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=(((((Release.Name contains "1.4") AND (ScheduleState >= "Completed")) AND (TaskActualTotal = 0)) AND (InProgressDate >= "2019-06-10")) AND (Iteration != null))&order=Owner&fetch=FormattedID,Name,Owner,Iteration',
-							'https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=(((((Release.Name contains "1.4") AND (ScheduleState >= "Completed")) AND (TaskActualTotal = 0)) AND (InProgressDate >= "2019-06-10")) AND (Iteration != null))&order=Owner&fetch=FormattedID,Name,Owner,Iteration']
-				}
-			},
 
 			/**
 			 * @name			getApiUrlFeature
