@@ -340,37 +340,6 @@
 									chart-options="workloadStat.ChartOptions"></canvas>
 						</div>
 					</div>
-					<div class="row" ng-if="checkStatPermission()">
-						<div class="col-md-2">
-							<button class="btn btn-block" ng-click="getProjectSummaryReport()">Project Status Summary</button>
-						</div>
-					</div>
-					<div class="row" ng-if=checkStatePermision()>
-						<div class="col-md-12">
-							<table class="table table-hover table-bordered table-responsive" border="1" size="auto">
-								<thead>
-									<tr>
-										<th>Project</th>
-										<th>Not Start</th>
-										<th>In Progress</th>
-										<th>Completed</th>
-										<th>Accepted</th>
-										<th>Total</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr ng-repeat="(project, data) in projectSummary">
-										<td align="left">{{project}}</td>
-										<td align="right">{{data["Not Start"]._Count + ' (' + data["Not Start"].Estimate + 'D)'}}</td>
-										<td align="right">{{data["In-Progress"]._Count + ' (' + data["In-Progress"].Estimate + 'D)'}}</td>
-										<td align="right">{{data["Completed"]._Count + ' (' + data["Completed"].Estimate + 'D)'}}</td>
-										<td align="right">{{data["Accepted"]._Count + ' (' + data["Accepted"].Estimate + 'D)'}}</td>
-										<td align="right">{{projectSummary[project].Total}}</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>
