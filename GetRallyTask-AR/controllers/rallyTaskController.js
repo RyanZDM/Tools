@@ -325,6 +325,8 @@ define(['app', 'underscore', 'jquery'],
 
 							// Load the other info from local storage
 							loadSavedParameters();
+						}, function(error) {
+							console.error('refreshTaskList() failed');
 						})
 						.then(function () {
 							setTimeout(function () { $scope.enableHtmlFormatTooltip(); }, 100);
@@ -354,7 +356,7 @@ define(['app', 'underscore', 'jquery'],
 							loadSavedParameters();
 						})
 						.catch(function (error) {
-							reportError(error);
+							console.error('refreshAll() failed');
 						})
 						.finally(function () {
 							$scope.enableHtmlFormatTooltip();
@@ -431,11 +433,16 @@ define(['app', 'underscore', 'jquery'],
 									deferred.resolve(result);
 								})
 								.catch(function (error) { reportError(error); })
-								.finally(function () { $scope.InQuerying = false; });
+								.finally(function () {
+									$scope.InQuerying = false;
+								});;
 						})
 						.catch(function (error) {
 							reportError(error);
 							deferred.reject(error);
+						})
+						.finally(function() {
+							$scope.InQuerying = false;
 						});
 
 					return deferred.promise;
@@ -694,17 +701,24 @@ define(['app', 'underscore', 'jquery'],
 				 * @param	error	The error object.
 				 */
 				function reportError(error) {
-					if (error.statusText) {
-						console.error(error.statusText);
-						if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
-							$scope.ErrorMsg = error.QueryResult.Errors.join(' || ');
-						} else {
-							$scope.ErrorMsg = error.statusText;
-						}
+					var errorMsg = '';
+
+					if (error.status == 401) {
+						errorMsg = 'incorrect user name or password';
 					} else {
-						console.error(error.toString());
-						$scope.ErrorMsg = error.toString();
+						if (error.statusText !== '') {
+							if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
+								errorMsg = error.QueryResult.Errors.join(' || ');
+							} else {
+								errorMsg = error.statusText;;
+							}
+						} else {
+							errorMsg = error.toString();
+						}
 					}
+
+					console.error(errorMsg);
+					$scope.ErrorMsg = errorMsg;
 				};
 			}]);
 	});

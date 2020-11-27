@@ -61,6 +61,7 @@ define(['app'], function (app) {
 	        "Wei Pi": "wei.pi@carestream.com",
 	        "Yusheng Liao": "yusheng.liao@carestream.com",
 	        "Siyuan Li": "siyuan.li@carestream.com",
+			"Xijiao Chen": "xijiao.chen@carestream.com",
 	        // Dunhuang
 	        "Taylor Tao": "lian.tao@carestream.com",
 	        "Xianjun Z": "xianjun.zhan@carestream.com",

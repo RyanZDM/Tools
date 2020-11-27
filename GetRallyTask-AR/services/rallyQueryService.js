@@ -38,7 +38,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			};
 
 			xhr.onerror = function (e) {
-				console.error(xhr.statusText);
+				//console.error(xhr.statusText);
 				deferred.reject(error);
 			}
 
@@ -74,7 +74,6 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 					}
 				})
 				.fail(function (error) {
-					console.error(error.statusText);
 					deferred.reject(error);
 				});
 
@@ -104,7 +103,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 						}
 					},
 						function (error) {
-							console.error(error.statusText);
+							//console.error(error.statusText);
 							deferred.reject(error);
 						});
 
@@ -251,7 +250,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 							deferred.resolve(task);
 						},
 							function (error) {
-								console.error(error.statusText);
+								//console.error(error.statusText);
 								deferred.reject(error);
 							});
 					promises.push(deferred.promise());
