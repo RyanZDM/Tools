@@ -58,7 +58,6 @@ define(['app', 'underscore', 'jquery'],
 				$scope.ShowEverFailedField = true;
 				$scope.ShowBlockReasonField = true;
 
-
 				$scope.OrderByOptions = [{ value: 0, name: 'Default' },
 										{ value: 1, name: 'Priority' },
 										{ value: 2, name: 'ScheduleState' }
@@ -70,71 +69,91 @@ define(['app', 'underscore', 'jquery'],
 				$scope.OrderByOptionIndex = 0;
 				$scope.OrderByValue = $scope.OrderByValues[0];
 
-
-				var crossroadsPhaseII = {
-					Name: "Crossroads Phase II",
-					Urls: [rallyRestApi.UrlOpenDefectCRP2],
-
-					inScope: function (release) {
-						return /\[Phase II]/i.test(release);
-					},
-
-					process: function (list) {
-						// Remove the items that has no tag "1.7" or "CR Phase II"
-						return list.filter(item => {
-							if (!item.Tags || item.Count < 1 || !item.Tags._tagsNameArray) return false;
-							var ret = false;
-							_.forEach(item.Tags._tagsNameArray,
-								function (tag) {
-									if (/CR Phase II|1.7/i.test(tag.Name)) {
-										ret = true;
-										return;
-									}
-								});
-
-							return ret;
-						});
-					}
-				};
-
-				var swiftwater = {
-					Name: "Swiftwater",
-					Urls: [rallyRestApi.UrlOpenDefectSwiftwater, rallyRestApi.UrlOpenUsSwiftwater],
-
-					inScope: function (release) {
-						return /\Swiftwater/i.test(release);
-					},
-
-					process: function (list) {
-						return list;
-					}
-				};
-
-				var valhalla = {
-					Name: "Valhalla",
-					Urls: [rallyRestApi.UrlOpenDefectValhalla, rallyRestApi.UrlOpenUsValhalla],
-
-					inScope: function(release) {
-						return /\Valhalla/i.test(release);
-					},
-
-					process: function(list) {
-						return list;
-					}
-				};
-
 				// #Configurable here#
-				var secondRelease = valhalla;
-
 				// Add new object if new added a release, refer to "crossradsPhaseII", "valhalla" or "swiftwater" about how to...
-				var getCurrentProject = function () {
-					if (CurrentRelease === 'SwiftWater') return swiftwater;
-					if (CurrentRelease === 'Valhalla') return valhalla;
-					if (CurrentRelease === 'Crossroads') return crossroadsPhaseII;
+				var projects = [
+					// crossroadsPhaseII
+					{
+						Name: "Crossroads Phase II",
+						Urls: [rallyRestApi.UrlOpenDefectCRP2],
 
-					return swiftwater;
-				}
+						inScope: function(release) {
+							return /\[Phase II]/i.test(release);
+						},
+
+						process: function(list) {
+							// Remove the items that has no tag "1.7" or "CR Phase II"
+							return list.filter(item => {
+								if (!item.Tags || item.Count < 1 || !item.Tags._tagsNameArray) return false;
+								var ret = false;
+								_.forEach(item.Tags._tagsNameArray,
+									function(tag) {
+										if (/CR Phase II|1.7/i.test(tag.Name)) {
+											ret = true;
+											return;
+										}
+									});
+
+								return ret;
+							});
+						}
+					},
+					// swiftwater
+					{
+						Name: "Swiftwater",
+						Urls: [rallyRestApi.UrlOpenDefectSwiftwater, rallyRestApi.UrlOpenUsSwiftwater],
+
+						inScope: function(release) {
+							return /\Swiftwater/i.test(release);
+						},
+
+						process: function(list) {
+							return list;
+						}
+					},
+					// Valhalla
+					{
+						Name: "Valhalla",
+						Urls: [rallyRestApi.UrlOpenDefectValhalla, rallyRestApi.UrlOpenUsValhalla],
+
+						inScope: function(release) {
+							return /\Valhalla/i.test(release);
+						},
+
+						process: function(list) {
+							return list;
+						}
+					}
+				];
+				
+				var secondRelease = projects[2];	// Valhalla
+
 				// #Configurable end#
+
+				/**
+				 * @name getProject
+				 * @description Gets the release by name
+				 * @param {string} name of release
+				 */
+				function getProject (name) {
+					var lowerName = name.toLowerCase();
+					for (var index in projects) {
+						if (projects[index].Name.toLowerCase() === lowerName) return projects[index];
+					}
+
+					return null;
+				}
+
+				/**
+				 * @name getCurrentProject
+				 * @description Gets the current release
+				 */
+				function getCurrentProject () {
+					var project = getProject($scope.CurrentRelease);
+					if (!project) { project = getProject("Swiftwater") }
+
+					return project;
+				}
 
 				// Re-enable the Tooltip since the filtered the tasks changed
 				$scope.$watch('filteredRecords', function () {
@@ -145,7 +164,7 @@ define(['app', 'underscore', 'jquery'],
 				 * @name	saveCurrentParameters()
 				 * @description	Saves the current parameters (owner, sprint, scope etc.) to browser local cache
 				 */
-				var saveCurrentParameters = function () {
+				function saveCurrentParameters () {
 					if (!$scope.CanUseLocalStorage) { return; }
 
 					var data = {
@@ -170,7 +189,7 @@ define(['app', 'underscore', 'jquery'],
 				 * @name	loadSavedParameters()
 				 * @description	Loads saved parameters from browser local cache
 				 */
-				var loadSavedParameters = function () {
+				function loadSavedParameters () {
 					if (!$scope.CanUseLocalStorage) { return; }
 
 					var savedParameters = localStorage.getItem(LocalStorageKey.SAVED_PARAMETERS);
@@ -210,12 +229,13 @@ define(['app', 'underscore', 'jquery'],
 				loadSavedParameters();
 
 				/**
-				 * @name	Applys the comments according to id if it exist in list
+				 * @name	updateOtherInfo
+				 * @description Applys the comments according to id if it exist in list
 				 * @param list	The task list
 				 * @param id	The task ID
 				 * @param value	The message to be updated
 				 */
-				var updateOtherInfo = function (list, id, value) {
+				function updateOtherInfo (list, id, value) {
 					var index = _.findIndex(list, function (task) {
 						if (!id || !task['id']) return false;
 
@@ -227,7 +247,7 @@ define(['app', 'underscore', 'jquery'],
 					}
 				};
 
-				var initBeforeQuery = function () {
+				function initBeforeQuery () {
 					// Record the last time record count so that we know if have changes between two query
 					$scope.LastRecordCount = $scope.TaskList.length;
 					$scope.LastFilteredCount = $scope.filteredRecords ? $scope.filteredRecords.length : 0;
@@ -241,6 +261,7 @@ define(['app', 'underscore', 'jquery'],
 
 				/**
 				 * @name	saveOtherInfo2Local()
+				 * @description Saves the comments recored in "Other" field to the local storage
 				 */
 				$scope.saveOtherInfo2Local = function () {
 					if (!$scope.IfSaveOtherInfo2Local) {
@@ -260,6 +281,7 @@ define(['app', 'underscore', 'jquery'],
 
 				/**
 				 * @name exportOtherInfoFromLocal
+				 * @description Exports the comments from local storage, then can import on another PC console
 				 */
 				$scope.exportOtherInfoFromLocal = function () {
 					var otherInfo = localStorage.getItem(LocalStorageKey.SAVED_OTHERINFO);
@@ -277,6 +299,7 @@ define(['app', 'underscore', 'jquery'],
 
 				/**
 				 * @name importOtherInfo2Local
+				 * @description Imports the comments exported from another PC
 				 */
 				$scope.importOtherInfo2Local = function() {
 					var input = document.createElement('input');
@@ -302,6 +325,7 @@ define(['app', 'underscore', 'jquery'],
 
 				/**
 				 * @name clearCache
+				 * @description Clear all cached info (except for the account info) from the local storage
 				 */
 				$scope.clearCache = function() {
 					if (confirm('This will clear all Rally related cache from this machine, are you sure?')) {
@@ -366,22 +390,28 @@ define(['app', 'underscore', 'jquery'],
             	/**
 				 * @name	getOpenDefects
 				 * @descriptions	Gets all open defects of current project
+            	 * @param release	The release name
 				 */
-				$scope.getOpenDefects = function () {
+				$scope.getOpenDefects = function (release) {
+					var project = getProject(release);
+					if (!project) {
+						reportError('Please specify the release for querying open defect');
+						return;
+					}
+
 					initBeforeQuery();
 
 					var token = rallyAuthService.getAuthenticationToken();
-					var currentProject = getCurrentProject();
 
 					$scope.QueryForOpenDefect = true;
-					$scope.QueryTypeString = ' --- ALL ' + $scope.CurrentRelease + ' open tasks @' + new Date().toLocaleTimeString();
+					$scope.QueryTypeString = ' --- ALL ' + project.Name + ' open tasks @' + new Date().toLocaleTimeString();
 					var promises = [];
-					currentProject.Urls.forEach(function (url) {
+					project.Urls.forEach(function (url) {
 						promises.push(rallyQueryService.getFromRally(url, token));
 					});
 
 					$q.all(promises).then(function (list) {
-						$scope.TaskList = currentProject.process(_.union(list[0], list[1]));
+						$scope.TaskList = project.process(_.union(list[0], list[1]));
 
 						// Load the other info from local storage
 						loadSavedParameters();
@@ -469,9 +499,9 @@ define(['app', 'underscore', 'jquery'],
 
 					if ($scope.QueryForOpenDefect && $scope.ShowUnassignedOnly && task.Owner !== '') return false;
 
-					if ($scope.DeOrUs === 'DE Only' && task.id.indexOf("DE") === -1) return false;
+					if (!task.isDefect && $scope.DeOrUs === 'DE Only') return false;
 
-					if ($scope.DeOrUs === 'US Only' && task.id.indexOf("US") === -1) return false;
+					if (task.isDefect && $scope.DeOrUs === 'US Only') return false;
 
 					if ($scope.CurrentTeamOnly) {
 						if (task.Project !== CurrentSettings.Team) return false;
@@ -660,7 +690,7 @@ define(['app', 'underscore', 'jquery'],
 				 * @param	token 	The authorization token for querying the Rally tasks.
 				 * @returns	Promise to the summary result.
 				 */
-				var summaryByProject = function (sprint, token) {
+				function summaryByProject (sprint, token) {
 					var stateFunc = function (record) {
 						var state = 'Not Start';
 						if (record.ScheduleState === 'In-Progress' || record.ScheduleState === 'Completed' || record.ScheduleState === 'Accepted') {

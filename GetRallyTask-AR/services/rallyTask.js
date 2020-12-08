@@ -7,6 +7,7 @@
  */
 function RallyTask(jsonObj) {
 	this.id = ('FormattedID' in jsonObj) ? jsonObj['FormattedID'] : '';
+	this.isDefect = (this.id.indexOf('DE') !== -1);
 	// The id 88538884208ud means ImageView Software project
 	// The id 278792303760ud means Software project in new workspace
 	this.Link = ('_ref' in jsonObj) ? jsonObj['_ref'].toLowerCase()
@@ -70,7 +71,7 @@ function RallyTask(jsonObj) {
 
 	if (jsonObj['c_AcceptanceCriteria']) {
 		this.AC = jsonObj['c_AcceptanceCriteria'];
-		if (/no test|not test|non-test|No need/i.test(this.AC)) {
+		if (/not? test|non-test|Not? need/i.test(this.AC)) {
 			this.Testable = false;
 		}
 	} else {
@@ -81,7 +82,7 @@ function RallyTask(jsonObj) {
 
 	// Gets the product on which issue occurred
 	function getProduct(desc) {
-		if (!desc || desc === '') return '';
+		if (!desc) return '';
 
 		var newString = desc.replace(/</g, '<\n')					// Convert html marker <xxx> to \n for easy regex matching
 							.replace(/(3. Test Case:)/i, '\n');		// Search ends when find the keywords "3. Test Case:"
@@ -119,11 +120,11 @@ function RallyTask(jsonObj) {
 	}
 
 	(function (that) {
-		if ((that.Product === '') && (that.id.indexOf('DE') !== -1)) {
+		if (that.isDefect && (that.Product === '')) {
 			that.Product = that.Description ? getProduct(that.Description) : '';
 		}
 
-		if (that.Reject || (that.id.indexOf('US') !== -1)) {
+		if (that.Reject || !that.isDefect) {
 			// NA for user story or a reject defect
 			that.UTNeed = 'NA';
 			that.Product = '';

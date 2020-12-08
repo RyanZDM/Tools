@@ -124,7 +124,7 @@ define(['app', 'underscore'], function (app, _) {
 
 			if (!to) { to = ''; }
 
-			ccString = (cc && cc.trim() !== '') ? ('cc=' + cc + '&') : '';
+			var ccString = (cc && cc.trim() !== '') ? ('cc=' + cc + '&') : '';
 			var attach = (attachment && attachment.trim() !== '') ? '&attach="' + attachment + '"' : '';
 			window.open('mailto:' + to + '?' + ccString + 'subject=' + subject + '&body=' + body + attach);
 		}

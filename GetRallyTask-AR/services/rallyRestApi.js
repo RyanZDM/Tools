@@ -153,10 +153,6 @@ define(['app'], function (app) {
 
 			UrlOpenUs: urlOpenTask.replace(/\t/g, '').replace(/<target>/g, 'hierarchicalrequirement'),
 
-			UrlOpenUsSwiftwater: urlOpenTask.replace(/\t/g, '')
-											.replace(/<release>/g, 'Swiftwater')
-											.replace(/<target>/g, 'hierarchicalrequirement'),
-
 			UrlOpenDefectSwiftwater: urlOpenTask.replace(/\t/g, '')
 												.replace(/<target>/g, 'defect')
 												.replace(/<release>/g, 'Swiftwater'),
