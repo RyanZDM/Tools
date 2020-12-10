@@ -70,13 +70,13 @@ function RallyTask(jsonObj) {
 	}
 
 	if (jsonObj['c_AcceptanceCriteria']) {
-		this.AC = jsonObj['c_AcceptanceCriteria'];
+		this.AC = jsonObj['c_AcceptanceCriteria'].trim();
 		if (/not? test|non-test|Not? need/i.test(this.AC)) {
 			this.Testable = false;
 		}
 	} else {
 		if (jsonObj['Notes']) {
-			this.AC = jsonObj['Notes'];
+			this.AC = jsonObj['Notes'].trim();
 		}
 	}
 

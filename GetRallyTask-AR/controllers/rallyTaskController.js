@@ -485,17 +485,19 @@ define(['app', 'underscore', 'jquery'],
 				 * @returns	false if do not want to show
 				 */
 				$scope.scheduleStateFilter = function (task) {
-					if (!$scope.ShowFakeTask && task.FakeTask) return false;
+					if (!$scope.QueryForOpenDefect) {
+						if (!$scope.ShowFakeTask && task.FakeTask) return false;
 
-					var isCurrentRelease = getCurrentProject().inScope(task.Release);
-					var is2ndRelease = secondRelease.inScope(task.Release);
-					var isOthers = !(isCurrentRelease || is2ndRelease);
+						var isCurrentRelease = getCurrentProject().inScope(task.Release);
+						var is2ndRelease = secondRelease.inScope(task.Release);
+						var isOthers = !(isCurrentRelease || is2ndRelease);
 
-					if (!$scope.ShowCurrentRelease && isCurrentRelease) return false;
+						if (!$scope.ShowCurrentRelease && isCurrentRelease) return false;
 
-					if (!$scope.Show2ndRelease && is2ndRelease) return false;
+						if (!$scope.Show2ndRelease && is2ndRelease) return false;
 
-					if (!$scope.ShowOthers && isOthers) return false;
+						if (!$scope.ShowOthers && isOthers) return false;						
+					}
 
 					if ($scope.QueryForOpenDefect && $scope.ShowUnassignedOnly && task.Owner !== '') return false;
 
