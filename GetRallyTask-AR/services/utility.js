@@ -101,7 +101,7 @@ define(['app', 'underscore'], function (app, _) {
 		 * @param {string} contentHtml		The content of HTML. Note: Should not inlcude the <html></html> marker
 		 */
 		function saveToHtml(filename, contentHtml) {
-			var bodyHtml = document.getElementById('warningReportDetail').innerHTML;
+			//var bodyHtml = document.getElementById('warningReportDetail').innerHTML;
 			var html = '<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml">' + contentHtml + '</html>';
 
 			var file = new Blob([html], { type: "text/html" });

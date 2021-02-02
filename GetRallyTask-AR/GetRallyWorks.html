@@ -100,7 +100,7 @@
 										Get All
 									</button>
 								</span>
-								<span class="input-group-btn dropdown" data-toggle="tooltip" title="Get all open defects"">
+								<span class="input-group-btn dropdown" data-toggle="tooltip" title="Get all open defects">
 									<button class="btn btn-default dropdown-toggle"
 											type="button"
 											id="openDefectsButton"
@@ -277,7 +277,9 @@
 										<b ng-show="task.Requirement == '' && task.Feature == ''" data-toggle="tooltip" data-html="true" title="<i>It should be associated with a feature or user story</i>"><font color="red">[No Parent]</font></b>
 										<b ng-show="task.Duplicate" data-toggle="tooltip" data-html="true" title="<i>Duplicate with another defect</i>"><font color="black">[Duplicate]</font></b>
 										<b ng-show="task.Postpone" data-toggle="tooltip" data-html="true" title="<i>Postpone requested or has been postponed</i>"><font color="black">[Postpone]</font></b>
-										<b ng-show="!task.isDefect && task.ScheduleState === 'Completed' && task.AC === ''" data-toggle="tooltip" data-html="true" title="<i>Acceptance Criteria MUST be specified</i>"><font color="red">[AC Missed]</font></b>
+										<b ng-show="task.AcMissed" data-toggle="tooltip" data-html="true" title="<i>Acceptance Criteria MUST be specified</i>"><font color="red">[AC Missed]</font></b>
+										<b ng-show="task.RequiredFieldMissed" data-toggle="tooltip" data-html="true" title="<i>ALL required fields must be filled before completiing a defect</i>"><font color="red">[Required Field Missed]</font></b>
+										<b ng-show="task.WrongOwner" data-toggle="tooltip" data-html="true" title="<i>No need to assign a Completed US to QA.<br>And should assign defect back to developer after it get accepted.</i>"><font color="red">[Wrong Owner]</font></b>
 										<a href='{{task.Link}}' target="_blank"
 										   data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "1000" }'>
 											{{task.Title}}

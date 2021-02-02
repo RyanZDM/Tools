@@ -24,7 +24,9 @@ define(['app'], function (app) {
 										<target>?\
 										query=((Release.Name = "<release>") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
 										&order=FormattedID\
-										&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Tags,c_FoundInProduct\
+										&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState\
+											,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature\
+											,Tags,c_FoundInProduct,FixedInBuild\
 										&pagesize=1999';
 
 		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
@@ -44,7 +46,9 @@ define(['app'], function (app) {
 									 And (<dateCondition> <ownerStateCondition>)\
 								  )\
 							&order=Iteration,LastUpdateDate\
-							&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Requirement,c_FoundInProduct\
+							&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes\
+								,c_AcceptanceCriteria,c_RootCauseDescription,c_ResolutionReason,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank\
+								,FlowStateChangedDate,Feature,Requirement,c_FoundInProduct,FixedInBuild\
 							&pagesize=1999'
 							.replace('<release>', CurrentSettings.Release)
 							.replace('<team>', CurrentSettings.Team);
@@ -91,7 +95,6 @@ define(['app'], function (app) {
 			"David Yang": "deqing.yang@carestream.com",
 			"DongXiao L": "dongxiao.liu@carestream.com",
 			// Others
-			"Cheng Song": "cheng.song@carestream.com",
 			"Justin Shi": "chunming.shi@carestream.com",
 			"Mark Gu": "jiandong.gu@carestream.com",
 			"Qi Wang": "qi.wang@carestream.com",
@@ -108,6 +111,8 @@ define(['app'], function (app) {
 			"Yanjun Li": "yanjun.li@carestream.com",
 			"Jun Peng": "jun.peng1@carestream.com",
 			"Rita Xiong": "bing.xiong@carestream.com",
+			"Lina Cao": "lina.cao@carestream.com",
+			"Yujie Shi": "yujie.shi@carestream.com"
 		};
         // #Configurable end#
 

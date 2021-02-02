@@ -496,7 +496,7 @@ define(['app', 'underscore', 'jquery'],
 
 						if (!$scope.Show2ndRelease && is2ndRelease) return false;
 
-						if (!$scope.ShowOthers && isOthers) return false;						
+						if (!$scope.ShowOthers && isOthers) return false;
 					}
 
 					if ($scope.QueryForOpenDefect && $scope.ShowUnassignedOnly && task.Owner !== '') return false;

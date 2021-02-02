@@ -37,4 +37,4 @@ AcceptedDate: The date that Schedule state changed to Accepted
 InProgressDate: The date that Schedule state changed to InProgress
 
 
-https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=(((AcceptedDate >= "2020-07-01") OR (InProgressDate >= "2020-07-01")) and ((Owner.Name = dameng.zhang@carestream.com) and ((ScheduleState = Accepted) OR (ScheduleState = Completed))))&order=Iteration,LastUpdateDate&fetch=true&pagesize=1999
+https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=((AcceptedDate >= "2020-11-01") and ( Owner.Name = dameng.zhang@carestream.com ))&order=Iteration,LastUpdateDate&fetch=true&pagesize=1999

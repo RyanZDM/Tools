@@ -39,6 +39,9 @@ function RallyTask(jsonObj) {
 	this.Feature = (jsonObj['Feature']) ? jsonObj['Feature']._refObjectName : '';
 	this.Requirement = (jsonObj['Requirement']) ? jsonObj['Requirement']._refObjectName : '';
 	this.Tags = (jsonObj['Tags']) ? jsonObj['Tags'] : null;
+	this.RootCauseDesc = (jsonObj['c_RootCauseDescription']) ? jsonObj['c_RootCauseDescription'].trim() : '';
+	this.ResolutionReason = (jsonObj['c_ResolutionReason']) ? jsonObj['c_ResolutionReason'].trim() : '';
+	this.FixedInBuild = (jsonObj['FixedInBuild']) ? jsonObj['FixedInBuild'].trim() : '';
 	this.SubTasks = '';
 	this.Other = '';
 
@@ -137,12 +140,52 @@ function RallyTask(jsonObj) {
 			return;
 		}
 
-		if (jsonObj['c_RootCauseDescription']) {
-			var rootCause = jsonObj['c_RootCauseDescription'].toLowerCase();
+		if (that.RootCauseDesc !== '') {
+			var rootCause = that.RootCauseDesc.toLowerCase();
 			if (rootCause.indexOf('[utyes]') !== -1) {
 				that.UTNeed = 'Y';
 			} else if (rootCause.indexOf('[utno]') !== -1) {
 				that.UTNeed = 'N';
+			}
+		}
+		
+		if (that.FixedInBuild !== '') {
+			var buildNum = that.FixedInBuild.split('.').pop();
+			if (buildNum.length !== 5) {
+				// The build number format is incorrect, must be 5 digitals
+				that.FixedInBuild = '';
+			}
+		}
+
+		if (!that.isDefect && that.ScheduleState === 'Completed' && that.AC === '') {
+			that.AcMissed = true;
+		} else {
+			that.AcMissed = false;
+		}
+		
+		if (that.isDefect &&
+			(that.ScheduleState === 'Completed' || that.ScheduleState === 'Accepted') &&
+			(that.RootCauseDesc === '' || that.ResolutionReason === '' || that.FixedInBuild === '')) {
+			that.RequiredFieldMissed = true;
+		} else {
+			that.RequiredFieldMissed = false;
+		}
+
+		var qaList = ['xiaowei.tang@carestream.com', 'yufang.xu@carestream.com', 'xueqing.wang@carestream.com', 'yanhong.he@carestream.com'
+			, 'yan.hu@carestream.com', 'yanjun.li@carestream.com', 'jun.peng1@carestream.com', 'bing.xiong@carestream.com'
+			, 'yujie.shi@carestream.com', 'lina.cao@carestream.com'];
+
+		if (!that.isDefect &&
+			(that.ScheduleState === 'Completed' || that.ScheduleState === 'Accepted') &&
+			(that.Owner)) {
+			// Should not assign it to QA before completing a US
+			that.WrongOwner = qaList.includes(that.Owner);
+		} else {
+			if (that.isDefect && that.ScheduleState === 'Accepted') {
+				// Should assign it back to developer after a defect get Accepted
+				that.WrongOwner = qaList.includes(that.Owner);
+			} else {
+				that.WrongOwner = false;
 			}
 		}
 	})(this);
