@@ -131,13 +131,11 @@ function RallyTask(jsonObj) {
 			// NA for user story or a reject defect
 			that.UTNeed = 'NA';
 			that.Product = '';
-			return;
 		}
 
 		if (that.ScheduleState !== 'Completed' && that.ScheduleState !== 'Accepted') {
 			// Leave as empty since not complete yet
 			that.UTNeed = '';
-			return;
 		}
 
 		if (that.RootCauseDesc !== '') {
@@ -171,22 +169,21 @@ function RallyTask(jsonObj) {
 			that.RequiredFieldMissed = false;
 		}
 
-		var qaList = ['xiaowei.tang@carestream.com', 'yufang.xu@carestream.com', 'xueqing.wang@carestream.com', 'yanhong.he@carestream.com'
-			, 'yan.hu@carestream.com', 'yanjun.li@carestream.com', 'jun.peng1@carestream.com', 'bing.xiong@carestream.com'
-			, 'yujie.shi@carestream.com', 'lina.cao@carestream.com'];
+		var qaList = ['Ben Tang', 'Yufang X', 'Annie H"'
+			, 'Sherry Hu', 'Yanjun L', 'Jun Peng', 'Rita X'
+			, 'Yujie Shi', 'Lina Cao', 'Ivy Jiang', 'Wenbin Zhong'];
 
-		if (!that.isDefect &&
-			(that.ScheduleState === 'Completed' || that.ScheduleState === 'Accepted') &&
-			(that.Owner)) {
-			// Should not assign it to QA before completing a US
-			that.WrongOwner = qaList.includes(that.Owner);
+		var assignedToQa = qaList.includes(that.Owner);
+		if (that.isDefect) {
+			// Should assign it back to developer after a defect get Accepted
+			that.WrongOwner = ((assignedToQa && that.ScheduleState === 'Accepted') || (!assignedToQa && that.ScheduleState === 'Completed'));
 		} else {
-			if (that.isDefect && that.ScheduleState === 'Accepted') {
-				// Should assign it back to developer after a defect get Accepted
-				that.WrongOwner = qaList.includes(that.Owner);
-			} else {
-				that.WrongOwner = false;
-			}
+			// Should not assign it to QA before completing a US
+			that.WrongOwner = (assignedToQa && (that.ScheduleState === 'Completed' || that.ScheduleState === 'Accepted'));
+		}
+
+		if (that.ScheduleState === 'Completed' || that.ScheduleState === 'Accepted') {
+			that.WorkingHoursMissed = (that.Actuals === 0);
 		}
 	})(this);
 }

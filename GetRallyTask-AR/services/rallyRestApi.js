@@ -110,9 +110,11 @@ define(['app'], function (app) {
 			"Sherry Hu": "yan.hu@carestream.com",
 			"Yanjun Li": "yanjun.li@carestream.com",
 			"Jun Peng": "jun.peng1@carestream.com",
-			"Rita Xiong": "bing.xiong@carestream.com",
+			"Rita X": "bing.xiong@carestream.com",
 			"Lina Cao": "lina.cao@carestream.com",
-			"Yujie Shi": "yujie.shi@carestream.com"
+			"Yujie Shi": "yujie.shi@carestream.com",
+			"Ivy Jiang": "ivy.jiang@carestream.com",
+			"Wenbin Zhong": "wenbin.zhong@carestream.com"
 		};
         // #Configurable end#
 
