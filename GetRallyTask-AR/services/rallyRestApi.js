@@ -3,7 +3,7 @@
 define(['app'], function (app) {
 	// #Configurable here#
 	// Change the query checking condition for different team/project
-	app.constant('CurrentSettings', { Release: 'Swiftwater', Team: 'Team Taiji', TeamShortName: 'Taiji', SecondRelease: 'Valhalla' });
+	app.constant('CurrentSettings', { Release: 'Valhalla', Team: 'Team Taiji', TeamShortName: 'Taiji', SecondRelease: 'Shangri-La' });
 	// #Configurable end#
 	
 	app.service('rallyRestApi', function (CurrentSettings) {

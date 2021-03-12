@@ -57,6 +57,7 @@ define(['app', 'underscore', 'jquery'],
 				$scope.ShowRejectField = true;
 				$scope.ShowEverFailedField = true;
 				$scope.ShowBlockReasonField = true;
+				$scope.ShowInvalidItemOnly = false;
 
 				$scope.OrderByOptions = [{ value: 0, name: 'Default' },
 										{ value: 1, name: 'Priority' },
@@ -517,6 +518,13 @@ define(['app', 'underscore', 'jquery'],
 						});
 
 						if (!find) return false;
+					}
+
+					if ($scope.ShowInvalidItemOnly) {
+						return (task.AcMissed
+								|| task.RequiredFieldMissed
+								|| task.WrongOwner
+								|| task.WorkingHoursMissed);
 					}
 
 					if (!$scope.ShowRejectedDefects && (task.Reject || task.Postpone || task.Duplicate)) return false;

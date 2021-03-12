@@ -18,6 +18,7 @@ function RallyTask(jsonObj) {
 	this.Estimate = (jsonObj['PlanEstimate']) ? jsonObj['PlanEstimate'] : 0;
 	this.Actuals = (jsonObj['TaskEstimateTotal']) ? jsonObj['TaskEstimateTotal'] : 0;
 	this.ScheduleState = jsonObj['ScheduleState'];
+	this.State = (jsonObj['State']) ? jsonObj['State'] : '';
 	this.Owner = (jsonObj['Owner'] && jsonObj.Owner['_refObjectName']) ? jsonObj.Owner._refObjectName : '';
 	this.Release = (jsonObj['Release']) ? (jsonObj.Release['Name'] ? jsonObj.Release.Name : jsonObj.Release._refObjectName) : '';
 	this.TaskLink = (jsonObj['Tasks'] && jsonObj.Tasks.Count > 0) ? this.TaskLink = jsonObj.Tasks._ref : '';
@@ -160,23 +161,35 @@ function RallyTask(jsonObj) {
 		} else {
 			that.AcMissed = false;
 		}
-		
-		if (that.isDefect &&
-			(that.ScheduleState === 'Completed' || that.ScheduleState === 'Accepted') &&
-			(that.RootCauseDesc === '' || that.ResolutionReason === '' || that.FixedInBuild === '')) {
+
+		if (that.isDefect && that.State === 'Reject Requested' && that.BlockedReason !== 'Reject Requested') {
 			that.RequiredFieldMissed = true;
-		} else {
-			that.RequiredFieldMissed = false;
+		}
+
+		if (!that.RequiredFieldMissed) {	// Check another required fields
+			if (that.isDefect &&
+				(that.ScheduleState === 'Completed' || that.ScheduleState === 'Accepted') &&
+				(that.State !== 'Rejected') &&
+				(that.RootCauseDesc === '' ||
+				(that.State !== 'Reject Requested' &&
+					(that.ResolutionReason === '' || that.FixedInBuild === '')))) {
+				that.RequiredFieldMissed = true;
+			} else {
+				that.RequiredFieldMissed = false;
+			}
 		}
 
 		var qaList = ['Ben Tang', 'Yufang X', 'Annie H"'
-			, 'Sherry Hu', 'Yanjun L', 'Jun Peng', 'Rita X'
-			, 'Yujie Shi', 'Lina Cao', 'Ivy Jiang', 'Wenbin Zhong'];
+			, 'Sherry Hu', 'Yanjun L', 'Jun P', 'Rita X'
+			, 'Yujie S', 'Lina C', 'Ivy Jiang', 'Wenbin Zhong'];
 
 		var assignedToQa = qaList.includes(that.Owner);
 		if (that.isDefect) {
 			// Should assign it back to developer after a defect get Accepted
-			that.WrongOwner = ((assignedToQa && that.ScheduleState === 'Accepted') || (!assignedToQa && that.ScheduleState === 'Completed'));
+			that.WrongOwner = ( that.State !== 'Reject Requested' &&						// Not check if is in reject request state
+								((assignedToQa && that.ScheduleState === 'Accepted')		// Should assign it back to developer after a defect get Accepted
+								|| (assignedToQa && that.State === 'Rejected')				// Should assign it back to developer after a defect get rejected
+								|| (!assignedToQa && that.ScheduleState === 'Completed')));	// Should assign it to QA for verification after mark a defect as Completed
 		} else {
 			// Should not assign it to QA before completing a US
 			that.WrongOwner = (assignedToQa && (that.ScheduleState === 'Completed' || that.ScheduleState === 'Accepted'));
