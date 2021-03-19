@@ -176,6 +176,14 @@ define(['app'], function (app) {
 											.replace(/<release>/g, 'Valhalla')
 											.replace(/<target>/g, 'hierarchicalrequirement'),
 
+			UrlOpenDefectShangriLa: urlOpenTask.replace(/\t/g, '')
+											.replace(/<target>/g, 'defect')
+											.replace(/<release>/g, 'Shangri-La'),
+
+			UrlOpenUsShangriLa: urlOpenTask.replace(/\t/g, '')
+											.replace(/<release>/g, 'Shangri-La')
+											.replace(/<target>/g, 'hierarchicalrequirement'),
+
 			UrlTaskSummary: urlTaskSummary,
 
 			// <target> must be either 'defect' or 'hierarchicalrequirement', the blank space before and operator are MUST

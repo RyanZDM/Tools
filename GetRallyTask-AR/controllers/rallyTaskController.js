@@ -124,10 +124,23 @@ define(['app', 'underscore', 'jquery'],
 						process: function(list) {
 							return list;
 						}
+					},
+					// Sharngri-La
+					{
+						Name: "Shangri-La",
+						Urls: [rallyRestApi.UrlOpenDefectShangriLa, rallyRestApi.UrlOpenUsShangriLa],
+
+						inScope: function(release) {
+							return /\Shangri/i.test(release);
+						},
+
+						process: function(list) {
+							return list;
+						}
 					}
 				];
 				
-				var secondRelease = projects[2];	// Valhalla
+				var secondRelease = projects[3];	// Shangri-La
 
 				// #Configurable end#
 
@@ -179,7 +192,6 @@ define(['app', 'underscore', 'jquery'],
 						ShowProductField: $scope.ShowProductField,
 						ShowIterationField: $scope.ShowIterationField,
 						ShowRejectField: $scope.ShowRejectField,
-						ShowEverFailedField: $scope.ShowEverFailedField,
 						ShowBlockReasonField: $scope.ShowBlockReasonField
 					};
 
@@ -208,7 +220,6 @@ define(['app', 'underscore', 'jquery'],
 						if (savedParameters['ShowProductField'] != undefined) { $scope.ShowProductField = savedParameters.ShowProductField; }
 						if (savedParameters['ShowIterationField'] != undefined) { $scope.ShowIterationField = savedParameters.ShowIterationField; }
 						if (savedParameters['ShowRejectField'] != undefined) { $scope.ShowRejectField = savedParameters.ShowRejectField; }
-						if (savedParameters['ShowEverFailedField'] != undefined) { $scope.ShowEverFailedField = savedParameters.ShowEverFailedField; }
 						if (savedParameters['ShowBlockReasonField'] != undefined) { $scope.ShowBlockReasonField = savedParameters.ShowBlockReasonField; }
 
 						if ($scope.IfSaveOtherInfo2Local && $scope.TaskList.length > 0) {
