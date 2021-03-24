@@ -176,7 +176,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 		 */
 		function reCalculateTaskSpentTime(taskList, authToken) {
 			var promises = [];
-			//var ownerEmailList = Object.keys(rallyRestApi.OwnerEmailMapping);
+			//var ownerEmailList = Object.keys(currentSettings.OwnerEmailMapping);
 			taskList.forEach(function (task) {
 				if (task.TaskLink !== '') {
 					var deferred = $.Deferred();

@@ -26,6 +26,7 @@ require(['jquery']);
 require(['bootstrap']);
 require(['angular-chart']);
 require(['app']);
+require(['currentSettings']);
 require(['services/rallyRestApi']);
 require(['services/rallyTask']);
 require(['services/rallyFeature']);

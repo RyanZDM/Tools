@@ -11,10 +11,10 @@ define(['app', 'underscore', 'jquery'],
 			'rallyQueryService',
 			'rallyRestApi',
 			'utility',
-			'CurrentSettings',
+			'currentSettings',
 			'LocalStorageKey',
 
-			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi, utility, CurrentSettings, LocalStorageKey) {
+			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi, utility, currentSettings, LocalStorageKey) {
 				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
 				$scope.TaskList = [];
 				$scope.UserId = '';
@@ -23,8 +23,8 @@ define(['app', 'underscore', 'jquery'],
 				$scope.InQuerying = false;
 				$scope.ErrorMsg = '';
 				$scope.Sprint = 0;
-				$scope.EmailList = Object.values(rallyRestApi.OwnerEmailMapping);
-				$scope.OwnerNameList = Object.keys(rallyRestApi.OwnerEmailMapping);
+				$scope.EmailList = Object.values(currentSettings.OwnerEmailMapping);
+				$scope.OwnerNameList = Object.keys(currentSettings.OwnerEmailMapping);
 				$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
 				$scope.IfSaveOtherInfo2Local = true;
 				$scope.OtherInfoLabel = 'Comments';
@@ -33,12 +33,13 @@ define(['app', 'underscore', 'jquery'],
 				$scope.ShowUnassignedOnly = false;
 				$scope.SDCOnly = false;
 				$scope.CurrentTeamOnly = true;
-				$scope.CurrentTeam = CurrentSettings.TeamShortName;
+				$scope.CurrentTeam = currentSettings.Team;
+				$scope.CurrentTeamShortName = currentSettings.TeamShortName;
 				$scope.DEOnly = false;
 				$scope.ShowCurrentRelease = true;
-				$scope.CurrentRelease = CurrentSettings.Release;
+				$scope.CurrentRelease = currentSettings.Release;
 				$scope.Show2ndRelease = true;
-				$scope.SecondRelease = CurrentSettings.SecondRelease;
+				$scope.SecondRelease = currentSettings.SecondRelease;
 				$scope.ShowOthers = false;
 				$scope.ShowInDefine = true;
 				$scope.ShowDefined = true;
@@ -69,6 +70,7 @@ define(['app', 'underscore', 'jquery'],
 										];
 				$scope.OrderByOptionIndex = 0;
 				$scope.OrderByValue = $scope.OrderByValues[0];
+				$scope.ProjectTeamList = ['Team Taiji', 'Team Wudang', 'Team Penglai', 'Team Dunhuang'];
 
 				// #Configurable here#
 				// Add new object if new added a release, refer to "crossradsPhaseII", "valhalla" or "swiftwater" about how to...
@@ -270,7 +272,7 @@ define(['app', 'underscore', 'jquery'],
 					$scope.TaskList = [];
 					$scope.resetWorkloadStat();
 				};
-
+				
 				/**
 				 * @name	saveOtherInfo2Local()
 				 * @description Saves the comments recored in "Other" field to the local storage
@@ -313,7 +315,7 @@ define(['app', 'underscore', 'jquery'],
 				 * @name importOtherInfo2Local
 				 * @description Imports the comments exported from another PC
 				 */
-				$scope.importOtherInfo2Local = function() {
+				$scope.importOtherInfo2Local = function () {
 					var input = document.createElement('input');
 					input.type = 'file';
 					input.onchange = function(e) {
@@ -345,6 +347,28 @@ define(['app', 'underscore', 'jquery'],
 						localStorage.removeItem(LocalStorageKey.SAVED_PARAMETERS);
 						localStorage.removeItem(LocalStorageKey.SAVED_OTHERINFO);
 					}
+				}
+
+				/**
+				 * Saves the project team settings to local storage
+				 */
+				$scope.saveCurrentProjectTeamToLocalStorage = function ()
+				{
+					var data = {
+						Team: $scope.CurrentTeam,
+						TeamShortName: $scope.CurrentTeamShortName
+					}
+
+					currentSettings.saveSettingsToLocalStorage(data);
+				}
+
+				/**
+				 * Gets called when user changed the current project team
+				 * @param {any} team
+				 */
+				$scope.projectTeamChanged = function(team) {
+					var shortName = team.split(' ')[1];
+					$scope.CurrentTeamShortName = shortName;
 				}
 
 				/**
@@ -518,7 +542,7 @@ define(['app', 'underscore', 'jquery'],
 					if (task.isDefect && $scope.DeOrUs === 'US Only') return false;
 
 					if ($scope.CurrentTeamOnly) {
-						if (task.Project !== CurrentSettings.Team) return false;
+						if (task.Project !== currentSettings.Team) return false;
 					}
 
 					if ($scope.SDCOnly) {
