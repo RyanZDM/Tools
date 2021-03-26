@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 require.config({
 	paths: {
@@ -22,20 +22,20 @@ require.config({
 	}
 });
 
-require(['jquery']);
-require(['bootstrap']);
-require(['angular-chart']);
-require(['app']);
-require(['currentSettings']);
-require(['services/rallyRestApi']);
-require(['services/rallyTask']);
-require(['services/rallyFeature']);
-require(['services/utility']);
-require(['services/rallyAuthService']);
-require(['services/rallyQueryService']);
-require(['directives/rallyLoginDirective']);
-require(['directives/labeledCheckboxDirective']);
-require(['controllers/rallyTaskController']);
+require(["jquery"]);
+require(["bootstrap"]);
+require(["angular-chart"]);
+require(["app"]);
+require(["currentSettings"]);
+require(["services/rallyRestApi"]);
+require(["services/rallyTask"]);
+require(["services/rallyFeature"]);
+require(["services/utility"]);
+require(["services/rallyAuthService"]);
+require(["services/rallyQueryService"]);
+require(["directives/rallyLoginDirective"]);
+require(["directives/labeledCheckboxDirective"]);
+require(["controllers/rallyTaskController"]);
 
 /* If need to do some extra initialization when loaded the lib
 require(['jquery'], function ($) {
@@ -57,9 +57,9 @@ require(['angular', 'app'], function(angular) {
 });
 */
 
-require(['domReady!'], function (document) {
-	require(['jquery', 'angular'], function ($, angular) {
-		angular.bootstrap(document, ['getRallyWorksApp']);
+require(["domReady!"], function (document) {
+	require(["jquery", "angular"], function ($, angular) {
+		angular.bootstrap(document, ["getRallyWorksApp"]);
 		//$('[data-toggle="tooltip"]').tooltip()
 	});
 });

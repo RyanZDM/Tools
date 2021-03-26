@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
 /**
  * Utility tool
  * @description All common methods here
  */
-define(['app', 'underscore'], function (app, _) {
-	app.service('utility', function () {
+define(["app", "underscore"], function (app, _) {
+	app.service("utility", function () {
 		return {
 			copyToClipboard: copyToClipboard,
 			groupByMultiple: groupByMultiple,
@@ -102,7 +102,7 @@ define(['app', 'underscore'], function (app, _) {
 		 */
 		function saveToHtml(filename, contentHtml) {
 			//var bodyHtml = document.getElementById('warningReportDetail').innerHTML;
-			var html = '<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml">' + contentHtml + '</html>';
+			var html = '<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml">' + contentHtml + "</html>";
 
 			var file = new Blob([html], { type: "text/html" });
 			var link = document.createElement("a");
@@ -120,13 +120,13 @@ define(['app', 'underscore'], function (app, _) {
 		 * @param {string} attachment	The path to email attachment
 		 */
 		function sendEmail(to, cc, subject, body, attachment) {
-			if ( (!to || to.trim() === '') && (!cc || cc.trim() === '') ) return;
+			if ( (!to || to.trim() === "") && (!cc || cc.trim() === "") ) return;
 
-			if (!to) { to = ''; }
+			if (!to) { to = ""; }
 
-			var ccString = (cc && cc.trim() !== '') ? ('cc=' + cc + '&') : '';
-			var attach = (attachment && attachment.trim() !== '') ? '&attach="' + attachment + '"' : '';
-			window.open('mailto:' + to + '?' + ccString + 'subject=' + subject + '&body=' + body + attach);
+			var ccString = (cc && cc.trim() !== "") ? ("cc=" + cc + "&") : "";
+			var attach = (attachment && attachment.trim() !== "") ? '&attach="' + attachment + '"' : "";
+			window.open("mailto:" + to + "?" + ccString + "subject=" + subject + "&body=" + body + attach);
 		}
 	});
 });

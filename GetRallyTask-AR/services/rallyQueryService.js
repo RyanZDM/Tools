@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
-define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
+define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 	/**
 	 * @name rallyQueryService
 	 * @description - service for querying info from Rally
 	 */
-	app.service('rallyQueryService', ['$http', '$q', 'rallyRestApi', function ($http, q, rallyRestApi) {
+	app.service("rallyQueryService", ["$http", "$q", "rallyRestApi", function ($http, q, rallyRestApi) {
 		// A GET request, which requires a HTTP Basic Authentication header, to the following endpoint provides the security token:
 		// https://rally1.rallydev.com/slm/webservice/v2.0/security/authorize
 
@@ -20,7 +20,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 		function xhrGet(type, url, authToken, async) {
 			var deferred = $.Deferred();
 			var xhr = new XMLHttpRequest();
-			xhr.open('GET', url, async);
+			xhr.open("GET", url, async);
 			if (authToken) { xhr.setRequestHeader("Authorization", "Basic " + authToken); }
 
 			xhr.onload = function (e) {
@@ -58,7 +58,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 		function jQueryGet(type, url, authToken, async) {
 			var deferred = $.Deferred();
 			$.ajax({
-				method: 'GET',
+				method: "GET",
 				url: url,
 				async: async,
 				headers: { "Authorization": "Basic " + authToken },
@@ -66,7 +66,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			})
 				.done(function (data) {
 					if (data.QueryResult.Errors.length > 0) {
-						data.statusText = 'RallyInternalError';
+						data.statusText = "RallyInternalError";
 						deferred.reject(data);
 					} else {
 						var list = getList(type, data);
@@ -95,7 +95,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			httpSvc.get(url, { headers: { "Authorization": "Basic " + authToken }, "withCredentials": false })
 					.then(function (data) {
 						if (data.data.QueryResult.Errors && data.data.QueryResult.Errors.length > 0) {
-							data.data.statusText = 'RallyInternalError';
+							data.data.statusText = "RallyInternalError";
 							deferred.reject(data.data);
 						} else {
 							var list = getList(type, data.data);
@@ -153,12 +153,12 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			if (!jsonObj || !jsonObj.QueryResult || !jsonObj.QueryResult.Results || jsonObj.QueryResult.Results.length < 1) return [];
 
 			var taskList = [];
-			var today = moment().format('YYYYMMDD');
+			var today = moment().format("YYYYMMDD");
 			for (var index in jsonObj.QueryResult.Results) {
 				var task = new RallyTask(jsonObj.QueryResult.Results[index]);
 				task.WasChangedToday = false;
-				if (task['FlowStateChangedDate'] && task['FlowStateChangedDate'] !== '') {
-					var changeDate = moment(task['FlowStateChangedDate']).format('YYYYMMDD');
+				if (task["FlowStateChangedDate"] && task["FlowStateChangedDate"] !== "") {
+					var changeDate = moment(task["FlowStateChangedDate"]).format("YYYYMMDD");
 					if (changeDate === today) { task.WasChangedToday = true; }
 				}
 				taskList[taskList.length] = task;
@@ -178,7 +178,7 @@ define(['jquery', 'underscore', 'moment', 'app'], function ($, _, moment, app) {
 			var promises = [];
 			//var ownerEmailList = Object.keys(currentSettings.OwnerEmailMapping);
 			taskList.forEach(function (task) {
-				if (task.TaskLink !== '') {
+				if (task.TaskLink !== "") {
 					var deferred = $.Deferred();
 					$http.get(rallyRestApi.getApiUrlSubTask(task.TaskLink), { headers: { "Authorization": "Basic " + authToken } })
 						.then(function (data) {

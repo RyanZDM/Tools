@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
-define(['app'], function(app) {
+define(["app"], function(app) {
 	// #Configurable here#
-	app.service('currentSettings', function() {
-		var LocalStorageKeyForCurrentSettings = 'CSProjectSettings';
+	app.service("currentSettings", function() {
+		var LocalStorageKeyForCurrentSettings = "CSProjectSettings";
 
 		// Change here if new developers added in Rally
 		var ownerEmailMapping = {
@@ -68,19 +68,19 @@ define(['app'], function(app) {
 			"Wenbin Zhong": "wenbin.zhong@carestream.com"
 		};
 
-		var team = 'Team Taiji';		// default project team
-		var teamShortName = 'Taiji';	// default project team
+		var team = "Taiji";		// default project team
+		var teamShortName = "Taiji";	// default project team
 
 		function loadSettingsFromLocalStorage() {
-			if ((typeof (Storage) === 'undefined')) { return {}; }
+			if ((typeof (Storage) === "undefined")) { return {}; }
 
 			var savedSettings = localStorage.getItem(LocalStorageKeyForCurrentSettings);
-			if (!savedSettings || savedSettings.trim() === '') { return {}; }
+			if (!savedSettings || savedSettings.trim() === "") { return {}; }
 
 			savedSettings = JSON.parse(savedSettings);
 
-			if (savedSettings['Team'] != undefined) { team = savedSettings.Team; }
-			if (savedSettings['TeamShortName'] != undefined) { teamShortName = savedSettings.TeamShortName; }
+			if (savedSettings["Team"] != undefined) { team = savedSettings.Team; }
+			if (savedSettings["TeamShortName"] != undefined) { teamShortName = savedSettings.TeamShortName; }
 
 			return savedSettings;
 		};
@@ -89,13 +89,13 @@ define(['app'], function(app) {
 
 		return {
 			OwnerEmailMapping: ownerEmailMapping,
-			Release: 'Valhalla',
-			SecondRelease: 'Shangri-La',
+			Release: "Valhalla",
+			SecondRelease: "Shangri-La",
 			Team: team,
 			TeamShortName: teamShortName,
 
 			saveSettingsToLocalStorage: function (data) {
-				if ((typeof (Storage) === 'undefined')) { return false; }
+				if ((typeof (Storage) === "undefined")) { return false; }
 
 				//var data = {
 				//	Team: ,

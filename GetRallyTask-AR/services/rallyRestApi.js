@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
-define(['app'], function (app) {
-	app.service('rallyRestApi', ['currentSettings', function (currentSettings) {
-		var urlFeature = 'https://rally1.rallydev.com/slm/webservice/v2.0/PortfolioItem/Feature?\
+define(["app"], function (app) {
+	app.service("rallyRestApi", ["currentSettings", function (currentSettings) {
+		var urlFeature = "https://rally1.rallydev.com/slm/webservice/v2.0/PortfolioItem/Feature?\
 							query=(<QueryString>)\
 							&order=FormattedID\
 							&fetch=FormattedID,Name,Owner,Release,Project,StoryCount,PlanEstimateTotal,PercentDoneByStoryCount,PercentDoneByStoryPlanEstimate,Blocked,BlockedReason,Project\
-							&pagesize=1999';
+							&pagesize=1999";
 		
 		var urlOpenDefectCRP2 = 'https://rally1.rallydev.com/slm/webservice/v2.0/defect?\
 								query=((Release.Name = "Crossroads [Phase II]") And ( (ScheduleState != "Completed") And ( (ScheduleState != "Accepted") And (Tags.ObjectID != null) ) ) )\
@@ -27,7 +27,7 @@ define(['app'], function (app) {
 		var urlTaskSummary = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
 							query=( (Iteration.Name = "Sprint <sprint>")\
-									 And ((Release.Name Contains "<release>") Or (Project.Name = "<team>"))\
+									 And ((Release.Name Contains "<release>") Or (Project.Name Contains "<team>"))\
 								  )\
 							&order=Iteration,LastUpdateDate\
 							&fetch=FormattedID,PlanEstimate,TaskEstimateTotal,Release,ScheduleState,State,Blocked\
@@ -35,7 +35,7 @@ define(['app'], function (app) {
 
 		var urlTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 							<target>?\
-							query=( ((Release.Name Contains "<release>") Or (Project.Name = "<team>"))\
+							query=( ((Release.Name Contains "<release>") Or (Project.Name Contains "<team>"))\
 									 And (<dateCondition> <ownerStateCondition>)\
 								  )\
 							&order=Iteration,LastUpdateDate\
@@ -54,18 +54,19 @@ define(['app'], function (app) {
 		 * @returns	The date condition string used for Rally task query.
 		 */
 		function getDateCondition(sprint) {
-			var dateCondition = '';
+			var dateCondition = "";
 			switch (sprint) {
 				case -1:
-					dateCondition = ' (Iteration = null) ';
+					dateCondition = " (Iteration = null) ";
 					break;
 				case 0:
 					// Get all sprint tasks
-					dateCondition = ' ((AcceptedDate >= "2020-01-01") OR (InProgressDate >= "2020-01-01")) ';
-					//dateCondition = ' (Iteration.Name > "Sprint 47") ';
+					dateCondition = ' ((AcceptedDate >= "2021-01-01") OR (InProgressDate >= "2021-01-01")) ';
 					break;
-				default:	// is > 0  Note: Do NOT use the condition "Iteration.Name = Sprint xxx" because that the comparision is case sensitive
-					dateCondition = ' (Iteration.Name Contains "' + sprint + '") ';
+				default:	// is > 0
+					// The sprint ImageSuite used if different with IV. 
+					// e.g. IV sprint 75 means IS sprint 1
+					dateCondition = ' ((Iteration.Name = "Sprint ' + sprint + '") OR (Iteration.Name = "Sprint ' + (sprint - 74) + '")) ';
 			}
 
 			return dateCondition;
@@ -74,46 +75,46 @@ define(['app'], function (app) {
 		return {
 			// The id 88538884208ud means ImageView Software project
 			// The id 278792303760ud means Software project in new workspace
-			CurrentWorkspace: '278792303760ud',
+			CurrentWorkspace: "278792303760ud",
 
 			UrlFeature: urlFeature,
 
-			UrlOpenDefectCRP2: urlOpenDefectCRP2.replace(/\t/g, ''),
+			UrlOpenDefectCRP2: urlOpenDefectCRP2.replace(/\t/g, ""),
 
-			UrlOpenDefect: urlOpenTask.replace(/\t/g, '').replace(/<target>/g, 'defect'),
+			UrlOpenDefect: urlOpenTask.replace(/\t/g, "").replace(/<target>/g, "defect"),
 
-			UrlOpenUs: urlOpenTask.replace(/\t/g, '').replace(/<target>/g, 'hierarchicalrequirement'),
+			UrlOpenUs: urlOpenTask.replace(/\t/g, "").replace(/<target>/g, "hierarchicalrequirement"),
 
-			UrlOpenDefectSwiftwater: urlOpenTask.replace(/\t/g, '')
-												.replace(/<target>/g, 'defect')
-												.replace(/<release>/g, 'Swiftwater'),
+			UrlOpenDefectSwiftwater: urlOpenTask.replace(/\t/g, "")
+												.replace(/<target>/g, "defect")
+												.replace(/<release>/g, "Swiftwater"),
 
-			UrlOpenUsSwiftwater: urlOpenTask.replace(/\t/g, '')
-											.replace(/<release>/g, 'Swiftwater')
-											.replace(/<target>/g, 'hierarchicalrequirement'),
+			UrlOpenUsSwiftwater: urlOpenTask.replace(/\t/g, "")
+											.replace(/<release>/g, "Swiftwater")
+											.replace(/<target>/g, "hierarchicalrequirement"),
 
-			UrlOpenDefectValhalla: urlOpenTask.replace(/\t/g, '')
-												.replace(/<target>/g, 'defect')
-												.replace(/<release>/g, 'Valhalla'),
+			UrlOpenDefectValhalla: urlOpenTask.replace(/\t/g, "")
+												.replace(/<target>/g, "defect")
+												.replace(/<release>/g, "Valhalla"),
 
-			UrlOpenUsValhalla: urlOpenTask.replace(/\t/g, '')
-											.replace(/<release>/g, 'Valhalla')
-											.replace(/<target>/g, 'hierarchicalrequirement'),
+			UrlOpenUsValhalla: urlOpenTask.replace(/\t/g, "")
+											.replace(/<release>/g, "Valhalla")
+											.replace(/<target>/g, "hierarchicalrequirement"),
 
-			UrlOpenDefectShangriLa: urlOpenTask.replace(/\t/g, '')
-											.replace(/<target>/g, 'defect')
-											.replace(/<release>/g, 'Shangri-La'),
+			UrlOpenDefectShangriLa: urlOpenTask.replace(/\t/g, "")
+											.replace(/<target>/g, "defect")
+											.replace(/<release>/g, "Shangri-La"),
 
-			UrlOpenUsShangriLa: urlOpenTask.replace(/\t/g, '')
-											.replace(/<release>/g, 'Shangri-La')
-											.replace(/<target>/g, 'hierarchicalrequirement'),
+			UrlOpenUsShangriLa: urlOpenTask.replace(/\t/g, "")
+											.replace(/<release>/g, "Shangri-La")
+											.replace(/<target>/g, "hierarchicalrequirement"),
 
-			UrlTaskSummary: urlTaskSummary.replace('<release>', currentSettings.Release)
-											.replace('<team>', currentSettings.Team),
+			UrlTaskSummary: urlTaskSummary.replace("<release>", currentSettings.Release)
+											.replace("<team>", currentSettings.Team),
 
 			// <target> must be either 'defect' or 'hierarchicalrequirement', the blank space before and operator are MUST
-			UrlTask: urlTask.replace('<release>', currentSettings.Release)
-							.replace('<team>', currentSettings.Team),
+			UrlTask: urlTask.replace("<release>", currentSettings.Release)
+							.replace("<team>", currentSettings.Team),
 
 			/**
 			 * @name			getApiUrlFeature
@@ -125,9 +126,9 @@ define(['app'], function (app) {
 			 * @return		Url used for Ajax call for getting feature list from Rally 
 			 */
 			getApiUrlFeature: function (release) {
-				var qry = 'Release.Name Contains' + ((release !== '') ? ('"' + release + '"') : currentSettings.Release);
-				var url = urlFeature.replace('<QueryString>', qry)
-									.replace(/\t/g, '');
+				var qry = "Release.Name Contains" + ((release !== "") ? ('"' + release + '"') : currentSettings.Release);
+				var url = urlFeature.replace("<QueryString>", qry)
+									.replace(/\t/g, "");
 				return url;
 			},
 
@@ -139,35 +140,35 @@ define(['app'], function (app) {
 			 * @return		Url used for Ajax call for getting defect and user story list from Rally 
 			 */
 			getApiUrlTask: function (parameters, target) {
-				var ownerStateCondition = '';	//(!parameters.IgnoreScheduleState) ? '((ScheduleState = Accepted) OR (ScheduleState = Completed))' : '';
+				var ownerStateCondition = "";	//(!parameters.IgnoreScheduleState) ? '((ScheduleState = Accepted) OR (ScheduleState = Completed))' : '';
 
-				if (parameters.Owner !== '') {
-					if (ownerStateCondition !== '') {
-						ownerStateCondition = '((Owner.Name = ' + parameters.Owner + ') And ' + ownerStateCondition + ')';
+				if (parameters.Owner !== "") {
+					if (ownerStateCondition !== "") {
+						ownerStateCondition = "((Owner.Name = " + parameters.Owner + ") And " + ownerStateCondition + ")";
 					} else {
-						ownerStateCondition = '(Owner.Name = ' + parameters.Owner + ')';
+						ownerStateCondition = "(Owner.Name = " + parameters.Owner + ")";
 					}
 				}
 
-				var dateConditation = getDateCondition(parameters.Sprint);
-				if (ownerStateCondition === '') {
-					// Need to remove the one set of bracket for dateConditaion
-					if (dateConditation.indexOf('((') > 0) {
-						dateConditation = dateConditation.replace('((', '(').replace('))', ')');
-					} else if (dateConditation.indexOf('(') > 0) {
-						dateConditation = dateConditation.replace('(', '').replace(')', '');
+				var dateCondition = getDateCondition(parameters.Sprint);
+				if (ownerStateCondition === "") {
+					// Need to remove the one set of bracket for dateCondition
+					if (dateCondition.indexOf("((") > 0) {
+						dateCondition = dateCondition.replace("((", "(").replace("))", ")");
+					} else if (dateCondition.indexOf("(") > 0) {
+						dateCondition = dateCondition.replace("(", "").replace(")", "");
 					}
 				} else {
 					// Need to add ' AND ' between the two conditions
-					ownerStateCondition = ' And ' + ownerStateCondition;
+					ownerStateCondition = " And " + ownerStateCondition;
 				}
 
-				var actualApiUrl = urlTask.replace('<target>', target)
-											.replace('<ownerStateCondition>', ownerStateCondition)
-											.replace('<dateCondition>', dateConditation)
-											.replace('<release>', currentSettings.Release)
-											.replace('<team>', currentSettings.Team)
-											.replace(/\t/g, '');
+				var actualApiUrl = urlTask.replace("<target>", target)
+											.replace("<ownerStateCondition>", ownerStateCondition)
+											.replace("<dateCondition>", dateCondition)
+											.replace("<release>", currentSettings.Release)
+											.replace("<team>", currentSettings.Team)
+											.replace(/\t/g, "");
 
 				return actualApiUrl;
 			},
@@ -195,11 +196,11 @@ define(['app'], function (app) {
 			 * @return		Url used for Ajax call for getting task summary from Rally 
 			 */
 			getApiUrlTaskSummary: function (sprint, target) {
-				var url = urlTaskSummary.replace('<sprint>', sprint)
-										.replace('<target>', target)
-										.replace('<release>', currentSettings.Release)
-										.replace('<team>', currentSettings.Team)
-										.replace(/\t/g, '');
+				var url = urlTaskSummary.replace("<sprint>", sprint)
+										.replace("<target>", target)
+										.replace("<release>", currentSettings.Release)
+										.replace("<team>", currentSettings.Team)
+										.replace(/\t/g, "");
 				return url;
 			}
 		};

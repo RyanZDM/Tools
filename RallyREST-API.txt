@@ -37,4 +37,8 @@ AcceptedDate: The date that Schedule state changed to Accepted
 InProgressDate: The date that Schedule state changed to InProgress
 
 
-https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=((AcceptedDate >= "2020-11-01") and ( Owner.Name = dameng.zhang@carestream.com ))&order=Iteration,LastUpdateDate&fetch=true&pagesize=1999
+https://rally1.rallydev.com/slm/webservice/v2.0/defect?query=((AcceptedDate >= "2021-1-01") and ( Owner.Name = dameng.zhang@carestream.com ))&order=Iteration,LastUpdateDate&fetch=true&pagesize=1999
+https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement?query=((Release.Name Contains "MR9") and ( Iteration.Name = "Sprint 1" ))&order=Iteration,LastUpdateDate&fetch=true&pagesize=1999
+https://rally1.rallydev.com/slm/webservice/v2.0/HierarchicalRequirement?query=( Release.Name Contains "MR9" )&order=Iteration,LastUpdateDate&fetch=true&pagesize=1999
+
+https://rally1.rallydev.com/slm/webservice/v2.0/hierarchicalrequirement?query=( ((Release.Name Contains "Valhalla") Or (Project.Name Contains "Taiji")) And ( Iteration.Name = "Sprint 1"  )  )&order=Iteration,LastUpdateDate&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState,State,Description,Notes,c_AcceptanceCriteria,c_RootCauseDescription,c_ResolutionReason,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature,Requirement,c_FoundInProduct,FixedInBuild&pagesize=1999

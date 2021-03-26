@@ -1,33 +1,33 @@
-'use strict';
+"use strict";
 
-define(['app', 'underscore', 'jquery'],
+define(["app", "underscore", "jquery"],
 	function (app, _, $) {
-		app.controller('rallyTaskController', [
-			'$scope',
-			'$rootScope',
-			'$http',
-			'$q',
-			'rallyAuthService',
-			'rallyQueryService',
-			'rallyRestApi',
-			'utility',
-			'currentSettings',
-			'LocalStorageKey',
+		app.controller("rallyTaskController", [
+			"$scope",
+			"$rootScope",
+			"$http",
+			"$q",
+			"rallyAuthService",
+			"rallyQueryService",
+			"rallyRestApi",
+			"utility",
+			"currentSettings",
+			"LocalStorageKey",
 
 			function ($scope, $rootScope, $http, $q, rallyAuthService, rallyQueryService, rallyRestApi, utility, currentSettings, LocalStorageKey) {
-				$scope.RALLY_INTERNAL_ERROR = 'RallyInternalError';
+				$scope.RALLY_INTERNAL_ERROR = "RallyInternalError";
 				$scope.TaskList = [];
-				$scope.UserId = '';
-				$scope.UserPwd = '';
-				$scope.Owner = '';
+				$scope.UserId = "";
+				$scope.UserPwd = "";
+				$scope.Owner = "";
 				$scope.InQuerying = false;
-				$scope.ErrorMsg = '';
+				$scope.ErrorMsg = "";
 				$scope.Sprint = 0;
 				$scope.EmailList = Object.values(currentSettings.OwnerEmailMapping);
 				$scope.OwnerNameList = Object.keys(currentSettings.OwnerEmailMapping);
 				$scope.CanUseLocalStorage = rallyAuthService.CanUseLocalStorage;
 				$scope.IfSaveOtherInfo2Local = true;
-				$scope.OtherInfoLabel = 'Comments';
+				$scope.OtherInfoLabel = "Comments";
 				$scope.LastFilteredCount = 0;
 				$scope.LastRecordCount = 0;
 				$scope.ShowUnassignedOnly = false;
@@ -50,8 +50,8 @@ define(['app', 'underscore', 'jquery'],
 				$scope.ShowFakeTask = false;
 				$scope.ShowRejectedDefects = true;
 				$scope.QueryForOpenDefect = false;
-				$scope.QueryTypeString = '';
-				$scope.DeOrUs = 'ALL';
+				$scope.QueryTypeString = "";
+				$scope.DeOrUs = "ALL";
 
 				$scope.ShowProductField = true;
 				$scope.ShowIterationField = true;
@@ -60,17 +60,17 @@ define(['app', 'underscore', 'jquery'],
 				$scope.ShowBlockReasonField = true;
 				$scope.ShowInvalidItemOnly = false;
 
-				$scope.OrderByOptions = [{ value: 0, name: 'Default' },
-										{ value: 1, name: 'Priority' },
-										{ value: 2, name: 'ScheduleState' }
+				$scope.OrderByOptions = [{ value: 0, name: "Default" },
+										{ value: 1, name: "Priority" },
+										{ value: 2, name: "ScheduleState" }
 										];
-				$scope.OrderByValues = [['Owner', 'Iteration', '-ScheduleState', 'Rank', 'Priority'],
-										['Priority', '-ScheduleState'],
-										['-ScheduleState', 'Rank', 'Priority']
+				$scope.OrderByValues = [["Owner", "Iteration", "-ScheduleState", "Rank", "Priority"],
+										["Priority", "-ScheduleState"],
+										["-ScheduleState", "Rank", "Priority"]
 										];
 				$scope.OrderByOptionIndex = 0;
 				$scope.OrderByValue = $scope.OrderByValues[0];
-				$scope.ProjectTeamList = ['Team Taiji', 'Team Wudang', 'Team Penglai', 'Team Dunhuang'];
+				$scope.ProjectTeamList = ["Taiji", "Wudang", "Penglai", "Dunhuang"];
 
 				// #Configurable here#
 				// Add new object if new added a release, refer to "crossradsPhaseII", "valhalla" or "swiftwater" about how to...
@@ -172,7 +172,7 @@ define(['app', 'underscore', 'jquery'],
 				}
 
 				// Re-enable the Tooltip since the filtered the tasks changed
-				$scope.$watch('filteredRecords', function () {
+				$scope.$watch("filteredRecords", function () {
 					$scope.enableHtmlFormatTooltip();
 				});
 
@@ -208,21 +208,21 @@ define(['app', 'underscore', 'jquery'],
 					if (!$scope.CanUseLocalStorage) { return; }
 
 					var savedParameters = localStorage.getItem(LocalStorageKey.SAVED_PARAMETERS);
-					if (!savedParameters || savedParameters.trim() === '') { return; }
+					if (!savedParameters || savedParameters.trim() === "") { return; }
 					try {
 						savedParameters = JSON.parse(savedParameters);
 
-						if (savedParameters['Owner'] != undefined) { $scope.Owner = savedParameters.Owner; }
-						if (savedParameters['Sprint'] != undefined) { $scope.Sprint = savedParameters.Sprint; }
-						if (savedParameters['Show2ndRelease'] != undefined) { $scope.Show2ndRelease = savedParameters.Show2ndRelease; }
-						if (savedParameters['ShowCurrentRelease'] != undefined) { $scope.ShowCurrentRelease = savedParameters.ShowCurrentRelease; }
-						if (savedParameters['ShowOthers'] != undefined) { $scope.ShowOthers = savedParameters.ShowOthers; }
-						if (savedParameters['IfSaveOtherInfo2Local'] != undefined) { $scope.IfSaveOtherInfo2Local = savedParameters.IfSaveOtherInfo2Local; }
-						if (savedParameters['OtherInfoLabel'] != undefined) { $scope.OtherInfoLabel = savedParameters.OtherInfoLabel; }
-						if (savedParameters['ShowProductField'] != undefined) { $scope.ShowProductField = savedParameters.ShowProductField; }
-						if (savedParameters['ShowIterationField'] != undefined) { $scope.ShowIterationField = savedParameters.ShowIterationField; }
-						if (savedParameters['ShowRejectField'] != undefined) { $scope.ShowRejectField = savedParameters.ShowRejectField; }
-						if (savedParameters['ShowBlockReasonField'] != undefined) { $scope.ShowBlockReasonField = savedParameters.ShowBlockReasonField; }
+						if (savedParameters["Owner"] != undefined) { $scope.Owner = savedParameters.Owner; }
+						if (savedParameters["Sprint"] != undefined) { $scope.Sprint = savedParameters.Sprint; }
+						if (savedParameters["Show2ndRelease"] != undefined) { $scope.Show2ndRelease = savedParameters.Show2ndRelease; }
+						if (savedParameters["ShowCurrentRelease"] != undefined) { $scope.ShowCurrentRelease = savedParameters.ShowCurrentRelease; }
+						if (savedParameters["ShowOthers"] != undefined) { $scope.ShowOthers = savedParameters.ShowOthers; }
+						if (savedParameters["IfSaveOtherInfo2Local"] != undefined) { $scope.IfSaveOtherInfo2Local = savedParameters.IfSaveOtherInfo2Local; }
+						if (savedParameters["OtherInfoLabel"] != undefined) { $scope.OtherInfoLabel = savedParameters.OtherInfoLabel; }
+						if (savedParameters["ShowProductField"] != undefined) { $scope.ShowProductField = savedParameters.ShowProductField; }
+						if (savedParameters["ShowIterationField"] != undefined) { $scope.ShowIterationField = savedParameters.ShowIterationField; }
+						if (savedParameters["ShowRejectField"] != undefined) { $scope.ShowRejectField = savedParameters.ShowRejectField; }
+						if (savedParameters["ShowBlockReasonField"] != undefined) { $scope.ShowBlockReasonField = savedParameters.ShowBlockReasonField; }
 
 						if ($scope.IfSaveOtherInfo2Local && $scope.TaskList.length > 0) {
 							var otherInfo = localStorage.getItem(LocalStorageKey.SAVED_OTHERINFO);
@@ -244,14 +244,14 @@ define(['app', 'underscore', 'jquery'],
 
 				/**
 				 * @name	updateOtherInfo
-				 * @description Applys the comments according to id if it exist in list
+				 * @description Apply the comments according to id if it exist in list
 				 * @param list	The task list
 				 * @param id	The task ID
 				 * @param value	The message to be updated
 				 */
 				function updateOtherInfo (list, id, value) {
 					var index = _.findIndex(list, function (task) {
-						if (!id || !task['id']) return false;
+						if (!id || !task["id"]) return false;
 
 						return (id.substring(0, 6).toLowerCase() === task.id.substring(0, 6).toLowerCase());
 					});
@@ -275,7 +275,7 @@ define(['app', 'underscore', 'jquery'],
 				
 				/**
 				 * @name	saveOtherInfo2Local()
-				 * @description Saves the comments recored in "Other" field to the local storage
+				 * @description Saves the comments recorded in "Other" field to the local storage
 				 */
 				$scope.saveOtherInfo2Local = function () {
 					if (!$scope.IfSaveOtherInfo2Local) {
@@ -285,7 +285,7 @@ define(['app', 'underscore', 'jquery'],
 					var otherInfo = {};
 					_.each($scope.TaskList,
 						function (task) {
-							if (task['Other'] && task.Other !== '') {
+							if (task["Other"] && task.Other !== "") {
 								otherInfo[task.id] = task.Other;
 							}
 						});
@@ -300,7 +300,7 @@ define(['app', 'underscore', 'jquery'],
 				$scope.exportOtherInfoFromLocal = function () {
 					var otherInfo = localStorage.getItem(LocalStorageKey.SAVED_OTHERINFO);
 					if (!otherInfo) {
-						window.alert('Did not find the data in local storage.');
+						window.alert("Did not find the data in local storage.");
 						 return;
 					}
 
@@ -316,8 +316,8 @@ define(['app', 'underscore', 'jquery'],
 				 * @description Imports the comments exported from another PC
 				 */
 				$scope.importOtherInfo2Local = function () {
-					var input = document.createElement('input');
-					input.type = 'file';
+					var input = document.createElement("input");
+					input.type = "file";
 					input.onchange = function(e) {
 						var file = e.target.files[0];
 						var reader = new FileReader();
@@ -332,7 +332,7 @@ define(['app', 'underscore', 'jquery'],
 
 							localStorage.setItem(LocalStorageKey.SAVED_OTHERINFO, JSON.stringify(otherInfo));
 						}
-						reader.readAsText(file, 'UTF-8');
+						reader.readAsText(file, "UTF-8");
 					};
 					input.click();
 				}
@@ -342,7 +342,7 @@ define(['app', 'underscore', 'jquery'],
 				 * @description Clear all cached info (except for the account info) from the local storage
 				 */
 				$scope.clearCache = function() {
-					if (confirm('This will clear all Rally related cache from this machine, are you sure?')) {
+					if (confirm("This will clear all Rally related cache from this machine, are you sure?")) {
 						localStorage.removeItem(LocalStorageKey.LOCAL_STORAGE_KEY);
 						localStorage.removeItem(LocalStorageKey.SAVED_PARAMETERS);
 						localStorage.removeItem(LocalStorageKey.SAVED_OTHERINFO);
@@ -367,7 +367,7 @@ define(['app', 'underscore', 'jquery'],
 				 * @param {any} team
 				 */
 				$scope.projectTeamChanged = function(team) {
-					var shortName = team.split(' ')[1];
+					var shortName = team;
 					$scope.CurrentTeamShortName = shortName;
 				}
 
@@ -378,7 +378,7 @@ define(['app', 'underscore', 'jquery'],
 				$scope.refreshTaskList = function () {
 					initBeforeQuery();
 					$scope.QueryForOpenDefect = false;
-					$scope.QueryTypeString = ' --- ' + $scope.Owner + '\'s Rally task in sprint ' + $scope.Sprint + ' @' + new Date().toLocaleTimeString();
+					$scope.QueryTypeString = " --- " + $scope.Owner + "'s Rally task in sprint " + $scope.Sprint + " @" + new Date().toLocaleTimeString();
 					$scope.refreshTaskByOwner({ 'Owner': $scope.Owner, 'Sprint': $scope.Sprint, 'ClearDataFirst': true }, $q)
 						.then(function (result) {
 							$scope.TaskList = result;
@@ -386,7 +386,7 @@ define(['app', 'underscore', 'jquery'],
 							// Load the other info from local storage
 							loadSavedParameters();
 						}, function(error) {
-							console.error('refreshTaskList() failed');
+							console.error("refreshTaskList() failed");
 						})
 						.then(function () {
 							setTimeout(function () { $scope.enableHtmlFormatTooltip(); }, 100);
@@ -400,9 +400,9 @@ define(['app', 'underscore', 'jquery'],
 				$scope.refreshAll = function () {
 					initBeforeQuery();
 					$scope.QueryForOpenDefect = false;
-					$scope.QueryTypeString = ' --- Rally task in sprint ' + $scope.Sprint + ' for ALL person @' + new Date().toLocaleTimeString();
+					$scope.QueryTypeString = " --- Rally task in sprint " + $scope.Sprint + " for ALL person @" + new Date().toLocaleTimeString();
 					var promises = [];
-					promises.push($scope.refreshTaskByOwner({ 'Owner': '', 'Sprint': $scope.Sprint, 'ClearDataFirst': false }, $q));
+					promises.push($scope.refreshTaskByOwner({ 'Owner': "", 'Sprint': $scope.Sprint, 'ClearDataFirst': false }, $q));
 
 					$q.all(promises)
 						.then(function (result) {
@@ -416,7 +416,7 @@ define(['app', 'underscore', 'jquery'],
 							loadSavedParameters();
 						})
 						.catch(function (error) {
-							console.error('refreshAll() failed');
+							console.error("refreshAll() failed");
 						})
 						.finally(function () {
 							$scope.enableHtmlFormatTooltip();
@@ -431,7 +431,7 @@ define(['app', 'underscore', 'jquery'],
 				$scope.getOpenDefects = function (release) {
 					var project = getProject(release);
 					if (!project) {
-						reportError('Please specify the release for querying open defect');
+						reportError("Please specify the release for querying open defect");
 						return;
 					}
 
@@ -440,7 +440,7 @@ define(['app', 'underscore', 'jquery'],
 					var token = rallyAuthService.getAuthenticationToken();
 
 					$scope.QueryForOpenDefect = true;
-					$scope.QueryTypeString = ' --- ALL ' + project.Name + ' open tasks @' + new Date().toLocaleTimeString();
+					$scope.QueryTypeString = " --- ALL " + project.Name + " open tasks @" + new Date().toLocaleTimeString();
 					var promises = [];
 					project.Urls.forEach(function (url) {
 						promises.push(rallyQueryService.getFromRally(url, token));
@@ -472,7 +472,7 @@ define(['app', 'underscore', 'jquery'],
 				 */
 				$scope.refreshTaskByOwner = function (parameters, q, taskList) {
 					var token = rallyAuthService.getAuthenticationToken();
-					_.extend(parameters, { 'Token': token, 'Async': true });
+					_.extend(parameters, { "Token": token, "Async": true });
 
 					var deferred = $q.defer();
 					var result = [];
@@ -481,11 +481,11 @@ define(['app', 'underscore', 'jquery'],
 					}
 
 					q.all([
-						rallyQueryService.getTasksFromRally(parameters, 'hierarchicalrequirement'),
-						rallyQueryService.getTasksFromRally(parameters, 'defect')
+						rallyQueryService.getTasksFromRally(parameters, "hierarchicalrequirement"),
+						rallyQueryService.getTasksFromRally(parameters, "defect")
 					])
 						.then(function (lists) {
-							// If directly Complete the user story or defect under which still contains incompleted tasks
+							// If directly Complete the user story or defect under which still contains in-completed tasks
 							// the SpentTime of those task would not be counted any more. So need to accumulate all task hours
 							var tasks = _.union(lists[0], lists[1]);
 
@@ -535,18 +535,18 @@ define(['app', 'underscore', 'jquery'],
 						if (!$scope.ShowOthers && isOthers) return false;
 					}
 
-					if ($scope.QueryForOpenDefect && $scope.ShowUnassignedOnly && task.Owner !== '') return false;
+					if ($scope.QueryForOpenDefect && $scope.ShowUnassignedOnly && task.Owner !== "") return false;
 
-					if (!task.isDefect && $scope.DeOrUs === 'DE Only') return false;
+					if (!task.isDefect && $scope.DeOrUs === "DE Only") return false;
 
-					if (task.isDefect && $scope.DeOrUs === 'US Only') return false;
+					if (task.isDefect && $scope.DeOrUs === "US Only") return false;
 
 					if ($scope.CurrentTeamOnly) {
-						if (task.Project !== currentSettings.Team) return false;
+						if (task.Project.indexOf(currentSettings.Team) < 0) return false;
 					}
 
 					if ($scope.SDCOnly) {
-						if (!task.Owner || task.Owner === '') return false;
+						if (!task.Owner || task.Owner === "") return false;
 						var owner = task.Owner.toLowerCase();
 						var find = $scope.OwnerNameList.find(function (data) {
 							return owner === data.toLowerCase();
@@ -569,15 +569,15 @@ define(['app', 'underscore', 'jquery'],
 					}
 
 					switch (task.ScheduleState) {
-						case 'Completed':
+						case "Completed":
 							return $scope.ShowCompleted;
-						case 'Accepted':
+						case "Accepted":
 							return $scope.ShowAccepted;
-						case 'In-Progress':
+						case "In-Progress":
 							return $scope.ShowWIP;
-						case 'Defined':
+						case "Defined":
 							return $scope.ShowDefined;
-						case 'In Definition':
+						case "In Definition":
 							return $scope.ShowInDefine;
 					}
 
@@ -591,7 +591,7 @@ define(['app', 'underscore', 'jquery'],
 				 * @returns	The accumulate result string.
 				 */
 				$scope.getWorkload = function (records) {
-					var result = '';
+					var result = "";
 					if (records && records.length > 0) {
 						var totalDays = 0, actualHours = 0;
 						_.each(records,
@@ -600,7 +600,7 @@ define(['app', 'underscore', 'jquery'],
 								actualHours = actualHours + (record.Actuals ? record.Actuals : 0);
 							});
 
-						result = '-- Est. Days:' + totalDays + ' | Act. Hours:' + Math.round(actualHours);
+						result = "-- Est. Days:" + totalDays + " | Act. Hours:" + Math.round(actualHours);
 					}
 
 					return result;
@@ -619,12 +619,12 @@ define(['app', 'underscore', 'jquery'],
 						return false;
 					}
 
-					if ($scope.workloadStat['Collected'] && $scope.workloadStat.Collected) {
+					if ($scope.workloadStat["Collected"] && $scope.workloadStat.Collected) {
 						return true;
 					};
 
 					// -- For chart display
-					$scope.workloadStat.ChartSeries = ['Est. Days', 'Tasks Total'];
+					$scope.workloadStat.ChartSeries = ["Est. Days", "Tasks Total"];
 					$scope.workloadStat.ChartOptions = [];
 
 					$scope.workloadStat.ChartLabels = [];
@@ -694,7 +694,7 @@ define(['app', 'underscore', 'jquery'],
 				$scope.checkStatPermission = function () {
 					if ($scope.QueryForOpenDefect) return false;
 
-					if (document.getElementById('userId').value === 'dameng.zhang@carestream.com') {
+					if (document.getElementById("userId").value === "dameng.zhang@carestream.com") {
 						return true;
 					} else {
 						return false;
@@ -720,12 +720,12 @@ define(['app', 'underscore', 'jquery'],
 				 * @description	Copy the current filtered data to clipboard
 				 */
 				$scope.export = function () {
-					var data = 'ID\tTitle\tPriority\tProduct\tOwner\tIteration\tState\tReject\t' + $scope.OtherInfoLabel;
+					var data = "ID\tTitle\tPriority\tProduct\tOwner\tIteration\tState\tReject\t" + $scope.OtherInfoLabel;
 					_.each($scope.filteredRecords, function (record) {
-						data += '\r\n' + record.id + '\t' + record.Title + '\t' + record.Priority + '\t' + record.Product + '\t' + record.Owner + '\t' + record.Iteration + '\t' + record.ScheduleState + '\t' + record.Reject + '\t' + record.Other;
+						data += "\r\n" + record.id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.Product + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.ScheduleState + "\t" + record.Reject + "\t" + record.Other;
 					});
 
-					window.alert(utility.copyToClipboard(data) ? 'Data get copied to clipboard.' : 'Copy to clipboard failed.');
+					window.alert(utility.copyToClipboard(data) ? "Data get copied to clipboard." : "Copy to clipboard failed.");
 				};
 
             	/**
@@ -737,8 +737,8 @@ define(['app', 'underscore', 'jquery'],
 				 */
 				function summaryByProject (sprint, token) {
 					var stateFunc = function (record) {
-						var state = 'Not Start';
-						if (record.ScheduleState === 'In-Progress' || record.ScheduleState === 'Completed' || record.ScheduleState === 'Accepted') {
+						var state = "Not Start";
+						if (record.ScheduleState === "In-Progress" || record.ScheduleState === "Completed" || record.ScheduleState === "Accepted") {
 							state = record.ScheduleState;
 						};
 
@@ -748,13 +748,13 @@ define(['app', 'underscore', 'jquery'],
 					var deferred = $q.defer();
 
 					$q.all([
-						rallyQueryService.getFromRally(rallyRestApi.getApiUrlTaskSummary(sprint, 'hierarchicalrequirement'), token),
-						rallyQueryService.getFromRally(rallyRestApi.getApiUrlTaskSummary(sprint, 'defect'), token)
+						rallyQueryService.getFromRally(rallyRestApi.getApiUrlTaskSummary(sprint, "hierarchicalrequirement"), token),
+						rallyQueryService.getFromRally(rallyRestApi.getApiUrlTaskSummary(sprint, "defect"), token)
 					])
 						.then(function (lists) {
 							var result = _.union(lists[0], lists[1]);
 
-							result = utility.groupByMultiple(result, ['Release', stateFunc], ['Estimate', 'TimeSpent']);
+							result = utility.groupByMultiple(result, ["Release", stateFunc], ["Estimate", "TimeSpent"]);
 
 							deferred.resolve(result);
 						})
@@ -767,7 +767,7 @@ define(['app', 'underscore', 'jquery'],
 				};
 
 				$scope.clearError = function() {
-					$scope.ErrorMsg = '';
+					$scope.ErrorMsg = "";
 				};
 
             	/**
@@ -776,14 +776,14 @@ define(['app', 'underscore', 'jquery'],
 				 * @param	error	The error object.
 				 */
 				function reportError(error) {
-					var errorMsg = '';
+					var errorMsg = "";
 
 					if (error.status == 401) {
-						errorMsg = 'incorrect user name or password';
+						errorMsg = "incorrect user name or password";
 					} else {
-						if (error.statusText !== '') {
+						if (error.statusText !== "") {
 							if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
-								errorMsg = error.QueryResult.Errors.join(' || ');
+								errorMsg = error.QueryResult.Errors.join(" || ");
 							} else {
 								errorMsg = error.statusText;;
 							}
