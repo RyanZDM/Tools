@@ -75,7 +75,7 @@ function RallyTask(jsonObj) {
 
 	if (jsonObj["c_AcceptanceCriteria"]) {
 		this.AC = jsonObj["c_AcceptanceCriteria"].trim();
-		if (/not? test|non-test|Not? need/i.test(this.AC)) {
+		if (/not?\W?test|non-test|Not?\W?need/i.test(this.AC)) {
 			this.Testable = false;
 		}
 	} else {
@@ -149,10 +149,15 @@ function RallyTask(jsonObj) {
 		}
 		
 		if (that.FixedInBuild !== "") {
-			var buildNum = that.FixedInBuild.split(".").pop();
-			if (buildNum.length !== 5) {
-				// The build number format is incorrect, must be 5 digital
-				that.FixedInBuild = "";
+			var buildNumParts = that.FixedInBuild.split(".");
+			if (buildNumParts.length > 2) {
+				var buildNum = buildNumParts[2].trim();
+				if (buildNum.length !== 5) {
+					// The build number format is incorrect, must be 5 digital
+					that.FixedInBuild = "";
+				}
+			} else {
+				that.FixedInBuild = "";		// The build number contains at least 3 part, e.g. 1.9.07500
 			}
 		}
 
@@ -179,7 +184,7 @@ function RallyTask(jsonObj) {
 			}
 		}
 
-		var qaList = ["Ben Tang", "Yufang X", 'Annie H"'
+		var qaList = ["Ben Tang", "Yufang X", "Annie H"
 			, "Sherry Hu", "Yanjun L", "Jun P", "Rita X"
 			, "Yujie S", "Lina C", "Ivy Jiang", "Wenbin Zhong"];
 

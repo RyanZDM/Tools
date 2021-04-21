@@ -1,0 +1,31 @@
+﻿<div class="modal fade" id="selectProjectTeamModal" tabindex="-1" role="dialog" aria-labelledby="selectProjectTeamTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<span class="modal-title" id="selectProjectTeamTitle">Choose a project team</span>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<div class="input-group">
+						<span class="input-group-addon">Project Team</span>
+						<select class="btn btn-default" ng-model="CurrentTeam" , ng-options="team for team in ProjectTeamList" ng-change="projectTeamChanged(CurrentTeam)"></select>
+					</div>
+				</div>
+				<div class="row">
+					<div class="input-group">
+						<span class="input-group-addon">Short Name</span>
+						<input type="form-control" ng-model="CurrentTeamShortName" />
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<label class="pull-left"><b>Note:</b>Need to reload page after the change!</label>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveCurrentProjectTeamToLocalStorage()">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
