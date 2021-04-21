@@ -16,9 +16,10 @@
 <body>
 	<form name="taskForm" ng-controller="rallyTaskController">
 		<!--<form name="taskForm" ng-app="getRallyWorksApp" ng-controller="rallyTaskController">-->
-		<div class="page-header text-primary text-center" data-toggle="modal" data-target="#selectProjectTeamModal">
-			<h1>Get Rally Tasks <small>{{QueryTypeString}}</small></h1>
-		</div>
+	<div class="page-header text-primary text-center" data-toggle="modal" data-target="#selectProjectTeamModal">
+		<h1>Get Rally Tasks <small>{{QueryTypeString}}</small></h1>
+	</div>
+	<div ng-show="InQuerying" id="busy"></div>
 	<div class="container-fluid">
 	<div class="panel panel-default">
 	<div class="panel-heading">

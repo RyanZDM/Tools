@@ -390,6 +390,9 @@ define(["app", "underscore", "jquery"],
 						})
 						.then(function () {
 							setTimeout(function () { $scope.enableHtmlFormatTooltip(); }, 100);
+						})
+						.then(function() {
+							$scope.InQuerying = false;
 						});
 				};
 
@@ -419,6 +422,7 @@ define(["app", "underscore", "jquery"],
 							console.error("refreshAll() failed");
 						})
 						.finally(function () {
+							$scope.InQuerying = false;
 							$scope.enableHtmlFormatTooltip();
 						});
 				};
@@ -498,17 +502,11 @@ define(["app", "underscore", "jquery"],
 
 									deferred.resolve(result);
 								})
-								.catch(function (error) { reportError(error); })
-								.finally(function () {
-									$scope.InQuerying = false;
-								});;
+								.catch(function (error) { reportError(error); });
 						})
 						.catch(function (error) {
 							reportError(error);
 							deferred.reject(error);
-						})
-						.finally(function() {
-							$scope.InQuerying = false;
 						});
 
 					return deferred.promise;
