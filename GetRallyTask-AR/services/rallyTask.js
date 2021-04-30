@@ -68,13 +68,18 @@ function RallyTask(jsonObj) {
 		this.id = this.id + "/" + jsonObj.c_PLIEventCRNumber;
 	}
 
+	if (jsonObj["Feature"]) {
+		this.id = this.id + "/" + jsonObj.Feature.FormattedID;
+	}
+
 	if (jsonObj["Iteration"] && jsonObj.Iteration["_refObjectName"]) {
 		var sprint = jsonObj.Iteration._refObjectName.split(" ").pop();
 		this.Iteration = parseInt(sprint, 10);
 	}
 
 	if (jsonObj["c_AcceptanceCriteria"]) {
-		this.AC = jsonObj["c_AcceptanceCriteria"].trim();
+		this.AC = jsonObj["c_AcceptanceCriteria"].trim()
+												.replace(/&nbsp;/g, " ");
 		if (/not?\W?test|non-test|Not?\W?need/i.test(this.AC)) {
 			this.Testable = false;
 		}
@@ -186,7 +191,8 @@ function RallyTask(jsonObj) {
 
 		var qaList = ["Ben Tang", "Yufang X", "Annie H"
 			, "Sherry Hu", "Yanjun L", "Jun P", "Rita X"
-			, "Yujie S", "Lina C", "Ivy Jiang", "Wenbin Zhong"];
+			, "Yujie S", "Lina C", "Ivy Jiang", "Wenbin Zhong"
+			, "Joe Maron", "Preeti Sharma"];
 
 		var assignedToQa = qaList.includes(that.Owner);
 		if (that.isDefect) {
@@ -194,7 +200,7 @@ function RallyTask(jsonObj) {
 			that.WrongOwner = ( that.State !== "Reject Requested" &&						// Not check if is in reject request state
 								((assignedToQa && that.ScheduleState === "Accepted")		// Should assign it back to developer after a defect get Accepted
 								|| (assignedToQa && that.State === "Rejected")				// Should assign it back to developer after a defect get rejected
-								|| (!assignedToQa && that.ScheduleState === "Completed")));	// Should assign it to QA for verification after mark a defect as Completed
+								|| (!assignedToQa && that.ScheduleState === "Completed")));	// Should assign it to QA for verification after mark a defect as Completed			
 		} else {
 			// Should not assign it to QA before completing a US
 			that.WrongOwner = (assignedToQa && (that.ScheduleState === "Completed" || that.ScheduleState === "Accepted"));
