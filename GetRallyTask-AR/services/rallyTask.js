@@ -181,8 +181,8 @@ function RallyTask(jsonObj) {
 				(that.ScheduleState === "Completed" || that.ScheduleState === "Accepted") &&
 				(that.State !== "Rejected") &&
 				(that.RootCauseDesc === "" ||
-				(that.State !== "Reject Requested" &&
-					(that.ResolutionReason === "" || that.FixedInBuild === "")))) {
+					(that.State !== "Reject Requested" && that.State !== "Duplicate" &&
+						(that.ResolutionReason === "" || that.FixedInBuild === "")))) {
 				that.RequiredFieldMissed = true;
 			} else {
 				that.RequiredFieldMissed = false;
@@ -192,7 +192,7 @@ function RallyTask(jsonObj) {
 		var qaList = ["Ben Tang", "Yufang X", "Annie H"
 			, "Sherry Hu", "Yanjun L", "Jun P", "Rita X"
 			, "Yujie S", "Lina C", "Ivy Jiang", "Wenbin Zhong"
-			, "Joe Maron", "Preeti Sharma"];
+			, "Joe Maron", "Preeti Sharma", "Linda Lun"];
 
 		var assignedToQa = qaList.includes(that.Owner);
 		if (that.isDefect) {
