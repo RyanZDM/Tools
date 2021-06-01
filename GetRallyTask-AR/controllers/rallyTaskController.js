@@ -72,105 +72,6 @@ define(["app", "underscore", "jquery"],
 				$scope.OrderByValue = $scope.OrderByValues[0];
 				$scope.ProjectTeamList = ["Taiji", "Wudang", "Penglai", "Dunhuang"];
 
-				// #Configurable here#
-				// Add new object if new added a release, refer to "crossradsPhaseII", "valhalla" or "swiftwater" about how to...
-				var projects = [
-					// crossroadsPhaseII
-					{
-						Name: "Crossroads Phase II",
-						Urls: [rallyRestApi.UrlOpenDefectCRP2],
-
-						inScope: function(release) {
-							return /\[Phase II]/i.test(release);
-						},
-
-						process: function(list) {
-							// Remove the items that has no tag "1.7" or "CR Phase II"
-							return list.filter(item => {
-								if (!item.Tags || item.Count < 1 || !item.Tags._tagsNameArray) return false;
-								var ret = false;
-								_.forEach(item.Tags._tagsNameArray,
-									function(tag) {
-										if (/CR Phase II|1.7/i.test(tag.Name)) {
-											ret = true;
-											return;
-										}
-									});
-
-								return ret;
-							});
-						}
-					},
-					// swiftwater
-					{
-						Name: "Swiftwater",
-						Urls: [rallyRestApi.UrlOpenDefectSwiftwater, rallyRestApi.UrlOpenUsSwiftwater],
-
-						inScope: function(release) {
-							return /\Swiftwater/i.test(release);
-						},
-
-						process: function(list) {
-							return list;
-						}
-					},
-					// Valhalla
-					{
-						Name: "Valhalla",
-						Urls: [rallyRestApi.UrlOpenDefectValhalla, rallyRestApi.UrlOpenUsValhalla],
-
-						inScope: function(release) {
-							return /\Valhalla/i.test(release);
-						},
-
-						process: function(list) {
-							return list;
-						}
-					},
-					// Sharngri-La
-					{
-						Name: "Shangri-La",
-						Urls: [rallyRestApi.UrlOpenDefectShangriLa, rallyRestApi.UrlOpenUsShangriLa],
-
-						inScope: function(release) {
-							return /\Shangri/i.test(release);
-						},
-
-						process: function(list) {
-							return list;
-						}
-					}
-				];
-				
-				var secondRelease = projects[3];	// Shangri-La
-
-				// #Configurable end#
-
-				/**
-				 * @name getProject
-				 * @description Gets the release by name
-				 * @param {string} name of release
-				 */
-				function getProject (name) {
-					var lowerName = name.toLowerCase();
-					for (var index in projects) {
-						if (projects[index].Name.toLowerCase() === lowerName) return projects[index];
-					}
-
-					return null;
-				}
-
-				/**
-				 * @name getCurrentProject
-				 * @description Gets the current release
-				 */
-				function getCurrentProject () {
-					var project = getProject($scope.CurrentRelease);
-					if (!project) { project = getProject("Swiftwater") }
-
-					return project;
-				}
-
 				// Re-enable the Tooltip since the filtered the tasks changed
 				$scope.$watch("filteredRecords", function () {
 					$scope.enableHtmlFormatTooltip();
@@ -433,7 +334,7 @@ define(["app", "underscore", "jquery"],
             	 * @param release	The release name
 				 */
 				$scope.getOpenDefects = function (release) {
-					var project = getProject(release);
+					var project = currentSettings.getRelease(release);
 					if (!project) {
 						reportError("Please specify the release for querying open defect");
 						return;
@@ -522,8 +423,8 @@ define(["app", "underscore", "jquery"],
 					if (!$scope.QueryForOpenDefect) {
 						if (!$scope.ShowFakeTask && task.FakeTask) return false;
 
-						var isCurrentRelease = getCurrentProject().inScope(task.Release);
-						var is2ndRelease = secondRelease.inScope(task.Release);
+						var isCurrentRelease = rallyRestApi.getCurrentRelease().inScope(task.Release);
+						var is2ndRelease = rallyRestApi.getSecondRelease().inScope(task.Release);
 						var isOthers = !(isCurrentRelease || is2ndRelease);
 
 						if (!$scope.ShowCurrentRelease && isCurrentRelease) return false;

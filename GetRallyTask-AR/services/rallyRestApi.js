@@ -72,49 +72,195 @@ define(["app"], function (app) {
 			return dateCondition;
 		};
 
+		function getUrlOpenDefectCRP2() {
+			return urlOpenDefectCRP2.replace(/\t/g, "");
+		};
+
+		function getUrlOpenDefect() {
+			return urlOpenTask.replace(/\t/g, "").replace(/<target>/g, "defect");
+		};
+
+		function getUrlOpenUs() {
+			return urlOpenTask.replace(/\t/g, "").replace(/<target>/g, "hierarchicalrequirement");
+		};
+
+		function getUrlOpenDefectSwiftwater() {
+			return urlOpenTask.replace(/\t/g, "")
+								.replace(/<target>/g, "defect")
+								.replace(/<release>/g, "Swiftwater");
+		};
+
+		function getUrlOpenUsSwiftwater() {
+			return urlOpenTask.replace(/\t/g, "")
+								.replace(/<release>/g, "Swiftwater")
+								.replace(/<target>/g, "hierarchicalrequirement");
+		}
+
+		function getUrlOpenDefectValhalla() {
+			return urlOpenTask.replace(/\t/g, "")
+								.replace(/<target>/g, "defect")
+								.replace(/<release>/g, "Valhalla");
+		};
+
+		function getUrlOpenUsValhalla() {
+			return urlOpenTask.replace(/\t/g, "")
+								.replace(/<release>/g, "Valhalla")
+								.replace(/<target>/g, "hierarchicalrequirement");
+		};
+
+		function getUrlOpenDefectShangriLa() {
+			return urlOpenTask.replace(/\t/g, "")
+								.replace(/<target>/g, "defect")
+								.replace(/<release>/g, "Shangri-La");
+		};
+
+		function getUrlOpenUsShangriLa() {
+			return urlOpenTask.replace(/\t/g, "")
+								.replace(/<release>/g, "Shangri-La")
+								.replace(/<target>/g, "hierarchicalrequirement");
+		};
+
+		function getUrlOpenDefectMaelstrom() {
+			return urlOpenTask.replace(/\t/g, "")
+								.replace(/<target>/g, "defect")
+								.replace(/<release>/g, "Maelstrom");
+		};
+
+		function getUrlOpenUsMaelstrom() {
+			return urlOpenTask.replace(/\t/g, "")
+								.replace(/<release>/g, "Maelstrom")
+								.replace(/<target>/g, "hierarchicalrequirement");
+		};
+
+		function getUrlTaskSummary() {
+			return urlTaskSummary.replace("<release>", currentSettings.Release)
+								.replace("<team>", currentSettings.Team);
+		};
+
+		// <target> must be either 'defect' or 'hierarchicalrequirement', the blank space before and operator are MUST
+		function getUrlTask() {
+			return urlTask.replace("<release>", currentSettings.Release)
+							.replace("<team>", currentSettings.Team);
+		};
+
+		// Add new object if new added a release, refer to "crossradsPhaseII", "valhalla" or "swiftwater" about how to...
+		function getAllReleases() {
+			return [
+				// crossroadsPhaseII
+				{
+					Name: "Crossroads Phase II",
+					Urls: [getUrlOpenDefectCRP2()],
+
+					inScope: function(release) {
+						return /\[Phase II]/i.test(release);
+					},
+
+					process: function(list) {
+						// Remove the items that has no tag "1.7" or "CR Phase II"
+						return list.filter(item => {
+							if (!item.Tags || item.Count < 1 || !item.Tags._tagsNameArray) return false;
+							var ret = false;
+							_.forEach(item.Tags._tagsNameArray,
+								function(tag) {
+									if (/CR Phase II|1.7/i.test(tag.Name)) {
+										ret = true;
+										return;
+									}
+								});
+
+							return ret;
+						});
+					}
+				},
+				// swiftwater
+				{
+					Name: "Swiftwater",
+					Urls: [getUrlOpenDefectSwiftwater(), getUrlOpenUsSwiftwater()],
+
+					inScope: function(release) {
+						return /\Swiftwater/i.test(release);
+					},
+
+					process: function(list) {
+						return list;
+					}
+				},
+				// Valhalla
+				{
+					Name: "Valhalla",
+					Urls: [getUrlOpenDefectValhalla(), getUrlOpenUsValhalla()],
+
+					inScope: function(release) {
+						return /\Valhalla/i.test(release);
+					},
+
+					process: function(list) {
+						return list;
+					}
+				},
+				// Sharngri-La
+				{
+					Name: "Shangri-La",
+					Urls: [getUrlOpenDefectShangriLa(), getUrlOpenUsShangriLa()],
+
+					inScope: function(release) {
+						return /\Shangri/i.test(release);
+					},
+
+					process: function(list) {
+						return list;
+					}
+				},
+				// Maelstrom
+				{
+					Name: "Maelstrom",
+					Urls: [getUrlOpenDefectMaelstrom(), getUrlOpenUsMaelstrom()],
+
+					inScope: function(release) {
+						return /\Maelstrom/i.test(release);
+					},
+
+					process: function(list) {
+						return list;
+					}
+				}
+			];
+		};
+
+		/**
+		 * @name getRelease
+		 * @description Gets the release by name
+		 * @param {string} name of release
+		 */
+		function getRelease(name) {
+			var lowerName = name.toLowerCase();
+			var releases = getAllReleases();
+			for (var index in releases) {
+				if (releases[index].Name.toLowerCase() === lowerName) return releases[index];
+			}
+
+			return null;
+		};
+
 		return {
 			// The id 88538884208ud means ImageView Software project
 			// The id 278792303760ud means Software project in new workspace
 			CurrentWorkspace: "278792303760ud",
 
 			UrlFeature: urlFeature,
-
-			UrlOpenDefectCRP2: urlOpenDefectCRP2.replace(/\t/g, ""),
-
-			UrlOpenDefect: urlOpenTask.replace(/\t/g, "").replace(/<target>/g, "defect"),
-
-			UrlOpenUs: urlOpenTask.replace(/\t/g, "").replace(/<target>/g, "hierarchicalrequirement"),
-
-			UrlOpenDefectSwiftwater: urlOpenTask.replace(/\t/g, "")
-												.replace(/<target>/g, "defect")
-												.replace(/<release>/g, "Swiftwater"),
-
-			UrlOpenUsSwiftwater: urlOpenTask.replace(/\t/g, "")
-											.replace(/<release>/g, "Swiftwater")
-											.replace(/<target>/g, "hierarchicalrequirement"),
-
-			UrlOpenDefectValhalla: urlOpenTask.replace(/\t/g, "")
-												.replace(/<target>/g, "defect")
-												.replace(/<release>/g, "Valhalla"),
-
-			UrlOpenUsValhalla: urlOpenTask.replace(/\t/g, "")
-											.replace(/<release>/g, "Valhalla")
-											.replace(/<target>/g, "hierarchicalrequirement"),
-
-			UrlOpenDefectShangriLa: urlOpenTask.replace(/\t/g, "")
-											.replace(/<target>/g, "defect")
-											.replace(/<release>/g, "Shangri-La"),
-
-			UrlOpenUsShangriLa: urlOpenTask.replace(/\t/g, "")
-											.replace(/<release>/g, "Shangri-La")
-											.replace(/<target>/g, "hierarchicalrequirement"),
-
-			UrlTaskSummary: urlTaskSummary.replace("<release>", currentSettings.Release)
-											.replace("<team>", currentSettings.Team),
-
-			// <target> must be either 'defect' or 'hierarchicalrequirement', the blank space before and operator are MUST
-			UrlTask: urlTask.replace("<release>", currentSettings.Release)
-							.replace("<team>", currentSettings.Team),
+			UrlOpenDefectCRP2: getUrlOpenDefectCRP2(),
+			UrlOpenDefect: getUrlOpenDefect(),
+			UrlOpenUs: getUrlOpenUs(),
+			UrlOpenDefectSwiftwater: getUrlOpenDefectSwiftwater(),
+			UrlOpenUsSwiftwater: getUrlOpenUsSwiftwater(),
+			UrlOpenDefectValhalla: getUrlOpenDefectValhalla(),
+			UrlOpenUsValhalla: getUrlOpenUsValhalla(),
+			UrlOpenDefectShangriLa: getUrlOpenDefectShangriLa(),
+			UrlOpenUsShangriLa: getUrlOpenUsShangriLa(),
+			UrlOpenDefectMaelstrom: getUrlOpenDefectMaelstrom(),
+			UrlOpenUsMaelstrom: getUrlOpenUsMaelstrom(),
+			UrlTaskSummary: getUrlTaskSummary(),
+			UrlTask: getUrlTask(),
 
 			/**
 			 * @name			getApiUrlFeature
@@ -202,7 +348,25 @@ define(["app"], function (app) {
 										.replace("<team>", currentSettings.Team)
 										.replace(/\t/g, "");
 				return url;
-			}
+			},
+			
+			/**
+			 * @name getCurrentRelease
+			 * @description Gets the current release
+			 */
+			getCurrentRelease: function() {
+				var release = getRelease(currentSettings.Release);
+				if (!release) { release = getRelease("Maelstrom") }
+
+				return release;
+			},
+
+			getSecondRelease: function() {
+				var release = getRelease(currentSettings.SecondRelease);
+				if (!release) { release = getRelease("Maelstrom") }
+
+				return release;
+			},
 		};
 	}]);
 });

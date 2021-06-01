@@ -86,11 +86,11 @@ define(["app"], function(app) {
 		};
 
 		loadSettingsFromLocalStorage();
-
+		
 		return {
 			OwnerEmailMapping: ownerEmailMapping,
-			Release: "Valhalla",
-			SecondRelease: "Shangri-La",
+			Release: "Shangri-La",
+			SecondRelease: "Maelstrom",
 			Team: team,
 			TeamShortName: teamShortName,
 
