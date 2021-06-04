@@ -619,9 +619,11 @@ define(["app", "underscore", "jquery"],
 				 * @description	Copy the current filtered data to clipboard
 				 */
 				$scope.export = function () {
-					var data = "ID\tTitle\tPriority\tProduct\tOwner\tIteration\tState\tReject\t" + $scope.OtherInfoLabel;
+					var data = "ID\tTitle\tEstimation\tWorkingHours\tOwner\tIteration\tState";
+					//var data = "ID\tTitle\tPriority\tProduct\tOwner\tIteration\tState\tReject\t" + $scope.OtherInfoLabel;
 					_.each($scope.filteredRecords, function (record) {
-						data += "\r\n" + record.id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.Product + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.ScheduleState + "\t" + record.Reject + "\t" + record.Other;
+						data += "\r\n" + record.id + "\t" + record.Title + "\t" + record.Estimate + "\t" + record.Actuals + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.ScheduleState;
+						//data += "\r\n" + record.id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.Product + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.ScheduleState + "\t" + record.Reject + "\t" + record.Other;
 					});
 
 					window.alert(utility.copyToClipboard(data) ? "Data get copied to clipboard." : "Copy to clipboard failed.");

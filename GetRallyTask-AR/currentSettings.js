@@ -65,7 +65,9 @@ define(["app"], function(app) {
 			"Lina Cao": "lina.cao@carestream.com",
 			"Yujie Shi": "yujie.shi@carestream.com",
 			"Ivy Jiang": "ivy.jiang@carestream.com",
-			"Wenbin Zhong": "wenbin.zhong@carestream.com"
+			"Wenbin Zhong": "wenbin.zhong@carestream.com",
+			"AA Jasmine Tang": "jasmine.tang@carestream.com",
+			"Linda Lun": "linda.lun@carestream.com"
 		};
 
 		var team = "Taiji";		// default project team

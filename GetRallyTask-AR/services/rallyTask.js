@@ -192,7 +192,8 @@ function RallyTask(jsonObj) {
 		var qaList = ["Ben Tang", "Yufang X", "Annie H"
 			, "Sherry Hu", "Yanjun L", "Jun P", "Rita X"
 			, "Yujie S", "Lina C", "Ivy Jiang", "Wenbin Zhong"
-			, "Joe Maron", "Preeti Sharma", "Linda Lun"];
+			, "Joe Maron", "Preeti Sharma", "Linda Lun"
+			, "Ting H"];
 
 		var assignedToQa = qaList.includes(that.Owner);
 		if (that.isDefect) {
