@@ -17,7 +17,7 @@ define(["app"], function (app) {
 		// <target> can be either 'hierarchicalrequirement' or 'defect'
 		var urlOpenTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 										<target>?\
-										query=((Release.Name = "<release>") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
+										query=((Release.Name Contains "<release>") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
 										&order=FormattedID\
 										&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState\
 											,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature\
@@ -228,11 +228,11 @@ define(["app"], function (app) {
 		};
 
 		/**
-		 * @name getRelease
+		 * @name getReleaseEx
 		 * @description Gets the release by name
 		 * @param {string} name of release
 		 */
-		function getRelease(name) {
+		function getReleaseEx(name) {
 			var lowerName = name.toLowerCase();
 			var releases = getAllReleases();
 			for (var index in releases) {
@@ -355,18 +355,20 @@ define(["app"], function (app) {
 			 * @description Gets the current release
 			 */
 			getCurrentRelease: function() {
-				var release = getRelease(currentSettings.Release);
+				var release = getReleaseEx(currentSettings.Release);
 				if (!release) { release = getRelease("Maelstrom") }
 
 				return release;
 			},
 
 			getSecondRelease: function() {
-				var release = getRelease(currentSettings.SecondRelease);
+				var release = getReleaseEx(currentSettings.SecondRelease);
 				if (!release) { release = getRelease("Maelstrom") }
 
 				return release;
 			},
+			
+			getRelease: getReleaseEx,
 		};
 	}]);
 });

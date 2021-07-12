@@ -334,7 +334,7 @@ define(["app", "underscore", "jquery"],
             	 * @param release	The release name
 				 */
 				$scope.getOpenDefects = function (release) {
-					var project = currentSettings.getRelease(release);
+					var project = rallyRestApi.getRelease(release);
 					if (!project) {
 						reportError("Please specify the release for querying open defect");
 						return;
