@@ -1,0 +1,142 @@
+
+// Get project list
+https://dev.azure.com/cshdevops/_apis/projects?api-version=2.0
+Software: 1ac86ff4-e28a-44e9-a4a4-4302e58eb44d
+
+// the project: Software
+https://dev.azure.com/cshdevops/_apis/projects/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d
+
+// Get all teams of Software
+https://dev.azure.com/cshdevops/_apis/projects/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/teams?api-version=2.0
+// Team Taiji
+https://dev.azure.com/cshdevops/_apis/projects/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/teams/acb24d64-e07f-4472-9e35-d2ccd882f073"
+
+
+Software Team: 519a14cf-d65e-42f5-a2c2-83f633af4903
+Console: ac50d570-4ab8-4d4a-8438-e718539ec8c0
+Team Balance: 3f2da6ce-fcc3-44e4-85a0-2bfc26338221
+CPE: cb0f5b0e-514c-4ace-96f8-86963f9f1249
+UCD: fc90a610-d061-4dd6-9514-470263c67c84
+Team Penglai: da85ac30-d739-41b4-9c89-2b96479fb09d
+Architects: da4a956a-c0d7-43a8-baf6-1ae6137a8a55
+Team Order: 1e1d239f-b610-467f-ad2c-c71eda474de9
+Team Taiji: acb24d64-e07f-4472-9e35-d2ccd882f073
+Team Dunhuang: a3b634b3-bcd7-49c8-bd25-bd03f7090872
+Team Wudang: 25a433da-937b-4891-b48d-e0f47f552bd4
+Automation: 59f5227a-405e-4806-a15e-e18a8335f714
+
+// Get a team info
+https://dev.azure.com/cshdevops/_apis/projects/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/teams/acb24d64-e07f-4472-9e35-d2ccd882f073
+
+// Get detail info of a bug/task/feature/us...
+https://dev.azure.com/cshdevops/_apis/wit/workitems/<ID of bug/task/feature/us>
+
+
+https://dev.azure.com/cshdevops/_apis/wit/workitems/<ID of bug/us/feature/task>/
+// Get the revisions															revisions
+// Get the comments																comments
+// Get the updates																updates
+
+// Get list via WIQL
+https://dev.azure.com/cshdevops/{project}/_apis/wit/wiql?api-version=6.1-preview.2
+https://dev.azure.com/cshdevops/{project}/{team}/_apis/wit/wiql?api-version=6.1-preview.2
+https://dev.azure.com/cshdevops/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/acb24d64-e07f-4472-9e35-d2ccd882f073/_apis/wit/wiql?api-version=6.1-preview.2
+Request Body
+	JSON.stringify({ "query": wiql })
+
+*** Response Format:
+	columns: Array(?)	{ referenceName: "System.Id", name: "ID", url: "https://dev.azure.com/cshdevops/_apis/wit/fields/System.Id" }
+							...
+						{ referenceName: "System.State", name: "State", url: "https://dev.azure.com/cshdevops/_apis/wit/fields/System.State" }
+	queryResultType: 	"workItem"
+	queryType:			"flat"
+	workItems: Array[]	{ id: 212322, url: "https://dev.azure.com/cshdevops/_apis/wit/workItems/212322" }
+							--> id, rev, fields (System.AreaPath, System.TeamProject, System.IterationPath...)
+							
+Returns a list of work items (Maximum 200)
+GET https://dev.azure.com/{organization}/{project}/_apis/wit/workitems?ids={ids}&fields={fields}&asOf={asOf}&$expand={$expand}&errorPolicy={errorPolicy}&api-version=6.0
+-- The comma-separated list of requested work item ids
+https://dev.azure.com/cshdevops/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/_apis/wit/workitems?ids=500733,00734,500735,500736&fields=System.Id,System.Title,System.AssignedTo,System.State,System.WorkItemType,System.IterationPath,Custom.CSH_Release&api-version=6.0							
+
+							
+//Gets work items for a list of work item ids (Maximum 200)
+POST https://dev.azure.com/{organization}/{project}/_apis/wit/workitemsbatch?api-version=6.0
+Request Body
+	{
+	  "ids": [
+		297,
+		299,
+		300
+	  ],
+	  "fields": [
+		"System.Id",
+		"System.Title",
+		"System.WorkItemType",
+		"Microsoft.VSTS.Scheduling.RemainingWork"
+	  ]
+	}
+
+
+// Get shared quries
+https://dev.azure.com/{organization}/{project}/_apis/wit/queries/{query}?api-version=6.0
+https://dev.azure.com/cshdevops/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/_apis/wit/queries/{query}?api-version=6.0
+https://dev.azure.com/cshdevops/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/_apis/wit/queries/32dd8e9d-f515-4e4f-a6ea-824ece0fabda
+
+*** Field Mapping:
+System.Id						-> 288731
+System.AreaPath					-> "Software\Console\Team Taiji"
+System.TeamProject				-> "Software"
+System.IterationPath			-> "Software\Sprint 88"
+System.WorkItemType				-> "Bug", "User Story", "Task", "Feature"
+System.State					-> "Resolved"
+System.AssignedTo
+	displayName					-> "Ryan Zhang"
+	uniqueName					-> "dameng.zhang@carestream.com"
+System.CreatedDate				-> "2021-11-03T06:54:11.46Z"
+System.CreatedBy				-> refer to System.AssignedTo
+System.ChangedDate				-> "2021-11-03T06:54:11.46Z"
+System.Title					-> Title
+System.Description				-> HTML format text
+custom.Csh_FixedInBuild			-> "1.11.08800"
+custom.Csh_FoundInProduct		-> "Ascend/Q-Rad"
+custom.Csh_Release				-> "Maelstrom (ImageView 1.11)"
+custom.Csh_ResolutionInfo		-> HTML format text
+custom.Csh_RootCauseDescription	-> HTML format text
+custom.CSH_Notes				-> HTML format text
+custom.Csh_RallyId				-> "F576"
+Microsoft.VSTS.Scheduling.StoryPoints	-> 2
+Microsoft.VSTS.Common.ResolvedDate		-> "2021-12-15T08:22:38.797Z"
+Microsoft.VSTS.CMMI.Blocked		-> "No", "Yes"
+Custom.CSH_BlockedReason		-> HTML format text
+
+*** For US only
+Microsoft.VSTS.Common.AcceptanceCriteria	-> HTML format text
+Microsoft.VSTS.Common.Priority	-> 1
+
+*** For Bug only
+Custom.Csh_Priority				-> "Resolve Immediately", "High"
+
+*** For Task only
+Microsoft.VSTS.Scheduling.OriginalEstimate	-> 12
+Microsoft.VSTS.Scheduling.CompletedWork		-> 15
+Microsoft.VSTS.Common.Activity				-> "Developmnet"
+
+workItemRelationTypes/System.LinkTypes.Hierarchy-Forward
+
+
+SELECT
+    [System.Id],
+    [System.Title],
+    [System.AssignedTo],
+    [System.IterationPath]
+FROM workitems
+WHERE
+    [System.State] = 'Closed'
+    AND [System.AssignedTo] = 'Yusheng Liao <yusheng.liao@carestream.com>'
+    AND [System.WorkItemType] IN ('User Story', 'Bug')
+    AND [Microsoft.VSTS.Common.ClosedDate] >= '2021-01-01T00:00:00.0000000'
+	AND [System.IterationPath] = 'Software\Sprint 88'
+    AND [System.AreaPath] = 'Software\Console\Team Taiji'	
+    AND (
+        [Custom.CSH_Release] = 'Maelstrom (ImageView 1.11)'
+        OR [Custom.CSH_Release] = 'Shangri-La (ImageView 1.10)'	

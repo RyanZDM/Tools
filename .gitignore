@@ -6,3 +6,4 @@
 _ReSharper.Caches/
 *.suo
 /GetRallyTask-AR/.vs
+*/.vs
