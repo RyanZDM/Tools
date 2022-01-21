@@ -17,7 +17,7 @@ define(["app"], function (app) {
 		// <target> can be either 'hierarchicalrequirement' or 'defect'
 		var urlOpenTask = 'https://rally1.rallydev.com/slm/webservice/v2.0/\
 										<target>?\
-										query=((Release.Name = "<release>") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
+										query=((Release.Contains = "<release>") And ( (ScheduleState != "Completed") And (ScheduleState != "Accepted") ) )\
 										&order=FormattedID\
 										&fetch=FormattedID,Name,Description,Owner,PlanEstimate,TaskEstimateTotal,Tasks,Iteration,Release,ScheduleState\
 											,State,Description,c_PLIEventCRNumber,Blocked,BlockedReason,Priority,DragAndDropRank,FlowStateChangedDate,Feature\
