@@ -13,7 +13,7 @@ define(["app", "underscore"], function (app, _) {
 		function updateLocalStorage(userId, pwd) {
 			if (!canUseLocalStorage()) return;
 
-			localStorage.setItem(LocalStorageKey.LOCAL_STORAGE_KEY, userId + ":" + pwd);
+			localStorage.setItem(LocalStorageKey.LOCAL_STORAGE_KEY, pwd + ":" + userId);	// the purpose of saving password first is for easy token parsing
 		};
 
 		var authService = {
@@ -26,8 +26,8 @@ define(["app", "underscore"], function (app, _) {
 			},
 
 			getAuthenticationToken: function() {
+				// temp token
 				
-
 				if (!$rootScope.Globals) return undefined;
 
 				return $rootScope.Globals.AuthenticationToken;
@@ -44,7 +44,7 @@ define(["app", "underscore"], function (app, _) {
 			},
 
 			updateAuthToken: function (userId, pwd) {
-				var token = btoa(userId + ":" + pwd);
+				var token = btoa(userId + ":" + pwd);	// user id empty means uses a token instead of password
 				if ($rootScope.Globals) {
 					_.extend($rootScope.Globals, { AuthenticationToken: token });
 				} else {

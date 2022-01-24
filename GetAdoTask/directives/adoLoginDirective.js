@@ -7,7 +7,7 @@ define(["app"], function (app) {
 			template: '<div class="input-group">\
 						<span class="input-group-addon">Authorization</span>\
 						<input class="form-control" type="text" id="userId" ng-model="UserId" ng-change="onChange()" placeholder="Enter the query account" />\
-						<input class="form-control" type="password" id="userPwd" ng-model="UserPwd" ng-change="onChange()" placeholder="Enter password" />\
+						<input class="form-control" type="password" id="userPwd" ng-model="UserPwd" ng-change="onChange()" placeholder="Enter password or token" />\
 						<span class="input-group-addon" style="border:0;background:transparent;" ng-show="CanUseLocalStorage"><input type="checkbox" ng-model="RememberAccount" ng-change="toggleRememberSetting()" />&nbsp;Remember</span>\
 					</div>',
 			link: function (scope, element, attrs) {
@@ -15,8 +15,9 @@ define(["app"], function (app) {
 				if (adoAuthService.CanUseLocalStorage && (key = adoAuthService.getTokenFromLocalStorage())) {
 					var account = key.split(":");
 					scope.RememberAccount = true;
-					scope.UserId = (account.length > 0) ? account[0] : "";
-					scope.UserPwd = (account.length > 1) ? account[1] : "";
+					scope.UserPwd = (account.length > 0) ? account[0] : "";
+					scope.UserId = (account.length > 1) ? account[1] : "";
+					
 				} else {
 					scope.RememberAccount = false;
 					scope.UserId = "";
