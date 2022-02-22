@@ -48,7 +48,7 @@ define(["app", "underscore"], function (app, _) {
 		 * @description	Group by multiple
 		 * @param	array								data array to be group by.
 		 * @param	{(string|function)[]}	iteratee	The iteratees to transform keys.
-		 * @param	cumulativeItems						items will be cumulated.
+		 * @param	cumulativeItems						items will be accumulated.
 		 * @returns	The cumulated items specified by 'cumulativeItems' group by 'iteratee'.
 		 */
 		function groupByMultiple(array, iteratee, cumulativeItems) {
@@ -64,32 +64,36 @@ define(["app", "underscore"], function (app, _) {
 				}
 			} else {
 				// The dat got grouped by all iteratees, accumulate the item values
-				if (cumulativeItems && cumulativeItems.length > 0) {
-					var cumulatedRecords = {};
-					for (var lastGroupItem in firstBy) {
-						var count = 0;
-						var cumulatedRecord = { };
-						_.each(cumulativeItems,
-							function(item) {
-								cumulatedRecord[item] = 0;
-							});
-
-						_.each(firstBy[lastGroupItem], function (record) {
-							_.each(cumulativeItems, function (item) {
-								if (record[item]) {
-									cumulatedRecord[item] = cumulatedRecord[item] + record[item];
-								}
-							});
-
-							count++;
+				if (!cumulativeItems) {
+					cumulativeItems = [];	// Means calculate the count only
+				} else {
+					cumulativeItems = [].concat(cumulativeItems);
+				}
+								
+				var cumulatedRecords = {};
+				for (var lastGroupItem in firstBy) {
+					var count = 0;
+					var cumulatedRecord = { };
+					_.each(cumulativeItems,
+						function(item) {
+							cumulatedRecord[item] = 0;
 						});
 
-						cumulatedRecord._Count = count;
-						cumulatedRecords[lastGroupItem] = cumulatedRecord;
-					}
+					_.each(firstBy[lastGroupItem], function (record) {
+						_.each(cumulativeItems, function (item) {
+							if (record[item]) {
+								cumulatedRecord[item] = cumulatedRecord[item] + record[item];
+							}
+						});
 
-					return cumulatedRecords;
+						count++;
+					});
+
+					cumulatedRecord._Count = count;
+					cumulatedRecords[lastGroupItem] = cumulatedRecord;					
 				}
+				
+				return cumulatedRecords;
 			}
 
 			return firstBy;
@@ -110,6 +114,25 @@ define(["app", "underscore"], function (app, _) {
 			link.href = URL.createObjectURL(file);
 			link.click();
 		};
+
+		/**
+		 * @name html2PlainText
+		 * @param {string} html format string
+		 * @return {string} the plain text
+		 */
+		function html2PlainText(html) {
+			if (!html) return "";
+
+			var keywords = [['&quot;', '"'],['<br>', '\r\n']];
+			for (var index in keywords)
+			{
+				html = html.replaceAll(keywords[index][0], keywords[index][1]);
+			}
+
+			html = html.replace(/<[^>]*>/g, "");
+
+			return html;
+		}
 
 		/**
 		 * @name sendEmail

@@ -17,377 +17,395 @@
 <body>
 	<form name="taskForm" ng-controller="adoTaskController">
 		<!--<form name="taskForm" ng-app="getRallyWorksApp" ng-controller="adoTaskController">-->
-	<div class="page-header text-primary text-center" data-toggle="modal" data-target="#selectProjectTeamModal">
-		<h1>Get ADO Tasks <small>{{QueryTypeString}}</small></h1>
-	</div>
-	<div ng-show="InQuerying" id="busy"></div>
-	<div class="container-fluid">
-	<div class="panel panel-default">
-	<div class="panel-heading">
-		<div id="PoppedMsg" class="row alert alert-warning alert-dismissable pull-right" ng-show="ErrorMsg !== ''">
-			<a href="#" class="close" aria-label="close" ng-click="$event.preventDefault();clearError()">&times;</a>
-			<strong>{{ErrorMsg}}</strong>
+		<div class="page-header text-primary text-center" data-toggle="modal" data-target="#selectProjectTeamModal">
+			<h1>Get ADO Tasks <small>{{QueryTypeString}}</small></h1>
 		</div>
-		<div class="row">
-			<div class="col-md-6"><rally-login></rally-login></div>
-			<span class="col-md-5 text-right alert alert-warning" ng-show="taskForm.owner.$error.email">
-				The email address is invalid
-			</span>
-			<div class="col-md-1 pull-right">
-				<button class="btn btn-warning"
-				        data-toggle="tooltip"
-				        title="Clear cache from this machine"
-				        ng-click="clearCache()">
-					Clear Cache
-				</button>
-			</div>
-
-		</div>
-		<p></p>
-		<div class="row">
-			<div class="col-md-4">
-				<div class="input-group">
-					<span class="input-group-addon">Owner</span>
-					<input class="form-control"
-					       type="email"
-					       id="owner"
-					       name="owner"
-					       list="emailOptions"
-					       ng-model="Owner"
-					       required
-					       placeholder="Enter owner's ADO account here" />
-					<datalist id="emailOptions">
-						<option ng-repeat="email in EmailList | orderBy: email" value={{email}}></option>
-					</datalist>
-				</div>
-			</div>
-			<div class="col-md-2">
-				<div class="input-group">
-					<span class="input-group-addon"
-					      data-toggle="tooltip"
-					      data-placement="top"
-					      title="0 means get all tasks after 2020-01-01; >0 means just get the tasks belong to the specified sprint; -1 means get the unscheduled tasks">
-						Sprint
-					</span>
-					<input class="form-control"
-					       type="number" min="-1" max="999"
-					       id="sprint"
-					       name="sprint"
-					       ng-model="Sprint"
-					       required
-					       placeholder="Enter target sprint" />
-				</div>
-			</div>
-			<div draggable="true" class="col-md-4 pull-right">
-				<div class="input-group">
-					<span class="input-group-btn">
-						<button class="btn btn-md btn-block btn-default"
-						        id="btnRefresh"
-						        ng-disabled="InQuerying"
-						        ng-click="refreshTaskList()"
-						        data-toggle="tooltip"
-						        data-placement="top"
-						        title="Get tasks belongs to the [Owner] of the specified [Sprint]">
-							Refresh Task List
-						</button>
-					</span>
-					<span class="input-group-btn">
-						<button class="btn btn-md btn-block btn-default"
-						        id="btnRefreshAll"
-						        ng-disabled="InQuerying"
-						        ng-click="refreshAll()"
-						        data-toggle="tooltip"
-						        data-placement="top"
-						        title="Get all tasks of all person according to the specified [Sprint]">
-							Get All
-						</button>
-					</span>
-					<span class="input-group-btn dropdown" data-toggle="tooltip" title="Get all open defects">
-						<button class="btn btn-default dropdown-toggle"
-						        type="button"
-						        id="openDefectsButton"
-						        ng-disabled="InQuerying"
-						        data-toggle="dropdown"
-						        aria-haspopup="true"
-						        aria-expanded="false" >
-							Open Defect
-							<span class="caret"></span>
-						</button>>
-									
-						<ul class="dropdown-menu" aria-labelledby="openDefectsButton">
-							<li><a class="dropdown-item" href="#" ng-click="getOpenDefects(CurrentRelease)">{{CurrentRelease}}</a></li>
-							<li><a class="dropdown-item" href="#" ng-click="getOpenDefects(SecondRelease)">{{SecondRelease}}</a></li>
-						</ul>
-					</span>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="panel-body">
-	<div class="row">
-		<div class="col-md-4">
-			<h4 class="text-primary"><b>Query Results</b>
-				[{{filteredRecords.length}} / {{TaskList.length}}]
-				<span style="font-size:15px">{{getWorkload(filteredRecords)}}</span>
-			</h4>
-		</div>
-		<div class="col-md-8">
-			<div class="pull-right">
-				<labeled-checkbox ng-hide="!QueryForOpenDefect" class="btn-info" uid="unassigned" label="Unassigned Only" ng-model="ShowUnassignedOnly" action="resetWorkloadStat()" title="Show unassigned only"></labeled-checkbox>
-				<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-default" uid="other" label="Other" ng-model="ShowOthers" action="resetWorkloadStat()"></labeled-checkbox>
-				<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-info" uid="secondRelease" label="{{SecondRelease}}" ng-model="Show2ndRelease" action="resetWorkloadStat()"></labeled-checkbox>
-				<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-primary" uid="CurrentRelease" label="{{CurrentRelease}}" ng-model="ShowCurrentRelease" action="resetWorkloadStat()"></labeled-checkbox>
-				<labeled-checkbox class="btn-warning" uid="SDC" label="SDC Only" shortlabel="{{QueryForOpenDefect ? 'SDC Only' : 'SDC'}}" ng-model="SDCOnly" action="resetWorkloadStat()" title="Show tasks owned by SDC only"></labeled-checkbox>
-				<labeled-checkbox class="btn-success" uid="CurrentTeam" label="{{CurrentTeamShortName}} Only" shortlabel="{{QueryForOpenDefect ? CurrentTeamShortName + ' Only' : CurrentTeamShortName}}" ng-model="CurrentTeamOnly" action="resetWorkloadStat()" title="Show team {{CurrentTeamShortName}} task only"></labeled-checkbox>
-				<labeled-checkbox class="btn-default" uid="FakeTask" label="Sub Task" shortlabel="{{QueryForOpenDefect ? 'Sub Task' : 'Task'}}" ng-model="ShowFakeTask" action="resetWorkloadStat()" title="Show sub tasks if has one more owner for a task"></labeled-checkbox>
-				<span>
-					<select class="btn btn-primary" ng-model="DeOrUs" ng-change="resetWorkloadStat()">
-						<option>ALL</option>
-						<option>DE Only</option>
-						<option>US Only</option>
-					</select>
-				</span>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-3">
-			<div class="input-group">
-				<span class="input-group-btn">
-					<button type="button" class="btn btn-primary" style="width:auto"
-					        data-toggle="tooltip"
-					        data-placement="right"
-					        title="Enable HTML format Tooltip"
-					        ng-click="enableHtmlFormatTooltip()">
-						Tooltip
-					</button>
-				</span>
-				<span class="input-group-btn">
-					<button type="button" class="btn btn-primary" style="width:auto"
-					        data-toggle="tooltip"
-					        data-placement="right"
-					        title="Export data to Clipboard"
-					        ng-click="export()">
-						Clipboard
-					</button>
-				</span>
-				<div class="dropup">
-					<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-						Show/Hide <span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu">
-						<li class="dropdown-header">Show/hide following fields:</li>
-						<li>
-							<div class="checkbox">
-								<label>
-									<input type="checkbox" ng-model="ShowProductField"/>Product
-								</label>
-							</div>
-						</li>
-						<li>
-							<div class="checkbox">
-								<label>
-									<input type="checkbox" ng-model="ShowIterationField"/>Iteration
-								</label>
-							</div>
-						</li>
-						<li>
-							<div class="checkbox">
-								<label>
-									<input type="checkbox" ng-model="ShowRejectField"/>Reject
-								</label>
-							</div>
-						</li>
-						<li>
-							<div class="checkbox">
-								<label>
-									<input type="checkbox" ng-model="ShowEverFailedField"/>Ever Failed
-								</label>
-							</div>
-						</li>
-						<li>
-							<div class="checkbox">
-								<label>
-									<input type="checkbox" ng-model="ShowBlockReasonField"/>Block Reason
-								</label>
-							</div>
-						</li>
-					</ul>
-				</div>
-				<span class="input-group-addon">Order By:</span>
-				<select class="btn btn-default"
-				        ng-model="OrderByOptionIndex"
-				        ng-options="item.value as item.name for item in OrderByOptions"
-				        ng-change="orderChanged()">
-				</select>
-			</div>
-		</div>
-		<div class="col-md-9">
-			<div class="pull-right">
-				<labeled-checkbox class="btn-default" uid="indefine" label="New" shortlabel="{{QueryForOpenDefect ? 'New' : 'ID'}}" ng-model="ShowNew" action="resetWorkloadStat()" title="New"></labeled-checkbox>
-				<labeled-checkbox class="btn-info" uid="defined" label="Assigned" shortlabel="{{QueryForOpenDefect ? 'Assigned' : 'D'}}" ng-model="ShowAssigned" action="resetWorkloadStat()" title="Defined"></labeled-checkbox>
-				<labeled-checkbox class="btn-primary" uid="wip" label="In-Progress" shortlabel="{{QueryForOpenDefect ? 'In-Progress' : 'P'}}" ng-model="ShowWIP" action="resetWorkloadStat()" title="In-Progress"></labeled-checkbox>
-				<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-warning" uid="completed" label="Resolved" shortlabel="C" ng-model="ShowResolved" action="resetWorkloadStat()" title="Resolved"></labeled-checkbox>
-				<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-success" uid="accepted" label="Closed" shortlabel="A" ng-model="ShowClosed" action="resetWorkloadStat()" title="Closed"></labeled-checkbox>
-				<labeled-checkbox class="btn-default" uid="rejected" label="Reject/Postpone" ng-model="ShowRejectedDefects" action="resetWorkloadStat()" title="If to show tasks that mark as Rejected/Reject Requested/Postponed/Postpone Requested/Duplicate"></labeled-checkbox>
-				<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-danger" uid="failed" label="Invalid Only" ng-model="ShowInvalidItemOnly" action="resetWorkloadStat()" title="Show verify failed tasks only"></labeled-checkbox>
-			</div>
-		</div>
-	</div>
-	<div class="row">
-		<table class="table table-hover table-bordered table-responsive" border="1" id="result">
-			<thead>
-			<tr>
-				<th>#</th>
-				<th data-toggle="tooltip" title="Highlight in bold means was changed today">ID</th>
-				<th data-toggle="tooltip">Description</th>
-				<th>Priority</th>
-				<th ng-show="ShowProductField" width="5%">Product</th>
-				<th>Est.<br />(Day)</th>
-				<th>Act.<br />(Hour)</th>
-				<th>Owner</th>
-				<th ng-show="ShowIterationField">Iteration</th>
-				<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
-				<th ng-show="ShowRejectField" ng-if="!QueryForOpenDefect" >Reject</th>
-				<th ng-show="ShowEverFailedField" ng-if="!QueryForOpenDefect">Ever Failed</th>
-				<!--<th ng-if="!QueryForOpenDefect'" data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>-->
-				<th class="col-3" width="10%">
-					<div class="input-group">
-						<input type="checkbox" ng-model="IfSaveOtherInfo2Local" />
-						&nbsp;
-						<label class="btn btn-default btn-sm h-50" ng-click="saveOtherInfo2Local()" datatoggle="tooltip" data-html="true" title="Save comments into the browser local storage">S</label>
-						<label class="btn btn-default btn-sm h-50" ng-click="exportOtherInfoFromLocal()" datatoggle="tooltip" data-html="true" title="Export comments to another machine">E</label>
-						<label class="btn btn-default btn-sm h-50" ng-click="importOtherInfo2Local()" datatoggle="tooltip" data-html="true" title="Import comments to this machine">I</label>
-						<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label" />
+		<div ng-show="InQuerying" id="busy"></div>
+		<div class="container-fluid">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div id="PoppedMsg" class="row alert alert-warning alert-dismissable pull-right" ng-show="ErrorMsg !== ''">
+						<a href="#" class="close" aria-label="close" ng-click="$event.preventDefault();clearError()">&times;</a>
+						<strong>{{ErrorMsg}}</strong>
 					</div>
-				</th>
-				<th ng-show="ShowBlockReasonField" width="10%">BlockedReason</th>
-			</tr>
-			</thead>
-			<tbody>
-			<!-- TODO: special color for the fake task? -->
-			<tr ng-repeat="task in TaskList | orderBy:OrderByValue |filter: scheduleStateFilter as filteredRecords"
-			    ng-style="{ 'textDecoration' : (task.Rejected || task.Duplicate || task.Postpone) ? 'line-through' : 'none'
+					<div class="row">
+						<div class="col-md-6"><rally-login></rally-login></div>
+						<span class="col-md-5 text-right alert alert-warning" ng-show="taskForm.owner.$error.email">
+							The email address is invalid
+						</span>
+						<div class="col-md-1 pull-right">
+							<button class="btn btn-warning"
+									data-toggle="tooltip"
+									title="Clear cache from this machine"
+									ng-click="clearCache()">
+								Clear Cache
+							</button>
+						</div>
+
+					</div>
+					<p></p>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="input-group">
+								<span class="input-group-addon">Owner</span>
+								<input class="form-control"
+									   type="email"
+									   id="owner"
+									   name="owner"
+									   list="emailOptions"
+									   ng-model="Owner"
+									   required
+									   placeholder="Enter owner's ADO account here" />
+								<datalist id="emailOptions">
+									<option ng-repeat="email in EmailList | orderBy: email" value={{email}}></option>
+								</datalist>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="input-group">
+								<span class="input-group-addon"
+									  data-toggle="tooltip"
+									  data-placement="top"
+									  title="0 means get all tasks after 2020-01-01; >0 means just get the tasks belong to the specified sprint; -1 means get the unscheduled tasks">
+									Sprint
+								</span>
+								<input class="form-control"
+									   type="number" min="-1" max="999"
+									   id="sprint"
+									   name="sprint"
+									   ng-model="Sprint"
+									   required
+									   placeholder="Enter target sprint" />
+							</div>
+						</div>
+						<div draggable="true" class="col-md-4 pull-right">
+							<div class="input-group">
+								<span class="input-group-btn">
+									<button class="btn btn-md btn-block btn-default"
+											id="btnRefresh"
+											ng-disabled="InQuerying"
+											ng-click="refreshTaskList()"
+											data-toggle="tooltip"
+											data-placement="top"
+											title="Get tasks belongs to the [Owner] of the specified [Sprint]">
+										Refresh Task List
+									</button>
+								</span>
+								<span class="input-group-btn">
+									<button class="btn btn-md btn-block btn-default"
+											id="btnRefreshAll"
+											ng-disabled="InQuerying"
+											ng-click="refreshAll()"
+											data-toggle="tooltip"
+											data-placement="top"
+											title="Get all tasks of all person according to the specified [Sprint]">
+										Get All
+									</button>
+								</span>
+								<span class="input-group-btn dropdown" data-toggle="tooltip" title="Get all open defects">
+									<button class="btn btn-default dropdown-toggle"
+											type="button"
+											id="openDefectsButton"
+											ng-disabled="InQuerying"
+											data-toggle="dropdown"
+											aria-haspopup="true"
+											aria-expanded="false">
+										Open Defect
+										<span class="caret"></span>
+									</button>>
+
+									<ul class="dropdown-menu" aria-labelledby="openDefectsButton">
+										<li><a class="dropdown-item" href="#" ng-click="getOpenDefects(CurrentRelease)">{{CurrentRelease}}</a></li>
+										<li><a class="dropdown-item" href="#" ng-click="getOpenDefects(SecondRelease)">{{SecondRelease}}</a></li>
+									</ul>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			<div class="panel-body">
+			<div class="row">
+				<div class="col-md-4">
+					<h4 class="text-primary">
+						<b>Query Results</b>
+						[{{filteredRecords.length}} / {{TaskList.length}}]
+						<span style="font-size:15px">{{getWorkload(filteredRecords)}}</span>
+					</h4>
+				</div>
+				<div class="col-md-8">
+					<div class="pull-right">
+						<labeled-checkbox ng-hide="!QueryForOpenDefect" class="btn-info" uid="unassigned" label="Unassigned Only" ng-model="ShowUnassignedOnly" action="resetWorkloadStat()" title="Show unassigned only"></labeled-checkbox>
+						<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-default" uid="other" label="Other" ng-model="ShowOthers" action="resetWorkloadStat()"></labeled-checkbox>
+						<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-info" uid="secondRelease" label="{{SecondRelease}}" ng-model="Show2ndRelease" action="resetWorkloadStat()"></labeled-checkbox>
+						<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-primary" uid="CurrentRelease" label="{{CurrentRelease}}" ng-model="ShowCurrentRelease" action="resetWorkloadStat()"></labeled-checkbox>
+						<labeled-checkbox class="btn-warning" uid="SDC" label="SDC Only" shortlabel="{{QueryForOpenDefect ? 'SDC Only' : 'SDC'}}" ng-model="SDCOnly" action="resetWorkloadStat()" title="Show tasks owned by SDC only"></labeled-checkbox>
+						<labeled-checkbox class="btn-success" uid="CurrentTeam" label="{{CurrentTeamShortName}} Only" shortlabel="{{QueryForOpenDefect ? CurrentTeamShortName + ' Only' : CurrentTeamShortName}}" ng-model="CurrentTeamOnly" action="resetWorkloadStat()" title="Show team {{CurrentTeamShortName}} task only"></labeled-checkbox>
+						<labeled-checkbox class="btn-default" uid="FakeTask" label="Sub Task" shortlabel="{{QueryForOpenDefect ? 'Sub Task' : 'Task'}}" ng-model="ShowFakeTask" action="resetWorkloadStat()" title="Show sub tasks if has one more owner for a task"></labeled-checkbox>
+						<span>
+							<select class="btn btn-primary" ng-model="DeOrUs" ng-change="resetWorkloadStat()">
+								<option>ALL</option>
+								<option>DE Only</option>
+								<option>US Only</option>
+							</select>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-3">
+					<div class="input-group">
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-primary" style="width:auto"
+							        data-toggle="tooltip"
+							        data-placement="right"
+							        title="Enable HTML format Tooltip"
+							        ng-click="enableHtmlFormatTooltip()">
+								Tooltip
+							</button>
+						</span>
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-primary" style="width:auto"
+							        data-toggle="tooltip"
+							        data-placement="right"
+							        title="Export data to Clipboard"
+							        ng-click="export()">
+								Clipboard
+							</button>
+						</span>
+						<div class="dropup">
+							<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+								Show/Hide <span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+								<li class="dropdown-header">Show/hide following fields:</li>
+								<li>
+									<div class="checkbox">
+										<label>
+											<input type="checkbox" ng-model="ShowProductField" />Product
+										</label>
+									</div>
+								</li>
+								<li>
+									<div class="checkbox">
+										<label>
+											<input type="checkbox" ng-model="ShowIterationField" />Iteration
+										</label>
+									</div>
+								</li>
+								<li>
+									<div class="checkbox">
+										<label>
+											<input type="checkbox" ng-model="ShowRejectField" />Reject
+										</label>
+									</div>
+								</li>
+								<li>
+									<div class="checkbox">
+										<label>
+											<input type="checkbox" ng-model="ShowEverFailedField" />Ever Failed
+										</label>
+									</div>
+								</li>
+								<li>
+									<div class="checkbox">
+										<label>
+											<input type="checkbox" ng-model="ShowBlockReasonField" />Block Reason
+										</label>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<span class="input-group-addon">Order By:</span>
+						<select class="btn btn-default"
+						        ng-model="OrderByOptionIndex"
+						        ng-options="item.value as item.name for item in OrderByOptions"
+						        ng-change="orderChanged()">
+						</select>
+					</div>
+				</div>
+				<div class="col-md-9">
+					<div class="pull-right">
+						<labeled-checkbox class="btn-default" uid="indefine" label="New" shortlabel="{{QueryForOpenDefect ? 'New' : 'ID'}}" ng-model="ShowNew" action="resetWorkloadStat()" title="New"></labeled-checkbox>
+						<labeled-checkbox class="btn-info" uid="defined" label="Assigned" shortlabel="{{QueryForOpenDefect ? 'Assigned' : 'D'}}" ng-model="ShowAssigned" action="resetWorkloadStat()" title="Defined"></labeled-checkbox>
+						<labeled-checkbox class="btn-primary" uid="wip" label="In-Progress" shortlabel="{{QueryForOpenDefect ? 'In-Progress' : 'P'}}" ng-model="ShowWIP" action="resetWorkloadStat()" title="In-Progress"></labeled-checkbox>
+						<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-warning" uid="completed" label="Resolved" shortlabel="C" ng-model="ShowResolved" action="resetWorkloadStat()" title="Resolved"></labeled-checkbox>
+						<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-success" uid="accepted" label="Closed" shortlabel="A" ng-model="ShowClosed" action="resetWorkloadStat()" title="Closed"></labeled-checkbox>
+						<labeled-checkbox class="btn-default" uid="rejected" label="Reject/Postpone" ng-model="ShowRejectedDefects" action="resetWorkloadStat()" title="If to show tasks that mark as Rejected/Reject Requested/Postponed/Postpone Requested/Duplicate"></labeled-checkbox>
+						<labeled-checkbox ng-hide="QueryForOpenDefect" class="btn-danger" uid="failed" label="Invalid Only" ng-model="ShowInvalidItemOnly" action="resetWorkloadStat()" title="Show verify failed tasks only"></labeled-checkbox>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<table class="table table-hover table-bordered table-responsive" border="1" id="result">
+					<thead>
+					<tr>
+						<th>#</th>
+						<th data-toggle="tooltip" title="Highlight in bold means was changed today">ID</th>
+						<th data-toggle="tooltip">Description</th>
+						<th>Priority</th>
+						<th ng-show="ShowProductField" width="5%">Product</th>
+						<th>Est.<br />(Day)</th>
+						<th>Act.<br />(Hour)</th>
+						<th>Owner</th>
+						<th ng-show="ShowIterationField">Iteration</th>
+						<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
+						<th ng-show="ShowRejectField" ng-if="!QueryForOpenDefect">Reject</th>
+						<th ng-show="ShowEverFailedField" ng-if="!QueryForOpenDefect">Ever Failed</th>
+						<!--<th ng-if="!QueryForOpenDefect'" data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>-->
+						<th class="col-3" width="10%">
+							<div class="input-group">
+								<input type="checkbox" ng-model="IfSaveOtherInfo2Local" />
+								&nbsp;
+								<label class="btn btn-default btn-sm h-50" ng-click="saveOtherInfo2Local()" datatoggle="tooltip" data-html="true" title="Save comments into the browser local storage">S</label>
+								<label class="btn btn-default btn-sm h-50" ng-click="exportOtherInfoFromLocal()" datatoggle="tooltip" data-html="true" title="Export comments to another machine">E</label>
+								<label class="btn btn-default btn-sm h-50" ng-click="importOtherInfo2Local()" datatoggle="tooltip" data-html="true" title="Import comments to this machine">I</label>
+								<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="OtherInfoLabel" placeholder="Custom Label" />
+							</div>
+						</th>
+						<th ng-show="ShowBlockReasonField" width="10%">BlockedReason</th>
+					</tr>
+					</thead>
+					<tbody>
+					<!-- TODO: special color for the fake task? -->
+					<tr ng-repeat="task in TaskList | orderBy:OrderByValue |filter: scheduleStateFilter as filteredRecords"
+					    ng-style="{ 'textDecoration' : (task.Rejected || task.Duplicate || task.Postpone) ? 'line-through' : 'none'
 												, 'fontStyle' : task.Testable ? 'normal' : 'italic'
 												, 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray'))
 												, 'fontSize': task.FakeTask ? '80%' : '100%'
 											}">
-				<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
-				<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday == true) ? 'bold' : 'normal' }">{{task.Id}}</div></td>
-				<td>
-					<b ng-show="task.Blocked === 'Yes'" data-toggle="tooltip" data-html="true" title="<i><b>Blocked with the reason:</b><br>{{task.CSH_BlockedReason}}</i>"><font color="red">[Blocked]</font></b>
-					<b ng-show="task.Requirement == '' && task.Feature == ''" data-toggle="tooltip" data-html="true" title="<i>It should be associated with a feature or user story</i>"><font color="red">[No Parent]</font></b>
-					<b ng-show="task.Duplicate" data-toggle="tooltip" data-html="true" title="<i>Duplicate with another defect</i>"><font color="black">[Duplicate]</font></b>
-					<b ng-show="task.AcMissed" data-toggle="tooltip" data-html="true" title="<i>Acceptance Criteria MUST be specified</i>"><font color="red">[AC Missed]</font></b>
-					<b ng-show="task.RequiredFieldMissed" data-toggle="tooltip" data-html="true" title="<i>ALL required fields must be filled before completing a defect</i>"><font color="red">[Required Field Missed]</font></b>
-					<b ng-show="task.WrongOwner" data-toggle="tooltip" data-html="true" title="<i>No need to assign a Completed US to QA.<br>And should assign defect back to developer after it get accepted.</i>"><font color="red">[Wrong Owner]</font></b>
-					<b ng-show="task.WorkingHoursMissed" data-toggle="tooltip" data-html="true" title="<i>No working hours entered.</i>"><font color="red">[Working Hours Missed]</font></b>
-					<a href='{{task.Link}}' target="_blank"
-					   data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "1000" }'>
-						{{task.Title}}
-					</a>
-				</td>
+						<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
+						<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday == true) ? 'bold' : 'normal' }">{{task.Id}}</div></td>
+						<td>
+							<b ng-show="task.Blocked === 'Yes'" data-toggle="tooltip" data-html="true" title="<i><b>Blocked with the reason:</b><br>{{task.CSH_BlockedReason}}</i>"><font color="red">[Blocked]</font></b>
+							<b ng-show="task.Requirement == '' && task.Feature == ''" data-toggle="tooltip" data-html="true" title="<i>It should be associated with a feature or user story</i>"><font color="red">[No Parent]</font></b>
+							<b ng-show="task.Duplicate" data-toggle="tooltip" data-html="true" title="<i>Duplicate with another defect</i>"><font color="black">[Duplicate]</font></b>
+							<b ng-show="task.AcMissed" data-toggle="tooltip" data-html="true" title="<i>Acceptance Criteria MUST be specified</i>"><font color="red">[AC Missed]</font></b>
+							<b ng-show="task.RequiredFieldMissed" data-toggle="tooltip" data-html="true" title="<i>ALL required fields must be filled before completing a defect</i>"><font color="red">[Required Field Missed]</font></b>
+							<b ng-show="task.WrongOwner" data-toggle="tooltip" data-html="true" title="<i>No need to assign a Completed US to QA.<br>And should assign defect back to developer after it get accepted.</i>"><font color="red">[Wrong Owner]</font></b>
+							<b ng-show="task.WorkingHoursMissed" data-toggle="tooltip" data-html="true" title="<i>No working hours entered.</i>"><font color="red">[Working Hours Missed]</font></b>
+							<a href='{{task.Link}}' target="_blank"
+							   data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "1000" }'>
+								{{task.Title}}
+							</a>
+						</td>
 
-				<td align="center">{{task.Priority}}</td>
-				<td ng-show="ShowProductField" align="center" width="5%">{{task.CSH_FoundInProduct}}</td>
-				<td align="right">{{task.StoryPoints}}</td>
-				<td align="right">{{task.StoryPoints}}</td>
-				<td align="center">{{task.Owner}}</td>
-				<td ng-show="ShowIterationField" align="center">{{task.Iteration}}</td>
-				<td align="center">
-					<a href="{{task.Link}}" target="_blank" ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">
-						{{task.State}}
-					</a>
-				</td>
-				<td ng-show="ShowRejectField" ng-if="!QueryForOpenDefect" align="center">{{task.Rejected ? 'Y' : ''}}</td>
-				<td ng-show="ShowEverFailedField" ng-if="!QueryForOpenDefect" align="center">
-					<div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div>
-				</td>
-				<td ng-if="!QueryForOpenDefect" align="center">
-					<div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div>
-				</td>
-				<td class="col-3" width="10%">
-					<textarea style="word-break:break-all" class="form-control" ng-model="task.Other"></textarea>
-				</td>
-				<td ng-show="ShowBlockReasonField" width="10%">{{task.CSH_BlockedReason}}</td>
-			</tr>
-			</tbody>
-		</table>
-	</div>
-	<div class="row"></div>
-	<div class="row" ng-if="checkStatPermission()">
-		<div class="col-md-2">
-			<button class="btn btn-block" ng-click="collectWorkloadStatData()">Workload Summary</button>
+						<td align="center">{{task.Priority}}</td>
+						<td ng-show="ShowProductField" align="center" width="5%">{{task.CSH_FoundInProduct}}</td>
+						<td align="right">{{task.StoryPoints}}</td>
+						<td align="right">{{task.StoryPoints}}</td>
+						<td align="center">{{task.Owner}}</td>
+						<td ng-show="ShowIterationField" align="center">{{task.Iteration}}</td>
+						<td align="center">
+							<a href="{{task.Link}}" target="_blank" ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">
+								{{task.State}}
+							</a>
+						</td>
+						<td ng-show="ShowRejectField" ng-if="!QueryForOpenDefect" align="center">{{task.Rejected ? 'Y' : ''}}</td>
+						<td ng-show="ShowEverFailedField" ng-if="!QueryForOpenDefect" align="center">
+							<div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div>
+						</td>
+						<td ng-if="!QueryForOpenDefect" align="center">
+							<div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div>
+						</td>
+						<td class="col-3" width="10%">
+							<textarea style="word-break:break-all" class="form-control" ng-model="task.Other"></textarea>
+						</td>
+						<td ng-show="ShowBlockReasonField" width="10%">{{task.CSH_BlockedReason}}</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+				
+			<div class="row"></div>
+			<!-- Summary of developer's story points per the current filter' -->
+			<table-and-chart
+				uid="WorkloadSummaryTableChart"
+				label="Workload Summary"
+				headers="['Name', 'Count', 'Story Points']"
+				columns="['Owner', 'Count', 'Points']"
+				source-data="workloadStat.Workload"
+				chart-data="workloadStat"
+				action="collectWorkloadStatData()"
+				title="Working hours statistics by ownes">
+			</table-and-chart>
+			<!-- End -->
+
+			<!-- Summary of developer's working hour by the sub task' -->
+			<div class="row"></div>
+			<table-and-chart
+				uid="workingHoursStatOwnerTableChart"
+				label="Working hours statistics by owner:"
+				headers="['Name', 'Completed Hours', 'Task Count']"
+				columns="['Owner', 'CompletedWork', 'Count']"
+				source-data="workingHoursStatOwner.Workload"
+				chart-data="workingHoursStatOwner"
+				action="calcWorkingHours()"
+				title="Working hours statistics by ownes">
+			</table-and-chart>
+
+			<!-- Summary of team's working hour by the sub task' -->
+			<div class="row"></div>
+			<table-and-chart
+				uid="workingHoursStatTeamTableChart"
+				label="Working hours statistics by team:"
+				headers="['Team', 'Completed Hours', 'Task Count']"
+				columns="['Team', 'CompletedWork', 'Count']"
+				source-data="workingHoursStatTeam.Workload"
+				chart-data="workingHoursStatTeam"
+				action="calcWorkingHours()"
+				title="Working hours statistics by tea">
+			</table-and-chart>
+			<!-- End -->
+			
+			<!-- CPE data statistics -->
+			<div class="row"></div>
+			<table-and-chart
+				uid="CPEStatisticsByCatalog"
+				label="CPE statistics by catalog"
+				headers="['Catalog', 'Count']"
+				columns="['catalog', 'Count']"
+				source-data="cpeCatalogStat.Workload"
+				chart-data="cpeCatalogStat"
+				action="getCpeStatistics()"
+				title="Gets CPE statistics">
+			</table-and-chart>
+			<!-- End-->
+			</div>
+			</div>
 		</div>
-	</div>
-	<div class="row" ng-if="checkStatPermission()">
-		<div class="col-md-4">
-			<table class="table table-hover table-bordered table-responsive" border="1">
-				<thead>
-				<tr>
-					<th>#</th>
-					<th>Name</th>
-					<th>Count</th>
-					<th>Est. Days</th>
-					<th>Act. Hours</th>
-				</tr>
-				</thead>
-				<tbody>
-				<tr ng-repeat="data in workloadStat.WorkLoad ">
-					<td align="center">{{$index + 1}}</td>
-					<td>{{data.Owner}}</td>
-					<td align="center">{{data.Count}}</td>
-					<td align="right">{{data.Days}}</td>
-					<td align="right">{{data.Hours}}</td>
-				</tr>
-				</tbody>
-			</table>
-		</div>
-		<div class="col-md-8">
-			<canvas class="chart chart-bar"
-			        height="{{workloadStat.ChartHeight}}"
-			        chart-data="workloadStat.ChartData"
-			        chart-labels="workloadStat.ChartLabels"
-			        chart-series="workloadStat.ChartSeries"
-			        chart-options="workloadStat.ChartOptions"></canvas>
-		</div>
-	</div>
-	</div>
-	</div>
-	</div>
-	
-	<!-- Modal for changing the project team -->
-	<div class="modal fade" id="selectProjectTeamModal" tabindex="-1" role="dialog" aria-labelledby="selectProjectTeamTitle" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<span class="modal-title" id="selectProjectTeamTitle">Choose a project team</span>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<div class="row">
-						<div class="input-group">
-							<span class="input-group-addon">Project Team</span>
-							<select class="btn btn-default" ng-model="CurrentTeam", ng-options="team for team in ProjectTeamList" ng-change="projectTeamChanged(CurrentTeam)"></select>
+
+		<!-- Modal for changing the project team -->
+		<div class="modal fade" id="selectProjectTeamModal" tabindex="-1" role="dialog" aria-labelledby="selectProjectTeamTitle" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<span class="modal-title" id="selectProjectTeamTitle">Choose a project team</span>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<div class="input-group">
+								<span class="input-group-addon">Project Team</span>
+								<select class="btn btn-default" ng-model="CurrentTeam" , ng-options="team for team in ProjectTeamList" ng-change="projectTeamChanged(CurrentTeam)"></select>
+							</div>
+						</div>
+						<div class="row">
+							<div class="input-group">
+								<span class="input-group-addon">Short Name</span>
+								<input type="form-control" ng-model="CurrentTeamShortName" />
+							</div>
 						</div>
 					</div>
-					<div class="row">
-						<div class="input-group">
-							<span class="input-group-addon">Short Name</span>
-							<input type="form-control" ng-model="CurrentTeamShortName"/>
-						</div>
+					<div class="modal-footer">
+						<label class="pull-left"><b>Note:</b>Need to reload page after the change!</label>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveCurrentProjectTeamToLocalStorage()">Save</button>
 					</div>
-				</div>
-				<div class="modal-footer">
-					<label class="pull-left"><b>Note:</b>Need to reload page after the change!</label>
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="saveCurrentProjectTeamToLocalStorage()">Save</button>
 				</div>
 			</div>
 		</div>
-	</div>
 	</form>
 </body>
 </html>

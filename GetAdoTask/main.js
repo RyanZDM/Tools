@@ -35,6 +35,7 @@ require(["services/adoAuthService"]);
 require(["services/adoQueryService"]);
 require(["directives/adoLoginDirective"]);
 require(["directives/labeledCheckboxDirective"]);
+require(["directives/tableAndChartDirective"]);
 require(["controllers/adoTaskController"]);
 
 /* If need to do some extra initialization when loaded the lib

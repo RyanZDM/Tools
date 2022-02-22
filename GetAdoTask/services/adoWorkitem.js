@@ -16,6 +16,8 @@ function adoWorkItem(restApi, jsonObj) {
 
 	if (this.AssignedTo) {
 		this.Owner = this.AssignedTo.displayName;
+	} else {
+		this.Owner = "Unassigned";
 	}
 
 	// System.IterationPath	string
@@ -23,6 +25,8 @@ function adoWorkItem(restApi, jsonObj) {
 	if (this["IterationPath"]) {
 		var sprint = this["IterationPath"].split(" ").pop();
 		this.Iteration = parseInt(sprint, 10);
+	} else {
+		this.Iteration = -1;
 	}
 
 	// Testable flag
@@ -123,6 +127,40 @@ function adoWorkItem(restApi, jsonObj) {
 		return newTask;
 	};
 
+	function getCpeInfo(wit) {
+		//var text =
+		//	"<div>submit time=&quot;2022-01-13 16:03&quot;;first reply time=&quot;2022-01-20 15:20&quot;;complete time=&quot;&quot;;catalog=&quot;Techniques&quot;;close reason=&quot;&quot;;modality=&quot;EVO&quot;; </div>";
+		
+		//submit time="2022-01-13 16:03";first reply time="2022-01-20 15:20";complete time="";catalog="Techniques";close reason="";modality="EVO";
+		if (wit.CPEInfo) {
+				_.extend(wit.CPEInfo, { catalog: "" });
+		} else {
+			wit.CPEInfo = { catalog: "" };
+		}
+		
+		if (!wit.CSH_Notes || wit.CSH_Notes.trim() === "") return;
+
+		var cpeInfo = html2PlainText(wit.CSH_Notes).trim().replaceAll(";;", ";");
+		if (cpeInfo.indexOf("=") === -1) return;
+		if (cpeInfo.toLowerCase().indexOf("catalog") === -1) return;
+
+		if (cpeInfo.endsWith(";")) {
+			// Remove last ";"
+			cpeInfo = cpeInfo.substr(0, cpeInfo.length - 1);
+		}
+
+		var cpeInfoDict = {};
+		var infoList = cpeInfo.split(";");
+		for (var index in infoList) {
+			if (infoList[index].length > 0) {
+				var dict = infoList[index].split("=");
+				cpeInfoDict[dict[0].toLowerCase()] = dict[1];
+			}
+		}
+		
+		_.extend(wit.CPEInfo, cpeInfoDict);
+	}
+
 	function copyFields(src, dest) {
 		if (!src) return null;
 		if (!dest) return src;
@@ -203,7 +241,39 @@ function adoWorkItem(restApi, jsonObj) {
 		}
 	}
 
+	function html2PlainText(html) {
+		if (!html) return "";
+
+		var keywords = [['&quot;', '']
+						,['\t', ' ']
+						,['\r\n', ' ']
+						,['\n', ' ']
+						,['&nbsp;', ' ']
+						,['&lt;', '<']
+						,['&gt;', '>']
+						];
+
+		html = html.replace(/<[^>]*>/g, "");
+
+		for (var index in keywords)
+		{
+			html = html.replaceAll(keywords[index][0], keywords[index][1]);
+		}
+
+		while (html.indexOf("  ") !== -1) {
+			html = html.replaceAll("  ", " ");
+		}
+
+		return html;	
+	}
+
 	(function (that) {
+		if (that.WorkItemType === "Task") return;
+		
+		if (that["AreaPath"] && that["AreaPath"].indexOf("CPE") !== -1) {
+			getCpeInfo(that);
+		}
+		
 		checkRequiredFields(that);
 	})(this);
 }

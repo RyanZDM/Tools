@@ -24,6 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "directives", "directives", 
 	ProjectSection(SolutionItems) = preProject
 		directives\adoLoginDirective.js = directives\adoLoginDirective.js
 		directives\labeledCheckboxDirective.js = directives\labeledCheckboxDirective.js
+		directives\tableAndChartDirective.js = directives\tableAndChartDirective.js
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{AA64C870-D4CA-485A-A848-73D3FD3BDD43}"

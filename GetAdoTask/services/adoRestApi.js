@@ -1,13 +1,42 @@
 "use strict";
 
 define(["app"], function (app) {
-	app.service("adoRestApi", ["currentSettings", function (currentSettings) {
-		var organization = "cshdevops";
+	app.service("adoRestApi", ["currentSettings", function (currentSettings) {		
 		var project = "software";
+		var URL = "https://dev.azure.com/cshdevops/";
+		var urlWiql = URL + "software/_apis/wit/wiql?api-version=6.0";
+		var urlWiqlDetail = urlWiql.replace("wiql", "workitemsbatch");
+
+		var templateWiqlTaskAndParent =
+			"Select [System.Id],[System.State],[Source].[System.AssignedTo],[Microsoft.VSTS.Scheduling.OriginalEstimate],[Microsoft.VSTS.Scheduling.CompletedWork] \
+																From workitemLinks Where \
+																(\
+																	AND [Source].[System.WorkItemType] IN ('User Story', 'Bug') \
+																	{otherConditions}\
+																) \
+																AND (\
+																	[System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward'\
+																) \
+																AND (\
+																	[Target].[System.TeamProject] = '{project}' AND [Target].[System.WorkItemType] = 'Task'\
+																) \
+																MODE (MustContain)\
+															";
 		
+		var templateWiqlCalculateTaskSpentHours =
+			"Select [System.Id],[System.State],[System.AssignedTo],[Microsoft.VSTS.Scheduling.OriginalEstimate],[Microsoft.VSTS.Scheduling.CompletedWork] \
+																From workitems ";
+																	//[System.WorkItemType] = 'Task' ";
+
+		var wiqlCpeStat = "Select [System.Id],[System.State],[System.WorkItemType],[Custom.CSH_Notes],[Microsoft.VSTS.Common.Priority],[Custom.CSH_ProductFamily],[System.AreaPath]\
+							From workitems Where\
+							[System.WorkItemType] = 'User Story' \
+							AND [System.AreaPath] = 'Software\\CPE' \
+							AND [System.Title] CONTAINS '[' ";		// the title always contains [xxx] for an escalation issue us
+
 		function formatQuery(url) {
-			return url.replace("{org}", organization)
-						.replace("{project}", project);
+			return url.replace(/\{project\}/g, project)
+						.replace(/\t/g, "");
 		}
 
 		// Add new object if new added a release, refer to "Maelstrom" about how to...
@@ -38,6 +67,16 @@ define(["app"], function (app) {
 					process: function(list) {
 						return list;
 					}
+				},
+				{
+					Name: "CPE",
+					Parameters: { Release: "CPE:Xxx" },
+					inScope: function(release) {
+						return /\CPE:/i.test(release);
+					},
+					process: function(list) {
+						return list;
+					}
 				}
 			];
 		};
@@ -57,53 +96,98 @@ define(["app"], function (app) {
 			return null;
 		};
 
+		/**
+		 * Gets the URL by parameters for querying the ADO tasks
+		 * @param {any} parameters	Query parameters
+		 * @return The URL and WIQL string for a POST query
+		 */
 		function getWitUrl(parameters) {
 			var selectClause = "Select [System.Id] From workitems Where ";
-			var conditions = [];
+			
+			var whereClause = generateWhereClause(parameters);
 
+			var wiql = selectClause + whereClause;
+			return { url:urlWiql, wiql: wiql };
+		};
+		
+		function generateWhereClause(parameters, columnPrefix) {
+			if (!columnPrefix) { columnPrefix = ""; }
+			
+			var conditions = [];
 			if (parameters.States) {
 				var states = [].concat(parameters.States).join("','");
 				if (states.length !== "") {
-					var conditionState = "[System.State] IN ('<states>')".replace("<states>", states);
+					var conditionState = "<prefix>[System.State] IN ('<states>')".replace("<prefix>", columnPrefix).replace("<states>", states);
 					conditions.push(conditionState);
 				}
 			}
 
 			if (parameters.WitType && parameters.WitType.length > 0) {
 				var types = [].concat(parameters.WitType).join("','");
-				var conditionWit = "[System.WorkItemType] IN ('<types>')".replace("<types>", types);
+				var conditionWit = "<prefix>[System.WorkItemType] IN ('<types>')".replace("<prefix>", columnPrefix).replace("<types>", types);
 				conditions.push(conditionWit);
 			} else {
-				conditions.push("[System.WorkItemType] IN ('User Story', 'Bug')");	// default value
+				conditions.push("<prefix>[System.WorkItemType] IN ('User Story', 'Bug')".replace("<prefix>", columnPrefix));	// default value
 			}
 
-			if (parameters.owners) {
-				var owners = [].concat(parameters.owners).join("','");
+			if (parameters.Owners) {
+				var owners = [].concat(parameters.Owners).join("','");
 				if (owners !== "") {
-					var conditionOwner = "[System.AssignedTo] IN ('<owners>')".replace("<owners>", owners);
+					var conditionOwner = "<prefix>[System.AssignedTo] IN ('<owners>')".replace("<prefix>", columnPrefix).replace("<owners>", owners);
 					conditions.push(conditionOwner);
 				}
 			}
 
 			if (parameters.Sprint) {
-				var iteration = "Software\Sprint " + parameters.Sprint;
-				var conditionIteration = "[System.IterationPath] = 'Software\\Sprint <sprint>'".replace("<sprint>", parameters.Sprint);
+				var conditionIteration = "<prefix>[System.IterationPath] = 'Software\\Sprint <sprint>'".replace("<prefix>", columnPrefix).replace("<sprint>", parameters.Sprint);
 				conditions.push(conditionIteration);
 			}
 
-			if (parameters.Team && parameters.Team !== "") {
-				var conditionTeam = "[System.AreaPath] = '<team>'".replace("<team>", parameters.Team);
-				conditions.push(conditionTeam);
+			if (parameters.Teams) {
+				var teams = [].concat(parameters.Teams);
+				if (teams.length > 0) {
+					teams = teams.map(function(team) {
+						return "Software\\Console\\Team " + team;
+					});
+					var teamString = teams.join("','");
+					var conditionArea = "<prefix>[System.AreaPath] In ('<team>') ".replace("<prefix>", columnPrefix).replace("<team>", teamString);
+					conditions.push(conditionArea);
+				}
 			}
 
-			if (parameters.Release && parameters.relatedAddress !== "") {
-				var conditionRelease = "[Custom.CSH_Release] = '<release>'".replace(parameters.Release);
+			if (parameters.Release && parameters.Release !== "") {
+				var conditionRelease = "<prefix>[Custom.CSH_Release] = '<release>'".replace("<prefix>", columnPrefix).replace(parameters.Release);
 				conditions.push(conditionRelease);
 			}
-
-			var wiql = selectClause + conditions.join(" AND ");
-			return { url:formatQuery("https://dev.azure.com/{org}/{project}/_apis/wit/wiql?api-version=6.0"), wiql: wiql };
+			
+			return conditions.join(" AND ");
 		};
+
+		function getTaskAndParentUrl(parameters) {
+			var wiql = formatQuery(templateWiqlTaskAndParent);
+
+			var whereClause = generateWhereClause(parameters, "[Source].");
+			if (whereClause.length > 0) {
+				whereClause = " AND " + whereClause;
+			}
+			wiql = wiql.replace("{otherConditions}", whereClause);
+
+			return wiql;
+		}
+
+		function getTaskSpentTimeUrl(parameters) {
+			var wiql = formatQuery(templateWiqlCalculateTaskSpentHours);
+
+			var whereClause = generateWhereClause(parameters);
+			if (whereClause.length > 0) {
+				if (wiql.toLowerCase().indexOf("where") === -1) {
+					wiql = wiql + " WHERE " + whereClause;
+				} else {
+					wiql = wiql + " AND " + whereClause;
+				}
+			}
+			return wiql;
+		}
 
 		return {
 			MaxRecordsEveryQuery: 200,
@@ -112,47 +196,58 @@ define(["app"], function (app) {
 			// The id 278792303760ud means Software project in new workspace
 			CurrentWorkspace: "278792303760ud",
 
-
-			WitLink: formatQuery("https://dev.azure.com/{org}/{project}/_workitems/edit/"),
+			// The HTTP URL of a ADO task (Bug, US, Feature, Sub task)
+			WitLink: formatQuery("https://dev.azure.com/cshdevops/{project}/_workitems/edit/"),
 
 			// POST: Gets work item list via WIQL (only return id and url of work item)
-			TemplateWiqlQuery: formatQuery("https://dev.azure.com/{org}/{project}/_apis/wit/wiql?api-version=6.0"),
+			TemplateWiqlQuery: formatQuery(urlWiql),
 
 			// POST: Gets work item list via IDs (Maximum 200). Call this after called <templateWiqlUrl>
-			TemplateWitBatchQuery: formatQuery("https://dev.azure.com/{org}/{project}/_apis/wit/workitemsbatch?api-version=6.0"),
+			TemplateWitBatchQuery: formatQuery(urlWiqlDetail),
 
 			// GET: Gets a bunche of work items via IDs. Call this after called <templateWiqlUrl>
-			TemplateWitsQuery: formatQuery("https://dev.azure.com/{org}/{project}/_apis/wit/workitems?ids={ids}&fields={fields}&api-version=6.0"),
+			TemplateWitsQuery: formatQuery(URL + "{project}/_apis/wit/workitems?ids={ids}&fields={fields}&api-version=6.0"),
 
 			// GET: Gets detail of a bug, user story or feature
-			TemplateWitQuery: formatQuery("https://dev.azure.com/{org}/_apis/wit/workitems/{id}"),
+			TemplateWitQuery: formatQuery(URL + "_apis/wit/workitems/{id}"),
 
-			TemplateWiqlFeatureList: formatQuery("SELECT [System.Id] FROM workitems WHERE [System.WorkItemType] = 'Feature'"),
+			// WIQL for querying feature
+			TemplateWiqlFeatureList: formatQuery(
+				"SELECT [System.Id] FROM workitems WHERE [System.WorkItemType] = 'Feature'"),
 
+			TemplateWiqlCalculateTaskSpentHours: formatQuery(templateWiqlCalculateTaskSpentHours),
+			
+			WiqlCpeStatistics: formatQuery(wiqlCpeStat),
 
 			/**
 			 * @name			getWitUrl
 			 *
-			 * @description	Gets the actual url for getting work item (task, bug, us, feature) list from ADO with given parameters
+			 * @description	Gets the actual url for getting work item (task, bug, us, feature) list from ADO with given parameters{
 			 *
 			 * @return		Url used for Ajax call for getting work item list from ADO 
 			 */
 			getWitUrl: getWitUrl,
 			
 			/**
+			 * @name		getTaskSpentTimeUrl
+			 * @description Gets the url for getting all sub tasks and the spent hours
+			 */
+			getTaskSpentTimeUrl: getTaskSpentTimeUrl,
+
+			/**
 			 * @name getCurrentRelease
 			 * @description Gets the current release
 			 */
 			getCurrentRelease: function() {
 				var release = getReleaseEx(currentSettings.Release);
-				if (!release) { release = getRelease("Maelstrom") }
+				if (!release) { release = getReleaseEx("Maelstrom") }
 
 				return release;
 			},
 
 			getSecondRelease: function() {
 				var release = getReleaseEx(currentSettings.SecondRelease);
-				if (!release) { release = getRelease("Shangri-La") }
+				if (!release) { release = getReleaseEx("CPE") }
 
 				return release;
 			},

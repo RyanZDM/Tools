@@ -73,6 +73,16 @@ define(["app", "underscore", "jquery"],
 				$scope.OrderByValue = $scope.OrderByValues[0];
 				$scope.ProjectTeamList = ["Taiji", "Wudang", "Penglai", "Dunhuang"];
 
+				// Statistics data
+				$scope.workloadStat = {};
+
+				$scope.workingHoursStatOwner = { Workload: [], ChartData: [] };
+
+				$scope.workingHoursStatTeam = { Workload: [], ChartData: [] };
+
+				$scope.cpeCatalogStat = { CatalogData: [], ChartData: [] };
+				// Statistics end
+
 				// Re-enable the Tooltip since the filtered the tasks changed
 				$scope.$watch("filteredRecords", function () {
 					$scope.enableHtmlFormatTooltip();
@@ -289,7 +299,7 @@ define(["app", "underscore", "jquery"],
 				$scope.refreshTaskList = function () {
 					$scope.QueryTypeString = " --- " + $scope.Owner + "'s ADO task in sprint " + $scope.Sprint + " @" + new Date().toLocaleTimeString();
 
-					var parameters = { Owners: $scope.Owner, Sprint: $scope.Sprint, Team: "Software\\Console\\Team Taiji" };
+					var parameters = { Owners: $scope.Owner, Sprint: $scope.Sprint, Teams: $scope.CurrentTeam };
 					getAdoTask(parameters);
 				};
 
@@ -300,7 +310,7 @@ define(["app", "underscore", "jquery"],
 				$scope.refreshAll = function () {
 					$scope.QueryTypeString = " --- ADO task in sprint " + $scope.Sprint + " for ALL person @" + new Date().toLocaleTimeString();
 
-					var parameters = { Owners: "", Sprint: $scope.Sprint, Team: "Software\\Console\\Team Taiji" };
+					var parameters = { Owners: "", Sprint: $scope.Sprint, Teams: $scope.CurrentTeam };
 					getAdoTask(parameters);
 				};
 
@@ -342,12 +352,10 @@ define(["app", "underscore", "jquery"],
 							$scope.enableHtmlFormatTooltip();
 						});
 				}
-
-				$scope.test = 1;
 				
             	/**
 				 * @name	getAdoTask()
-				 * @description	Get the ADO task according to the specified parameters. Called by refreshTaskList() and refreshAll()
+				 * @description	Get the ADO task according to the specified parameters. Called by refreshTaskList() and refreshAll(). Call by others internally
 				 * @param	parameters	Options for querying the tasks from ADO.				 
 				 */
 				function getAdoTask(parameters) {
@@ -372,6 +380,35 @@ define(["app", "underscore", "jquery"],
 						});
 				};
 
+				$scope.getCpeStatistics = function() {
+					initChart($scope.cpeCatalogStat, ["Catalog", "Count"]);
+					$scope.cpeCatalogStat.CatalogData = [];
+
+					var token = adoAuthService.getAuthenticationToken();					
+					adoQueryService.getCpeStatistics({ Token: token })
+						.then(function(result) {
+								var catalogStat = utility.groupByMultiple(result, [function(ceil) {
+									return ceil.CPEInfo.catalog;
+								}], []);
+								
+								catalogStat = Object.keys(catalogStat)
+													.map(function(catalog) {
+														return { catalog: catalog, Count: catalogStat[catalog]._Count };
+													})
+													.sort(function(first, second) {
+														return second.Count - first.Count;
+													});
+								$scope.cpeCatalogStat.CatalogData = catalogStat;
+								refreshChart($scope.cpeCatalogStat, catalogStat, "catalog", ["Count"]);
+							},
+							function(error) {
+								reportError(error);
+							})
+						.then(function() {
+							$scope.$apply();
+						});
+				}
+
             	/**
 				 * @name	scheduleStateFilter()
 				 * @description	Schedule state filter
@@ -379,8 +416,6 @@ define(["app", "underscore", "jquery"],
 				 * @returns	false if do not want to show
 				 */
 				$scope.scheduleStateFilter = function (task) {
-					//return true;
-
 					if (!$scope.QueryForOpenDefect) {
 						if (!$scope.ShowFakeTask && task.FakeTask) return false;
 
@@ -455,6 +490,7 @@ define(["app", "underscore", "jquery"],
 				 * @returns	The accumulate result string.
 				 */
 				$scope.getWorkload = function (records) {
+					// TODO:
 					var result = "";
 					if (records && records.length > 0) {
 						var totalDays = 0, actualHours = 0;
@@ -470,9 +506,7 @@ define(["app", "underscore", "jquery"],
 					return result;
 				}
 
-				$scope.workloadStat = {};
-
-            	/**
+				/**
 				 * @name	collectWorkloadStatData
 				 * @description	Summarize the total estimation days, working hours and task count by engineer
 				 * @returns	True if the workload stat data is generated successfully. False if no data.
@@ -488,55 +522,53 @@ define(["app", "underscore", "jquery"],
 					};
 
 					// -- For chart display
-					$scope.workloadStat.ChartSeries = ["Est. Days", "Tasks Total"];
+					$scope.workloadStat.ChartSeries = ["Points", "Tasks Total"];
 					$scope.workloadStat.ChartOptions = [];
 
 					$scope.workloadStat.ChartLabels = [];
 					$scope.workloadStat.ChartData = [];
 					var count = [];
-					var days = [];
+					var points = [];
 					// --------------- End
 
 					if ($scope.filteredRecords.length > 0) {
 						var result = $scope.filteredRecords.reduce(function (total, task) {
-							var actuals = (task.Actuals) ? task.Actuals : 0;
+							var storyPoints = (task.StoryPoints) ? task.StoryPoints : 0;
 							if (!(task.Owner in total)) {
-								total[task.Owner] = { Days: task.Estimate, Hours: actuals, Count: 1 };
+								total[task.Owner] = { Points: storyPoints, Count: 1 };
 							} else {
-								total[task.Owner].Days += task.Estimate;
-								total[task.Owner].Hours += actuals;
+								total[task.Owner].Points += storyPoints;
 								total[task.Owner].Count += 1;
 							}
 
 							return total;
 						}, {});
 
-						var orderedData = [];
-						for (var owner in result) {
-							var found = result[owner];
-							orderedData.push({ Owner: owner, Count: found.Count, Days: found.Days, Hours: found.Hours });
-						}
+						var orderedData = _.map(Object.keys(result),
+							function(key) {
+								return { Owner: key, Points: result[key].Points, Count: result[key].Count }
+							});
 
-						// Order by Days and Count desc
+						// Order by Points, order by Count desc
 						orderedData.sort(function (a, b) {
-							if (a.Days > b.Days) {
+							if (a.Points > b.Points) {
 								return -1;
-							} else if (a.Days === b.Days) {
-								return (a.Count - b.Count);
+							} else if (a.Points === b.Points) {
+								return (b.Count - a.Count);
 							} else { return 1; }
 						});
 
-						$scope.workloadStat.WorkLoad = orderedData;
+						$scope.workloadStat.Workload = orderedData;
 
 						// For chart display
 						//$scope.workloadStat.ChartLabels = Object.keys(result);
 						_.each(orderedData, function (data) {
 							$scope.workloadStat.ChartLabels.push(data.Owner);
 							count.push(data.Count);
-							days.push(data.Days);
+							points.push(data.Points);
 						});
 
-						$scope.workloadStat.ChartData.push(days);
+						$scope.workloadStat.ChartData.push(points);
 						$scope.workloadStat.ChartData.push(count);
 						$scope.workloadStat.ChartHeight = $scope.workloadStat.ChartLabels.length * 10;
 					}
@@ -550,6 +582,72 @@ define(["app", "underscore", "jquery"],
 					$scope.workloadStat = {};
 				};
 
+				$scope.calcWorkingHours = function() {
+					// -- For chart display (owner)
+					initChart($scope.workingHoursStatOwner, ["Hours", "Tasks Total"]);
+					// -- For chart display (team)
+					initChart($scope.workingHoursStatTeam, ["Hours", "Tasks Total"]);
+
+					var token = adoAuthService.getAuthenticationToken();
+					var parameters = { WorkItemType:"Task", Sprint: $scope.Sprint, Teams: ["Taiji","Wudang", "Dunhuang"] };
+					adoQueryService.calculateTaskSpentTime(parameters, token).then(function(result) {
+							// For chart display (owner)
+							var groupByOwner = utility.groupByMultiple(result, ["Owner"], ["OriginalEstimate", "CompletedWork"]);
+							groupByOwner = Object.keys(groupByOwner).map(function(owner) {
+								var obj = groupByOwner[owner];
+								return { Owner: owner, CompletedWork: obj.CompletedWork, Count: obj._Count };
+							}).sort(function(first, second) {
+								return second.CompletedWork - first.CompletedWork;
+							});
+
+							refreshChart($scope.workingHoursStatOwner, groupByOwner, "Owner", ["Count", "CompletedWork"]);
+						
+							// For chart display (team)
+							var groupByTeam = utility.groupByMultiple(result, ["AreaPath"], ["OriginalEstimate", "CompletedWork"]);
+							groupByTeam = Object.keys(groupByTeam).map(function(team) {
+								var obj = groupByTeam[team];
+								return { Teams: team.split(" ").pop(), CompletedWork: obj.CompletedWork, Count: obj._Count };
+							}).sort(function(first, second) {
+								return second.CompletedWork - first.CompletedWork;
+							});
+
+							refreshChart($scope.workingHoursStatTeam, groupByTeam, "Team", ["Count", "CompletedWork"]);
+						},
+						function(error) {
+							reportError(error);
+						})
+						.then(function() {
+							$scope.$apply();
+						});
+				}
+
+				function initChart(chart, series) {
+					chart.ChartSeries = series;
+					chart.ChartOptions = [];
+					chart.ChartLabels = [];
+					chart.ChartData = [];
+				}
+
+				function refreshChart(chart, fullData, labelColumn, valueColumns) {
+					var dataArrays = {};
+					valueColumns.forEach(function(col) {
+						dataArrays[col] = [];
+					});
+
+					fullData.forEach(function(data) {
+						chart.ChartLabels.push(data[labelColumn]);
+						valueColumns.forEach(function(col) {
+							dataArrays[col].push(data[col]);
+						});
+					});
+
+					chart.Workload = fullData;
+					chart.ChartHeight = chart.ChartLabels.length * 10;
+					valueColumns.forEach(function(col) {
+						chart.ChartData.push(dataArrays[col]);
+					});
+				}
+
             	/**
 				 * @name	checkStatPermission
 				 * @description	Check stat permission
@@ -557,6 +655,9 @@ define(["app", "underscore", "jquery"],
 				 */
 				$scope.checkStatPermission = function () {
 					if ($scope.QueryForOpenDefect) return false;
+					
+					// TODO:
+					return true;
 
 					if (document.getElementById("userId").value === "dameng.zhang@carestream.com") {
 						return true;
@@ -584,6 +685,7 @@ define(["app", "underscore", "jquery"],
 				 * @description	Copy the current filtered data to clipboard
 				 */
 				$scope.export = function () {
+					// TODO:
 					var data = "ID\tTitle\tEstimation\tWorkingHours\tOwner\tIteration\tState";
 					//var data = "ID\tTitle\tPriority\tProduct\tOwner\tIteration\tState\tReject\t" + $scope.OtherInfoLabel;
 					_.each($scope.filteredRecords, function (record) {

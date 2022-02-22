@@ -27,6 +27,7 @@ define(["app", "underscore"], function (app, _) {
 
 			getAuthenticationToken: function() {
 				// temp token
+				return btoa(":cellzuwdzjnq4zx2aewg4zfsqx4etz4j3veohuvih5pooemcr35q");
 				
 				if (!$rootScope.Globals) return undefined;
 

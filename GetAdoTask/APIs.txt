@@ -140,3 +140,38 @@ WHERE
     AND (
         [Custom.CSH_Release] = 'Maelstrom (ImageView 1.11)'
         OR [Custom.CSH_Release] = 'Shangri-La (ImageView 1.10)'	
+		
+// US/Bug with sub tasks
+SELECT
+    [System.Id],
+    [System.Title],
+    [System.AssignedTo],
+    [System.State],
+    [Custom.CSH_Priority],
+    [Microsoft.VSTS.Scheduling.StoryPoints],
+    [Microsoft.VSTS.Scheduling.OriginalEstimate],
+    [Microsoft.VSTS.Scheduling.CompletedWork],
+    [Custom.CSH_Release],
+    [System.CreatedBy],
+    [System.CreatedDate]
+FROM workitemLinks
+WHERE
+    (
+        [Source].[System.TeamProject] = @project
+        AND [Source].[System.WorkItemType] IN ('User Story', 'Bug')
+        AND [Source].[System.AreaPath] = 'Software\Console\Team Taiji'
+        AND [Source].[System.IterationPath] = @currentIteration('[Software]\Team Taiji <id:2cc9d79a-1253-4a0f-8ba6-74c4a091fe1e>')
+        AND NOT [Source].[System.Title] CONTAINS WORDS '-QA'
+        AND [Source].[System.AssignedTo] IN ('Wei PI <wei.pi@carestream.com>', 'Song Zhao <song.zhao@carestream.com>', 'Lei LIU <lei.liu@carestream.com>', 'Yusheng Liao <yusheng.liao@carestream.com>', 'Ryan ZHANG <dameng.zhang@carestream.com>', 'Liang MA <liang.ma@carestream.com>')
+    )
+    AND (
+        [System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward'
+    )
+    AND (
+        [Target].[System.TeamProject] = @project
+        AND [Target].[System.WorkItemType] <> ''
+    )
+ORDER BY [System.AssignedTo],
+    [System.State],
+    [System.Id]
+MODE (MustContain)
