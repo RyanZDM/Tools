@@ -25,10 +25,7 @@ define(["app", "underscore"], function (app, _) {
 				return localStorage.getItem(LocalStorageKey.LOCAL_STORAGE_KEY);
 			},
 
-			getAuthenticationToken: function() {
-				// temp token
-				return btoa(":cellzuwdzjnq4zx2aewg4zfsqx4etz4j3veohuvih5pooemcr35q");
-				
+			getAuthenticationToken: function() {				
 				if (!$rootScope.Globals) return undefined;
 
 				return $rootScope.Globals.AuthenticationToken;
