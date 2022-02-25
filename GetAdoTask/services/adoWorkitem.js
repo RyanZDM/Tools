@@ -133,9 +133,9 @@ function adoWorkItem(restApi, jsonObj) {
 		
 		//submit time="2022-01-13 16:03";first reply time="2022-01-20 15:20";complete time="";catalog="Techniques";close reason="";modality="EVO";
 		if (wit.CPEInfo) {
-				_.extend(wit.CPEInfo, { catalog: "" });
+				_.extend(wit.CPEInfo, { catalog: "<empty>" });
 		} else {
-			wit.CPEInfo = { catalog: "" };
+			wit.CPEInfo = { catalog: "<empty>" };
 		}
 		
 		if (!wit.CSH_Notes || wit.CSH_Notes.trim() === "") return;
@@ -154,7 +154,9 @@ function adoWorkItem(restApi, jsonObj) {
 		for (var index in infoList) {
 			if (infoList[index].length > 0) {
 				var dict = infoList[index].split("=");
-				cpeInfoDict[dict[0].toLowerCase()] = dict[1];
+				var key = dict[0].replaceAll('"', '').toLowerCase();
+				var value = (dict[1] && dict[1].length > 0) ? dict[1] : "<empty>";
+				cpeInfoDict[key] = value.replaceAll('"', '');
 			}
 		}
 		
@@ -272,6 +274,10 @@ function adoWorkItem(restApi, jsonObj) {
 		
 		if (that["AreaPath"] && that["AreaPath"].indexOf("CPE") !== -1) {
 			getCpeInfo(that);
+		}
+
+		if (that["CSH_BlockedReason"]) {
+			that.CSH_BlockedReason = html2PlainText(that.CSH_BlockedReason);
 		}
 		
 		checkRequiredFields(that);

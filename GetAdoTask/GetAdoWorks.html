@@ -244,8 +244,7 @@
 						<th data-toggle="tooltip">Description</th>
 						<th>Priority</th>
 						<th ng-show="ShowProductField" width="5%">Product</th>
-						<th>Est.<br />(Day)</th>
-						<th>Act.<br />(Hour)</th>
+						<th>Points</th>
 						<th>Owner</th>
 						<th ng-show="ShowIterationField">Iteration</th>
 						<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
@@ -292,7 +291,6 @@
 						<td align="center">{{task.Priority}}</td>
 						<td ng-show="ShowProductField" align="center" width="5%">{{task.CSH_FoundInProduct}}</td>
 						<td align="right">{{task.StoryPoints}}</td>
-						<td align="right">{{task.StoryPoints}}</td>
 						<td align="center">{{task.Owner}}</td>
 						<td ng-show="ShowIterationField" align="center">{{task.Iteration}}</td>
 						<td align="center">
@@ -321,12 +319,13 @@
 			<table-and-chart
 				uid="WorkloadSummaryTableChart"
 				label="Workload Summary"
-				headers="['Name', 'Count', 'Story Points']"
-				columns="['Owner', 'Count', 'Points']"
+				headers="workloadStat.Headers"
+				columns="workloadStat.Columns"
 				source-data="workloadStat.Workload"
 				chart-data="workloadStat"
 				action="collectWorkloadStatData()"
-				title="Working hours statistics by ownes">
+				export-data="exportData(workloadStat)"
+				title="Working hours statistics by sprint & owner">
 			</table-and-chart>
 			<!-- End -->
 
@@ -334,25 +333,27 @@
 			<div class="row"></div>
 			<table-and-chart
 				uid="workingHoursStatOwnerTableChart"
-				label="Working hours statistics by owner:"
-				headers="['Name', 'Completed Hours', 'Task Count']"
-				columns="['Owner', 'CompletedWork', 'Count']"
+				label="Working hours statistics by owner"
+				headers="workingHoursStatOwner.Headers"
+				columns="workingHoursStatOwner.Columns"
 				source-data="workingHoursStatOwner.Workload"
 				chart-data="workingHoursStatOwner"
 				action="calcWorkingHours()"
-				title="Working hours statistics by ownes">
+				export-data="exportData(workingHoursStatOwner)"
+				title="Working hours statistics by owner">
 			</table-and-chart>
 
 			<!-- Summary of team's working hour by the sub task' -->
 			<div class="row"></div>
 			<table-and-chart
 				uid="workingHoursStatTeamTableChart"
-				label="Working hours statistics by team:"
-				headers="['Team', 'Completed Hours', 'Task Count']"
-				columns="['Team', 'CompletedWork', 'Count']"
+				label="Working hours statistics by team"
+				headers="workingHoursStatTeam.Headers"
+				columns="workingHoursStatTeam.Columns"
 				source-data="workingHoursStatTeam.Workload"
 				chart-data="workingHoursStatTeam"
-				action="calcWorkingHours()"
+				export-data="exportData(workingHoursStatTeam)"
+				disable-button="true"
 				title="Working hours statistics by tea">
 			</table-and-chart>
 			<!-- End -->
@@ -362,11 +363,12 @@
 			<table-and-chart
 				uid="CPEStatisticsByCatalog"
 				label="CPE statistics by catalog"
-				headers="['Catalog', 'Count']"
-				columns="['catalog', 'Count']"
+				headers="cpeCatalogStat.Headers"
+				columns="cpeCatalogStat.Columns"
 				source-data="cpeCatalogStat.Workload"
 				chart-data="cpeCatalogStat"
 				action="getCpeStatistics()"
+				export-data="exportData(cpeCatalogStat)"
 				title="Gets CPE statistics">
 			</table-and-chart>
 			<!-- End-->

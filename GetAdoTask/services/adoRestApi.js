@@ -42,13 +42,13 @@ define(["app"], function (app) {
 		// Add new object if new added a release, refer to "Maelstrom" about how to...
 		function getAllReleases() {
 			return [
-				// Sharngri-La
+				// Jing-A
 				{
-					Name: "Shangri-La",
-					Parameters: { Release: "Shangri-La (ImageView 1.10)" },
+					Name: "Jing-A",
+					Parameters: { ReleaseContains: "Jing-A" },
 
 					inScope: function(release) {
-						return /\Shangri/i.test(release);
+						return /\Jing/i.test(release);
 					},
 
 					process: function(list) {
@@ -58,7 +58,7 @@ define(["app"], function (app) {
 				// Maelstrom
 				{
 					Name: "Maelstrom",
-					Parameters: { Release: "Maelstrom (ImageView 1.11)" },
+					Parameters: { ReleaseContains: "Maelstrom" },
 
 					inScope: function(release) {
 						return /\Maelstrom/i.test(release);
@@ -70,7 +70,7 @@ define(["app"], function (app) {
 				},
 				{
 					Name: "CPE",
-					Parameters: { Release: "CPE:Xxx" },
+					Parameters: { Teams: "CPE" },
 					inScope: function(release) {
 						return /\CPE:/i.test(release);
 					},
@@ -146,8 +146,12 @@ define(["app"], function (app) {
 			if (parameters.Teams) {
 				var teams = [].concat(parameters.Teams);
 				if (teams.length > 0) {
-					teams = teams.map(function(team) {
-						return "Software\\Console\\Team " + team;
+					teams = teams.map(function (team) {
+						if (team.toLowerCase() === "cpe") {
+							return "Software\\CPE";
+						} else {
+							return "Software\\Console\\Team " + team;
+						}
 					});
 					var teamString = teams.join("','");
 					var conditionArea = "<prefix>[System.AreaPath] In ('<team>') ".replace("<prefix>", columnPrefix).replace("<team>", teamString);
@@ -158,6 +162,9 @@ define(["app"], function (app) {
 			if (parameters.Release && parameters.Release !== "") {
 				var conditionRelease = "<prefix>[Custom.CSH_Release] = '<release>'".replace("<prefix>", columnPrefix).replace(parameters.Release);
 				conditions.push(conditionRelease);
+			} else if (parameters.ReleaseContains && parameters.ReleaseContains !== "") {
+				var conditionReleaseEx = "<prefix>[Custom.CSH_Release] Contains '<release>'".replace("<prefix>", columnPrefix).replace("<release>", parameters.ReleaseContains);
+				conditions.push(conditionReleaseEx);
 			}
 			
 			return conditions.join(" AND ");

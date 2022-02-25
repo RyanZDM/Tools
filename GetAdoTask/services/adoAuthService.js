@@ -25,7 +25,7 @@ define(["app", "underscore"], function (app, _) {
 				return localStorage.getItem(LocalStorageKey.LOCAL_STORAGE_KEY);
 			},
 
-			getAuthenticationToken: function() {				
+			getAuthenticationToken: function() {
 				if (!$rootScope.Globals) return undefined;
 
 				return $rootScope.Globals.AuthenticationToken;

@@ -215,6 +215,12 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 			return queryUsingWiql(url, wiql, authToken, "WIT", null);
 		};
 		
+		/**
+		 * @name getCpeStatistics
+		 * @description Gets all CPE escalation issues (has keyword "[" in title)
+		 * @param {any} parameters
+		 * @return {Array}	CPE user story list
+		 */
 		function getCpeStatistics(parameters) {
 			return queryUsingWiql(adoRestApi.TemplateWiqlQuery, adoRestApi.WiqlCpeStatistics, parameters.Token, "WIT", []);
 		}
@@ -231,6 +237,12 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 			return queryUsingWiql(url, wiql, authToken, "Feature", ["System.Title"]);
 		};
 
+		/**
+		 * @name calculateTaskSpentTime
+		 * @description Sumarize the "OriginalEstimate" and "CompletedWork" by sub tasks by condition
+		 * @param {any} parameters
+		 * @param {any} authToken
+		 */
 		function calculateTaskSpentTime(parameters, authToken) {
 			var url = adoRestApi.TemplateWiqlQuery;
 			var wiql =  adoRestApi.getTaskSpentTimeUrl(parameters);

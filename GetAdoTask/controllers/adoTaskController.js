@@ -74,13 +74,29 @@ define(["app", "underscore", "jquery"],
 				$scope.ProjectTeamList = ["Taiji", "Wudang", "Penglai", "Dunhuang"];
 
 				// Statistics data
-				$scope.workloadStat = {};
+				$scope.workloadStat = {
+					Workload: [], ChartData: []
+					, Headers: ["Name", "Count", "Story Points"]
+					, Columns: ["Owner", "Count", "Points"]
+				};
 
-				$scope.workingHoursStatOwner = { Workload: [], ChartData: [] };
+				$scope.workingHoursStatOwner = {
+												Workload: [], ChartData: []
+					, Headers: ["Name", "Completed Hours", "Task Count"]
+					, Columns: ["Owner", "CompletedWork", "Count"]
+				};
 
-				$scope.workingHoursStatTeam = { Workload: [], ChartData: [] };
+				$scope.workingHoursStatTeam = {
+					Workload: [], ChartData: []
+					, Headers: ["Team", "Completed Hours", "Task Count"]
+					, Columns: ["Team", "CompletedWork", "Count"]
+				};
 
-				$scope.cpeCatalogStat = { CatalogData: [], ChartData: [] };
+				$scope.cpeCatalogStat = {
+					Workload: [], ChartData: []
+					, Headers: ["Catalog", "Count"]
+					, Columns: ["catalog", "Count"]
+				};
 				// Statistics end
 
 				// Re-enable the Tooltip since the filtered the tasks changed
@@ -88,14 +104,16 @@ define(["app", "underscore", "jquery"],
 					$scope.enableHtmlFormatTooltip();
 				});
 
+				loadSavedParameters();
+
 				// Load feature list
-				adoQueryService.getFeatureList(adoAuthService.getAuthenticationToken())
-								.then(function(list) {
-										$scope.FeatureList = list;
-									},
-								function(e) {
-									reportError(e);
-								});
+				//adoQueryService.getFeatureList(adoAuthService.getAuthenticationToken())
+				//				.then(function(list) {
+				//						$scope.FeatureList = list;
+				//					},
+				//				function(e) {
+				//					reportError(e);
+				//				});
 
             	/**
 				 * @name	saveCurrentParameters()
@@ -161,8 +179,6 @@ define(["app", "underscore", "jquery"],
 					}
 				}
 
-				loadSavedParameters();
-
 				/**
 				 * @name	updateOtherInfo
 				 * @description Apply the comments according to id if it exist in list
@@ -191,7 +207,8 @@ define(["app", "underscore", "jquery"],
 					$scope.InQuerying = true;
 					$scope.clearError();
 					$scope.TaskList = [];
-					$scope.resetWorkloadStat();
+
+					initChart($scope.workloadStat, ["Points", "Tasks Total"]);
 				};
 				
 				/**
@@ -332,13 +349,11 @@ define(["app", "underscore", "jquery"],
 
 					$scope.QueryForOpenDefect = true;
 					$scope.QueryTypeString = " --- ALL " + project.Name + " open tasks @" + new Date().toLocaleTimeString();
-					var promises = [];
-					project.Urls.forEach(function (url) {
-						promises.push(adoQueryService.getFromRally(url, token));
-					});
-
-					$q.all(promises).then(function (list) {
-						$scope.TaskList = project.process(_.union(list[0], list[1]));
+					
+					var parameters = { Token: token, States: ["Submitted", "New", "Assigned", "Active"] };
+					_.extend(parameters, project.Parameters)
+					adoQueryService.getAdoTaskUsingWiql(parameters).then(function (list) {
+						$scope.TaskList = project.process(list);
 
 						// Load the other info from local storage
 						loadSavedParameters();
@@ -348,7 +363,7 @@ define(["app", "underscore", "jquery"],
 						})
 						.then(function () {
 							$scope.InQuerying = false;
-							//$scope.$apply();
+							$scope.$apply();
 							$scope.enableHtmlFormatTooltip();
 						});
 				}
@@ -380,11 +395,15 @@ define(["app", "underscore", "jquery"],
 						});
 				};
 
+				/**
+				 * @name getCpeStatistics
+				 * @description Gets the CPE statistics by owner and team
+				 */
 				$scope.getCpeStatistics = function() {
 					initChart($scope.cpeCatalogStat, ["Catalog", "Count"]);
 					$scope.cpeCatalogStat.CatalogData = [];
 
-					var token = adoAuthService.getAuthenticationToken();					
+					var token = adoAuthService.getAuthenticationToken();
 					adoQueryService.getCpeStatistics({ Token: token })
 						.then(function(result) {
 								var catalogStat = utility.groupByMultiple(result, [function(ceil) {
@@ -395,9 +414,13 @@ define(["app", "underscore", "jquery"],
 													.map(function(catalog) {
 														return { catalog: catalog, Count: catalogStat[catalog]._Count };
 													})
-													.sort(function(first, second) {
-														return second.Count - first.Count;
-													});
+									.sort(function (first, second) {
+										if (second.Count !== first.Count) {
+											return second.Count - first.Count;
+										} else {
+											return first.catalog.localeCompare(second.catalog);
+										}
+									});
 								$scope.cpeCatalogStat.CatalogData = catalogStat;
 								refreshChart($scope.cpeCatalogStat, catalogStat, "catalog", ["Count"]);
 							},
@@ -513,23 +536,13 @@ define(["app", "underscore", "jquery"],
 				 */
 				$scope.collectWorkloadStatData = function () {
 					if (!$scope.filteredRecords) {
-						$scope.workloadStat = {};
+						initChart($scope.workloadStat);
 						return false;
 					}
 
 					if ($scope.workloadStat["Collected"] && $scope.workloadStat.Collected) {
 						return true;
 					};
-
-					// -- For chart display
-					$scope.workloadStat.ChartSeries = ["Points", "Tasks Total"];
-					$scope.workloadStat.ChartOptions = [];
-
-					$scope.workloadStat.ChartLabels = [];
-					$scope.workloadStat.ChartData = [];
-					var count = [];
-					var points = [];
-					// --------------- End
 
 					if ($scope.filteredRecords.length > 0) {
 						var result = $scope.filteredRecords.reduce(function (total, task) {
@@ -558,19 +571,7 @@ define(["app", "underscore", "jquery"],
 							} else { return 1; }
 						});
 
-						$scope.workloadStat.Workload = orderedData;
-
-						// For chart display
-						//$scope.workloadStat.ChartLabels = Object.keys(result);
-						_.each(orderedData, function (data) {
-							$scope.workloadStat.ChartLabels.push(data.Owner);
-							count.push(data.Count);
-							points.push(data.Points);
-						});
-
-						$scope.workloadStat.ChartData.push(points);
-						$scope.workloadStat.ChartData.push(count);
-						$scope.workloadStat.ChartHeight = $scope.workloadStat.ChartLabels.length * 10;
+						refreshChart($scope.workloadStat, orderedData, "Owner", ["Points", "Count"]);
 					}
 
 					$scope.workloadStat.Collected = true;
@@ -578,10 +579,10 @@ define(["app", "underscore", "jquery"],
 					return true;
 				};
 
-				$scope.resetWorkloadStat = function () {
-					$scope.workloadStat = {};
-				};
-
+				/**
+				 * @name calcWorkingHours
+				 * @description Summarize the working hours by owner and team
+				 */
 				$scope.calcWorkingHours = function() {
 					// -- For chart display (owner)
 					initChart($scope.workingHoursStatOwner, ["Hours", "Tasks Total"]);
@@ -606,7 +607,7 @@ define(["app", "underscore", "jquery"],
 							var groupByTeam = utility.groupByMultiple(result, ["AreaPath"], ["OriginalEstimate", "CompletedWork"]);
 							groupByTeam = Object.keys(groupByTeam).map(function(team) {
 								var obj = groupByTeam[team];
-								return { Teams: team.split(" ").pop(), CompletedWork: obj.CompletedWork, Count: obj._Count };
+								return { Team: team.split(" ").pop(), CompletedWork: obj.CompletedWork, Count: obj._Count };
 							}).sort(function(first, second) {
 								return second.CompletedWork - first.CompletedWork;
 							});
@@ -621,6 +622,11 @@ define(["app", "underscore", "jquery"],
 						});
 				}
 
+				/**
+				 * @name initChart (internal use)
+				 * @param {any} chart	reference to the chart object
+				 * @param {any} series	reference to the chart's Series object
+				 */
 				function initChart(chart, series) {
 					chart.ChartSeries = series;
 					chart.ChartOptions = [];
@@ -628,6 +634,13 @@ define(["app", "underscore", "jquery"],
 					chart.ChartData = [];
 				}
 
+				/**
+				 * @name refreshChart (internal use)
+				 * @param {any} chart	reference to the chart object
+				 * @param {any} fullData	The data list
+				 * @param {any} labelColumn	The array contains all label to be shown on chart
+				 * @param {any} valueColumns	The array contains all value to be shown on chart
+				 */
 				function refreshChart(chart, fullData, labelColumn, valueColumns) {
 					var dataArrays = {};
 					valueColumns.forEach(function(col) {
@@ -647,24 +660,6 @@ define(["app", "underscore", "jquery"],
 						chart.ChartData.push(dataArrays[col]);
 					});
 				}
-
-            	/**
-				 * @name	checkStatPermission
-				 * @description	Check stat permission
-				 * @returns	If the current user has permission to see the data stat table/charter
-				 */
-				$scope.checkStatPermission = function () {
-					if ($scope.QueryForOpenDefect) return false;
-					
-					// TODO:
-					return true;
-
-					if (document.getElementById("userId").value === "dameng.zhang@carestream.com") {
-						return true;
-					} else {
-						return false;
-					}
-				};
 
 				$scope.orderChanged = function () {
 					$scope.OrderByValue = $scope.OrderByValues[$scope.OrderByOptionIndex];
@@ -694,6 +689,34 @@ define(["app", "underscore", "jquery"],
 					});
 
 					window.alert(utility.copyToClipboard(data) ? "Data get copied to clipboard." : "Copy to clipboard failed.");
+				};
+
+				$scope.exportData = function(data) {
+					if (!data 
+						|| !data.Workload || data.Workload.length < 1 
+						|| !data.Columns || data.Columns.length < 1) return;
+
+					var header = "";
+					data.Columns.forEach(function(col) {
+						header = header + col + "\t";
+					});
+
+					header = header.substr(0, header.length - 1);
+					var rows = "";
+					data.Workload.forEach(function(record) {
+						var row = "";
+						data.Columns.forEach(function(col) {
+							row = row + (record[col] ? record[col] : "") + "\t";
+						});
+
+						// remove last tab
+						row = row.substr(0, row.length - 1);
+
+						rows = rows + row + "\r\n";
+					});
+
+					var exportTxt = header + "\r\n" + rows;
+					window.alert(utility.copyToClipboard(exportTxt) ? "Data get copied to clipboard." : "Copy to clipboard failed.");
 				};
 
             	/**

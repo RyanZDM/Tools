@@ -4,13 +4,16 @@ define(["app"], function (app) {
 	// A bootstrap style table & chart for the data statistics
 	var html = '<div class="row">\
 					<div class="col-md-4" >\
-						<button class="btn btn-block" ng-click="action()" data-toggle="tooltip" title="{{title}}">{{ label }}</button>\
+						<button ng-disabled="disableButton.toLowerCase() === \'true\'" class="btn btn-block" ng-click="action()" data-toggle="tooltip" title="{{title}}"><span class="pull-left">{{label}}</span></button>\
 					</div>\
 					<div class="col-md-4"></div>\
 					<div class="col-md-4">\
-						<button class="btn btn-primary pull-right" type="button" data-toggle="collapse" data-target="#{{uid}}" aria-expanded="false" aria-controls="{{uid}}">\
-								Show/Hide\
-						</button>\
+						<div class="input-group pull-right">\
+							<button class="btn btn-primary" ng-click="exportData(sourceData, columns)">Copy</button>\
+							<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{uid}}" aria-expanded="false" aria-controls="{{uid}}">\
+									Show/Hide\
+							</button>\
+						</div>\
 					</div>\
 				</div >\
 				<div class="row collapse" id="{{uid}}">\
@@ -52,6 +55,8 @@ define(["app"], function (app) {
 				chartData: "=",	// The name of object containing the chart data
 				ngModel: "=",	// AngularJs ng-model				
 				action: "&",	// The call to a controller's method after click
+				exportData: "&",
+				disableButton: "@",// Show a label instead of button
 				class: "@",		// Should be btn-info, btn-success etc.
 				title: "@"		// Title for tooltip
 			},
