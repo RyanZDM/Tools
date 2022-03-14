@@ -20,7 +20,7 @@ Echo * Pulling the latest code and build all at %date% %time% >> %LogFile%
 
 Call Pull.cmd %CAPTURECONSOLEREPO% %LogFile%
 Echo.
-Rem Call Build.cmd %CAPTURECONSOLEREPO% %LogFile%
+Call Build.cmd %CAPTURECONSOLEREPO% %LogFile%
 
 :End
 Echo * Pulling the latest code and build ended at %date% %time%
