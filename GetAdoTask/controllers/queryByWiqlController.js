@@ -23,8 +23,11 @@ define(["app", "underscore", "jquery"],
 				$scope.QueryTypeString = "";
 				$scope.Select = "SELECT [System.Id],[System.WorkItemType],[System.Title],[System.AssignedTo],[System.State],[Custom.CSH_Release],[Custom.CSH_SignoffNA],[Custom.CSH_SignoffDIDRequirementsApproved],[Custom.CSH_SignoffHLDUseCasesApproved],[Custom.CSH_SignoffUCDSpecApproved],[Custom.CSH_SignoffTestDesignApproved],[Custom.CSH_SignoffFinalFeatureReviewComplete] FROM workitems";
 				$scope.Where = "[System.WorkItemType] = 'Feature' AND [System.State] <> 'Closed' AND [System.State] <> 'Rejected/Cancelled' AND [Custom.CSH_Release] = 'Jing-A (ImageView 1.12)' ORDER BY [Microsoft.VSTS.Common.StackRank]";
+				$scope.CustomizedScript = "RealAssign=(wit['System.AssignedTo'].displayName === 'Ryan ZHANG') ? 'Me' : 'Others'^RealState=(wit['System.State']==='Ready to Implement')? 'Ready' : 'Not Ready'";
 				$scope.Headers = [];
 				$scope.Columns = [];
+				$scope.FullColumns = [];
+				$scope.ComputedFields = [];
 				$scope.Data = [];
 
 
@@ -47,15 +50,20 @@ define(["app", "underscore", "jquery"],
 					$scope.QueryTypeString = " --- Last query @" + new Date().toLocaleTimeString();
 					initBeforeQuery();
 
-					// TODO: update Select, Where, Columns
-					getColumns($scope.Select);
+					getColumns();
 
 					var wiql = $scope.Select + " Where " + $scope.Where;
 					var parameters = { Wiql: wiql, ReturnFields: $scope.Columns, Token: adoAuthService.getAuthenticationToken() };
+					var hasCustomizedField = ($scope.ComputedFields.length > 0);
 					adoQueryService.pureWiqlQuery(parameters)
 						.then(function (result) {
 								result.forEach(function(wit) {
-									$scope.Columns.forEach(function(col) {
+									if (hasCustomizedField) {
+										// Calculate the computed fields
+										updateCustomizedFields(wit);
+									}
+
+									$scope.FullColumns.forEach(function(col) {
 										var val = wit[col];
 										var valType = typeof val;
 										switch (valType) {
@@ -84,8 +92,29 @@ define(["app", "underscore", "jquery"],
 						});
 				};
 
-				function getColumns(selectClause) {
-					var select = selectClause.trimStart().trimEnd();
+				function getComputedFields() {
+					if (!$scope.CustomizedScript || $scope.CustomizedScript.trim() === "") {
+						$scope.ComputedFields = [];
+						return $scope.ComputedFields;
+					}
+
+					var defineList = $scope.CustomizedScript.trim().split("^");
+					defineList.forEach(function(define) {
+						var pos = define.indexOf("=");
+						if (pos === -1) return;
+
+						var field = define.substr(0, pos).trimStart().trimEnd();
+						var script = define.substr(pos + 1).trimStart().trimEnd();
+						if (script === "") return;
+
+						$scope.ComputedFields.push({ Field: field, Script: script });
+					});
+
+					return $scope.ComputedFields;
+				};
+
+				function getColumns() {
+					var select = $scope.Select.trimStart().trimEnd();
 					var regex = new RegExp("^Select", "i");
 					if (!regex.test(select)) return [];
 
@@ -103,8 +132,28 @@ define(["app", "underscore", "jquery"],
 						return col.split(".").pop();
 					});
 
+					var fullColumns = [].concat(columns);	// include the computed fields
+					if (getComputedFields().length > 0) {
+						$scope.ComputedFields.forEach(function(cf) {
+							headers.push(cf.Field);
+							fullColumns.push(cf.Field);
+						});
+					}
+
 					$scope.Columns = columns;
+					$scope.FullColumns = fullColumns;
 					$scope.Headers = headers;
+				}
+
+				function updateCustomizedFields(wit) {
+					$scope.ComputedFields.forEach(function(fieldSetting) {
+						try {
+							var value = eval(fieldSetting.Script);
+							wit[fieldSetting.Field] = value;
+						} catch (e) {
+							wit[fieldSetting.Field] = "<syntax error>";
+						}
+					});
 				}
 
 				/**
