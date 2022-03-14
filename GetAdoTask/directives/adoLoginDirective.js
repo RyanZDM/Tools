@@ -1,7 +1,7 @@
 "use strict";
 
 define(["app"], function (app) {
-	app.directive("rallyLogin", ["adoAuthService", function (adoAuthService) {
+	app.directive("adoLogin", ["adoAuthService", function (adoAuthService) {
 		return {
 			restrict: "EA",
 			template: '<div class="input-group">\

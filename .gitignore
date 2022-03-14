@@ -5,5 +5,4 @@
 /GetRallyTask-AR/_ReSharper.Caches
 _ReSharper.Caches/
 *.suo
-/GetRallyTask-AR/.vs
-*/.vs
+.vs/

@@ -50,6 +50,7 @@ define(["app", "underscore", "jquery"],
 				$scope.ShowFailedOnly = false;
 				$scope.ShowFakeTask = false;
 				$scope.ShowRejectedDefects = true;
+				$scope.ShowFeatureField = true;
 				$scope.QueryForOpenDefect = false;
 				$scope.QueryTypeString = "";
 				$scope.DeOrUs = "ALL";
@@ -57,7 +58,6 @@ define(["app", "underscore", "jquery"],
 				$scope.ShowProductField = true;
 				$scope.ShowIterationField = true;
 				$scope.ShowRejectField = true;
-				$scope.ShowEverFailedField = true;
 				$scope.ShowBlockReasonField = true;
 				$scope.ShowInvalidItemOnly = false;
 
@@ -71,7 +71,7 @@ define(["app", "underscore", "jquery"],
 										];
 				$scope.OrderByOptionIndex = 0;
 				$scope.OrderByValue = $scope.OrderByValues[0];
-				$scope.ProjectTeamList = ["Taiji", "Wudang", "Penglai", "Dunhuang"];
+				$scope.ProjectTeamList = ["Taiji", "Wudang", "Penglai", "Dunhuang", "CPE"];
 
 				// Statistics data
 				$scope.workloadStat = {
@@ -105,15 +105,6 @@ define(["app", "underscore", "jquery"],
 				});
 
 				loadSavedParameters();
-
-				// Load feature list
-				//adoQueryService.getFeatureList(adoAuthService.getAuthenticationToken())
-				//				.then(function(list) {
-				//						$scope.FeatureList = list;
-				//					},
-				//				function(e) {
-				//					reportError(e);
-				//				});
 
             	/**
 				 * @name	saveCurrentParameters()
@@ -199,6 +190,17 @@ define(["app", "underscore", "jquery"],
 				};
 
 				function initBeforeQuery () {
+					if ($scope.FeatureList.length < 1) {
+						// Load feature list
+						adoQueryService.getFeatureList(adoAuthService.getAuthenticationToken())
+							.then(function(list) {
+									$scope.FeatureList = list;
+								},
+								function(e) {
+									reportError(e);
+								});
+					}
+
 					// Record the last time record count so that we know if have changes between two query
 					$scope.LastRecordCount = $scope.TaskList.length;
 					$scope.LastFilteredCount = $scope.filteredRecords ? $scope.filteredRecords.length : 0;
@@ -208,7 +210,7 @@ define(["app", "underscore", "jquery"],
 					$scope.clearError();
 					$scope.TaskList = [];
 
-					initChart($scope.workloadStat, ["Points", "Tasks Total"]);
+					$scope.resetWorkloadStat();
 				};
 				
 				/**
@@ -331,6 +333,11 @@ define(["app", "underscore", "jquery"],
 					getAdoTask(parameters);
 				};
 
+				$scope.resetWorkloadStat = function() {
+					$scope.workloadStat.Collected = false;
+					initChart($scope.workloadStat, ["Points", "Tasks Total"]);
+				}
+
             	/**
 				 * @name	getOpenDefects
 				 * @descriptions	Gets all open defects of current project
@@ -385,6 +392,9 @@ define(["app", "underscore", "jquery"],
 
 							// Load the other info from local storage
 							loadSavedParameters();
+							
+							// Load the sub task state
+							loadSubTaskState(result, token);
 						}, function(error) {
 							console.error("refreshTaskList() failed");
 						})
@@ -392,6 +402,38 @@ define(["app", "underscore", "jquery"],
 							$scope.InQuerying = false;
 							$scope.enableHtmlFormatTooltip();
 							$scope.$apply();
+						});
+				};
+				
+				// Loads the sub task state
+				function loadSubTaskState(list, token) {
+					var taskDict = {};
+					list.forEach(function(wit) {
+						if (wit.Children && wit.Children.length > 0) {
+							wit.Children.forEach(function(task) {
+								taskDict[task.Id] = wit.Id;
+							});
+						}
+					});
+
+					var ids = _.pluck(_.flatten(_.pluck(list, "Children")), "Id");
+					adoQueryService.getTaskDetailInfo(adoRestApi.TemplateWitBatchQuery, ids, ["System.Id", "System.Title", "System.State", "System.AssignedTo"], token)
+						.then(function(list) {
+							list = _.flatten(_.pluck(list, "fields")).map(function(task) {
+								var id = task["System.Id"];
+								return {
+									Id: id,
+									Parent: taskDict[id],
+									Owner: task["System.AssignedTo"].displayName,
+									Title: task["System.Title"],
+									State: task["System.State"]
+								};
+							});
+
+							// TODO update the return list
+						})
+						.catch(function(err) {
+							reportError(err);
 						});
 				};
 
@@ -421,6 +463,9 @@ define(["app", "underscore", "jquery"],
 											return first.catalog.localeCompare(second.catalog);
 										}
 									});
+								// temp
+								catalogStat.shift();
+								
 								$scope.cpeCatalogStat.CatalogData = catalogStat;
 								refreshChart($scope.cpeCatalogStat, catalogStat, "catalog", ["Count"]);
 							},
@@ -632,6 +677,7 @@ define(["app", "underscore", "jquery"],
 					chart.ChartOptions = [];
 					chart.ChartLabels = [];
 					chart.ChartData = [];
+					chart.Workload = [];
 				}
 
 				/**
@@ -681,10 +727,10 @@ define(["app", "underscore", "jquery"],
 				 */
 				$scope.export = function () {
 					// TODO:
-					var data = "ID\tTitle\tEstimation\tWorkingHours\tOwner\tIteration\tState";
+					var data = "ID\tTitle\tPriority\tStoryPoints\tOwner\tIteration\tState";
 					//var data = "ID\tTitle\tPriority\tProduct\tOwner\tIteration\tState\tReject\t" + $scope.OtherInfoLabel;
 					_.each($scope.filteredRecords, function (record) {
-						data += "\r\n" + record.id + "\t" + record.Title + "\t" + record.Estimate + "\t" + record.Actuals + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.ScheduleState;
+						data += "\r\n" + record.Id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.StoryPoints + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.State;
 						//data += "\r\n" + record.id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.Product + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.ScheduleState + "\t" + record.Reject + "\t" + record.Other;
 					});
 
@@ -719,42 +765,18 @@ define(["app", "underscore", "jquery"],
 					window.alert(utility.copyToClipboard(exportTxt) ? "Data get copied to clipboard." : "Copy to clipboard failed.");
 				};
 
-            	/**
-				 * @name	summaryByProject
-				 * @description	Gets the rally task summary group by Release/ScheduleState
-				 * @param	sprint	The sprint.
-				 * @param	token 	The authorization token for querying the ADO tasks.
-				 * @returns	Promise to the summary result.
-				 */
-				function summaryByProject (sprint, token) {
-					var stateFunc = function (record) {
-						var state = "Not Start";
-						if (record.ScheduleState === "In-Progress" || record.ScheduleState === "Completed" || record.ScheduleState === "Accepted") {
-							state = record.ScheduleState;
-						};
+				$scope.getFeatureName = function(featureId) {
+					var featureName = featureId;
 
-						return state;
-					};
+					if ($scope.FeatureList && $scope.FeatureList.length < 1) return featureName;
 
-					var deferred = $q.defer();
+					var feature = $scope.FeatureList.find(function(f) {
+						return f.Id === featureId;
+					});
 
-					$q.all([
-						adoQueryService.getFromRally(adoRestApi.getApiUrlTaskSummary(sprint, "hierarchicalrequirement"), token),
-						adoQueryService.getFromRally(adoRestApi.getApiUrlTaskSummary(sprint, "defect"), token)
-					])
-						.then(function (lists) {
-							var result = _.union(lists[0], lists[1]);
+					if (feature) featureName = featureName + ": " + feature.Title;
 
-							result = utility.groupByMultiple(result, ["Release", stateFunc], ["Estimate", "TimeSpent"]);
-
-							deferred.resolve(result);
-						})
-						.catch(function (error) {
-							reportError(error);
-							deferred.reject(error);
-						});
-
-					return deferred.promise;
+					return featureName;
 				};
 
 				$scope.clearError = function() {

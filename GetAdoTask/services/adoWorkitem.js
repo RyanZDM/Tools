@@ -50,7 +50,6 @@ function adoWorkItem(restApi, jsonObj) {
 	}
 
 	// TODO:
-	this.EverFailed = false;
 	this.FakeTask = false;
 
 	if (!this["Blocked"] || this["Blocked"] !== "Yes") {
@@ -98,13 +97,18 @@ function adoWorkItem(restApi, jsonObj) {
 		this.Priority = "";
 	}
 
+	// Parent
+	if (this.Parent) {
+		this.ParentLink = restApi.WitLink + this.Parent;
+	}
+
 	// Child
 	this.Children = [];
 	if (jsonObj["relations"] && jsonObj["relations"].length > 0) {
 		var relations = jsonObj["relations"];
 		_.forEach(relations, function (rel) {
 			if (rel.attributes.name.toLowerCase() === "child") {
-				this.Children.push(rel.url.split("/").pop());
+				this.Children.push({ Id: rel.url.split("/").pop() });
 			}
 		}, this);
 	}
@@ -159,8 +163,15 @@ function adoWorkItem(restApi, jsonObj) {
 				cpeInfoDict[key] = value.replaceAll('"', '');
 			}
 		}
+
+		// temp
+		if (cpeInfoDict["catalog"] && cpeInfoDict["catalog"].length > 50) {
+			// Means has not recognized the catalog, uses the default template which contains all catalog items
+			cpeInfoDict["catalog"] = "<empty>";
+		}
 		
 		_.extend(wit.CPEInfo, cpeInfoDict);
+		wit.CPEInfoHtml = "";
 	}
 
 	function copyFields(src, dest) {
@@ -277,7 +288,11 @@ function adoWorkItem(restApi, jsonObj) {
 		}
 
 		if (that["CSH_BlockedReason"]) {
-			that.CSH_BlockedReason = html2PlainText(that.CSH_BlockedReason);
+			var reason = html2PlainText(that.CSH_BlockedReason);
+			if (reason !== "") {
+				var maxLen = 20;
+				that.OmittedBlockedReason = (reason.length <= maxLen) ? reason : (reason.substr(0, maxLen) + "...");
+			}
 		}
 		
 		checkRequiredFields(that);

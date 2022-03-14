@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="utf-8" />
+	<meta origin="http://http://10.112.20.108"/>
+	<title>Query via WIQL</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<!-- Html style Tooltip would not work if not include the following 2 files -->
+	<script src="libs\requirejs\2.3.5\require.min.js" data-main="main.js"></script>
+	<link rel="stylesheet" href="libs\bootstrap\current\bootstrap.min.css" />
+
+	<link rel="stylesheet" href="adoTask.css" />
+</head>
+<body>
+	<form name="taskForm" ng-controller="queryByWiqlController">
+		<div class="page-header text-primary text-center" data-toggle="modal" data-target="#selectProjectTeamModal">
+			<h1>Query via WIQL <small>{{QueryTypeString}}</small></h1>
+		</div>
+		<div ng-show="InQuerying" id="busy"></div>
+		<div class="container-fluid">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div id="PoppedMsg" class="row alert alert-warning alert-dismissable pull-right" ng-show="ErrorMsg !== ''">
+						<a href="#" class="close" aria-label="close" ng-click="$event.preventDefault();clearError()">&times;</a>
+						<strong>{{ErrorMsg}}</strong>
+					</div>
+					<div class="row">
+						<div class="col-md-6"><ado-login></ado-login></div>
+						<div class="col-md-6">
+							<div class="row">
+								<span class="text-right alert alert-warning pull-right" ng-show="taskForm.owner.$error.email">
+									The email address is invalid
+								</span>
+								<br/><br/>
+								<button class="btn btn-primary pull-right"
+								        style="margin-right: 15px;"
+								        ng-disabled="InQuerying"
+								        ng-click="query()"
+								        data-toggle="tooltip"
+								        data-placement="top"
+								        title="Perform a WIQL query">
+									Query
+								</button>
+							</div>
+						</div>
+					</div>
+					<p></p>
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="form-group">
+							<label for="selectclause">Select Clause:</label>
+							<textarea class="form-control" row="5" id="selectclause" ng-model="Select" placeholder="e.g. Select [System.Id],[System.State],[System.AssignedTo] From workitems"></textarea>
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group">
+							<label for="whereclause">Where Clause:</label>
+							<textarea class="form-control" row="8" id="whereclause" ng-model="Where" placeholder="e.g. [System.TeamProject] = 'Software' AND [System.WorkItemType] IN ('User Story', 'Bug') AND [System.IterationPath] = 'Software\Sprint 90' AND [System.AreaPath] IN ( 'Software\Console\Team Taiji', 'Software\Console\Team Wudang', 'Software\Console\Team Dunhuang') AND [System.State] IN ('Submitted', 'New', 'Assigned', 'Active')"></textarea>
+						</div>
+					</div>
+
+					<hr style="color: blue; background-color: blue; border-width: 5px ">
+					<div class="row">
+						<div class="col-md-4">
+							<h4 class="text-primary">
+								<b>Query Results</b>
+							</h4>
+						</div>
+						<div class="col-md-7"></div>
+						<div class="col-md-1">
+							<div class="pull-right">
+								<button type="button" class="btn btn-primary" style="width: auto"
+								        data-toggle="tooltip"
+								        data-placement="right"
+								        title="Export data to Clipboard"
+								        ng-click="export()">
+									Clipboard
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<table class="table table-hover table-bordered table-responsive" border="1" ng-show="Headers.length > 0">
+							<thead>
+							<tr>
+								<th>#</th>
+								<th ng-repeat="header in Headers">{{ header }}</th>
+							</tr>
+							</thead>
+							<tbody ng-show="Data.length > 0">
+							<tr ng-repeat="wit in Data">
+								<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
+								<td ng-repeat="column in Columns">{{wit[column]}}</td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</form>
+</body>
+</html>

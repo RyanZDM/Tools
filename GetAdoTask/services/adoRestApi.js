@@ -122,8 +122,8 @@ define(["app"], function (app) {
 				}
 			}
 
-			if (parameters.WitType && parameters.WitType.length > 0) {
-				var types = [].concat(parameters.WitType).join("','");
+			if (parameters.WorkItemType && parameters.WorkItemType.length > 0) {
+				var types = [].concat(parameters.WorkItemType).join("','");
 				var conditionWit = "<prefix>[System.WorkItemType] IN ('<types>')".replace("<prefix>", columnPrefix).replace("<types>", types);
 				conditions.push(conditionWit);
 			} else {

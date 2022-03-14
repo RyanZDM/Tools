@@ -9,7 +9,9 @@ define(["app", "underscore"], function (app, _) {
 		return {
 			copyToClipboard: copyToClipboard,
 			groupByMultiple: groupByMultiple,
-			saveToHtml: saveToHtml
+			saveToHtml: saveToHtml,
+			html2PlainText: html2PlainText,
+			sendEmail: sendEmail
 		}
 
 		/**
@@ -123,7 +125,15 @@ define(["app", "underscore"], function (app, _) {
 		function html2PlainText(html) {
 			if (!html) return "";
 
-			var keywords = [['&quot;', '"'],['<br>', '\r\n']];
+			var keywords = [['&quot;', '"']
+				//,['\t', ' ']
+				//,['\r\n', ' ']
+				,['<br>', '\r\n']
+				,['&nbsp;', ' ']
+				,['&lt;', '<']
+				,['&gt;', '>']
+			];
+
 			for (var index in keywords)
 			{
 				html = html.replaceAll(keywords[index][0], keywords[index][1]);
@@ -131,8 +141,12 @@ define(["app", "underscore"], function (app, _) {
 
 			html = html.replace(/<[^>]*>/g, "");
 
-			return html;
-		}
+			while (html.indexOf("  ") !== -1) {
+				html = html.replaceAll("  ", " ");
+			}
+
+			return html;	
+		};
 
 		/**
 		 * @name sendEmail
@@ -150,6 +164,6 @@ define(["app", "underscore"], function (app, _) {
 			var ccString = (cc && cc.trim() !== "") ? ("cc=" + cc + "&") : "";
 			var attach = (attachment && attachment.trim() !== "") ? '&attach="' + attachment + '"' : "";
 			window.open("mailto:" + to + "?" + ccString + "subject=" + subject + "&body=" + body + attach);
-		}
+		};
 	});
 });

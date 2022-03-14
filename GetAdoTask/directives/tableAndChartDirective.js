@@ -2,15 +2,15 @@
 
 define(["app"], function (app) {
 	// A bootstrap style table & chart for the data statistics
-	var html = '<div class="row">\
+	var html = '<div class="row" style="margin-top: 2px;">\
 					<div class="col-md-4" >\
 						<button ng-disabled="disableButton.toLowerCase() === \'true\'" class="btn btn-block" ng-click="action()" data-toggle="tooltip" title="{{title}}"><span class="pull-left">{{label}}</span></button>\
 					</div>\
 					<div class="col-md-4"></div>\
-					<div class="col-md-4">\
-						<div class="input-group pull-right">\
+					<div class="col-md-4" >\
+						<div class="input-group pull-right" style="margin-right: 5px;">\
 							<button class="btn btn-primary" ng-click="exportData(sourceData, columns)">Copy</button>\
-							<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{uid}}" aria-expanded="false" aria-controls="{{uid}}">\
+							<button  class="btn btn-primary" type="button" data-toggle="collapse" data-target="#{{uid}}" aria-expanded="false" aria-controls="{{uid}}">\
 									Show/Hide\
 							</button>\
 						</div>\

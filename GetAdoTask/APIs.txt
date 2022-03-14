@@ -34,7 +34,9 @@ https://dev.azure.com/cshdevops/_apis/wit/workitems/<ID of bug/task/feature/us>
 
 https://dev.azure.com/cshdevops/_apis/wit/workitems/<ID of bug/us/feature/task>/
 // Get the revisions															revisions
-// Get the comments																comments
+// Get the comments																comments		// {commentId} is optional
+GET https://dev.azure.com/{organization}/{project}/_apis/wit/workItems/{workItemId}/comments/{commentId}?api-version=6.0-preview.
+	return: {totalCount:<count>, count:<count>, omments: [{mentions:[], id:<id>, text:<html msg>, createdBy:{displayName:<name>, uniqueName:<email>}, url:<url> }]}
 // Get the updates																updates
 
 // Get list via WIQL
@@ -81,6 +83,25 @@ Request Body
 https://dev.azure.com/{organization}/{project}/_apis/wit/queries/{query}?api-version=6.0
 https://dev.azure.com/cshdevops/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/_apis/wit/queries/{query}?api-version=6.0
 https://dev.azure.com/cshdevops/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/_apis/wit/queries/32dd8e9d-f515-4e4f-a6ea-824ece0fabda
+
+// Create a work item
+POST https://dev.azure.com/{organization}/{project}/_apis/wit/workitems/${type}?api-version=6.0
+JSON Body: [
+			  {
+				"op": "add",
+				"path": "/fields/System.Title",
+				"from": null,
+				"value": "Sample task"
+			  }
+			]
+
+// Add comments to workitemLinks
+POST https://dev.azure.com/{organization}/{project}/_apis/wit/workItems/{workItemId}/comments?api-version=6.0
+JSON Body: [
+			  {
+				"text": "Moving to the right area path"
+			  }
+			]
 
 *** Field Mapping:
 System.Id						-> 288731

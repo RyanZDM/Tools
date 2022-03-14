@@ -207,12 +207,12 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 
 		/**
 		 * name getAdoTaskUsingWiql
-		 * @param {string} url			url to the REST API of ADO
+		* @param {string} authToken	The token string to be sent to ADO for the authentication
+ 		 * @param {string} url			url to the REST API of ADO
 		 * @param {string} wiql			WIQL string
-		 * @param {string} authToken	The token string to be sent to ADO for the authentication
 		 */
-		function getAdoTaskUsingWiql(url, wiql, authToken) {
-			return queryUsingWiql(url, wiql, authToken, "WIT", null);
+		function getAdoTaskUsingWiql(authToken, url, wiql) {
+			return queryUsingWiql(authToken, url, wiql, "WIT", null);
 		};
 		
 		/**
@@ -222,7 +222,7 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 		 * @return {Array}	CPE user story list
 		 */
 		function getCpeStatistics(parameters) {
-			return queryUsingWiql(adoRestApi.TemplateWiqlQuery, adoRestApi.WiqlCpeStatistics, parameters.Token, "WIT", []);
+			return queryUsingWiql(parameters.Token, adoRestApi.TemplateWiqlQuery, adoRestApi.WiqlCpeStatistics, "WIT", []);
 		}
 		
 		/**
@@ -234,7 +234,7 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 			var url = adoRestApi.TemplateWiqlQuery;
 			var wiql = adoRestApi.TemplateWiqlFeatureList;
 
-			return queryUsingWiql(url, wiql, authToken, "Feature", ["System.Title"]);
+			return queryUsingWiql(authToken, url, wiql, "Feature", ["System.Title"]);
 		};
 
 		/**
@@ -255,7 +255,7 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 								,"[Microsoft.VSTS.Scheduling.CompletedWork]"];
 
 			var deferred = $.Deferred();
-			queryUsingWiql(url, wiql, authToken, "WIT", /*returnFields*/ null).then(function(result) {
+			queryUsingWiql(authToken, url, wiql, "WIT", /*returnFields*/ null).then(function(result) {
 					deferred.resolve(result);
 					//var tasks = _.pluck
 				},
@@ -267,29 +267,60 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 		}
 		
 		/**
+		 * @name getTaskDetailInfo
+		 * @description Gets the detail info of work items
+		 * @param {string}	URI
+		 * @param {Array<int/string>} idList	The list of work item ID
+		 * @param {null or Array<string>} returnFields	The name list of field to be returned
+		 * @param {string} authToken	The token string to be sent to ADO for the authentication
+		 */
+		function getTaskDetailInfo(url, idList, returnFields, authToken) {
+			var deferred = $.Deferred();
+
+			var newParams = getParametersForWitQuery(idList, returnFields);
+			if (newParams.length < 1) {
+				deferred.reject("Error occurred while getting parameters for WIT query.");
+				return deferred.promise();
+			}
+
+			var promises = [];
+			newParams.forEach(function(qry) {
+				promises.push(jQueryPost(url, authToken, JSON.stringify(qry)));
+			});
+
+			Promise.all(promises)
+				.then(function(list) {
+					list = _.flatten(_.pluck(list, "value"));
+					deferred.resolve(list);
+				})
+				.catch(function(err) {
+					deferred.reject(err);
+				});
+
+			return deferred.promise();
+		}
+
+		/**
 		 * @name  Gets the new parameters for getting detail info of work item. Call by other methods internally
-		 * @param {string} originalUrl
-		 * @param {Array<int>} workItems
+		 * @param {string} url
+		 * @param {Array<int>} idList
 		 * @param {null or Array<string>} returnFields
 		 */
-		function getParametersForWitQuery(originalUrl, workItems, returnFields) {
+		function getParametersForWitQuery(idList, returnFields) {
 			var queries = [];
-			var newUrl = originalUrl.replace("wiql", "workitemsbatch");
-			//var fields = _.pluck(data.columns, "referenceName");	// not allow to use "relations" if specified the fields
-			var witIds = _.pluck(workItems, "id");
 
 			// Split to multiple calls since return max 200 records for each query
-			var queryCount = Math.ceil(witIds.length / adoRestApi.MaxRecordsEveryQuery);
+			var queryCount = Math.ceil(idList.length / adoRestApi.MaxRecordsEveryQuery);
 			for (var i = 0; i < queryCount; i++) {
 				var start = i * adoRestApi.MaxRecordsEveryQuery;
 				var end = start + adoRestApi.MaxRecordsEveryQuery;
-				var newQueryData = { ids: witIds.slice(start, end) };
+				var newQueryData = { ids: idList.slice(start, end) };
 				if (returnFields && returnFields.length > 0) {
 					newQueryData.fields = returnFields;
 				} else {
 					newQueryData["$expand"] = "relations";
 				}
-				queries.push({ url: newUrl, data: newQueryData });
+				queries.push(newQueryData);
 			}
 
 			return queries;
@@ -297,37 +328,31 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 
 		/**
 		 * name queryUsingWiql			Call by other methods internally
+		 * @param {string} authToken	The token string to be sent to ADO for the authentication
 		 * @param {string} url			url to the REST API of ADO
 		 * @param {string} wiql			WIQL string
-		 * @param {string} authToken	The token string to be sent to ADO for the authentication
 		 * @param {string} returnType	The type of return list, "Feature" or "WIT" (Bug/US/Task)
 		 * @param {string or Array<string>} returnFields	[] means specify by SELECT clause, null means return all fields
 		 */
-		function queryUsingWiql(url, wiql, authToken, returnType, returnFields) {
+		function queryUsingWiql(authToken, url, wiql, returnType, returnFields) {
 			var deferred = $.Deferred();
 			jQueryPost(url, authToken, JSON.stringify({ "query": wiql }))
 				.then(function (result) {
 						if (result.queryResultType && result.queryResultType === "workItem") {
 							// This is a "flat" query
 							// There is a limitation that ADO query returns max 200 records one time
+							var newUrl = url.replace("wiql", "workitemsbatch");
+							var witIds = _.pluck(result.workItems, "id");
 							if (returnFields && returnFields.length === 0) {
 								returnFields = _.pluck(result.columns, "referenceName");
 							}
-							var newParams = getParametersForWitQuery(url, result.workItems, returnFields);
-							if (newParams.length < 1) {
-								deferred.reject("Error occurred while getting parameters for WIT query.");
-								return;
-							}
 
-							var promises = [];
-							newParams.forEach(function(qry) {
-								promises.push(jQueryPost(qry.url, authToken, JSON.stringify(qry.data)));
-							});
-
-							Promise.all(promises)
-								.then(function(list) {
-									list = _.flatten(_.pluck(list, "value"));
-									deferred.resolve(getList(adoRestApi, list, returnType));
+							getTaskDetailInfo(newUrl, witIds, returnFields, authToken).then(function(list) {
+									if (returnType != null && returnType !== "") {
+										deferred.resolve(getList(adoRestApi, list, returnType));
+									} else {
+										deferred.resolve(_.pluck(list, "fields"));
+									}
 								})
 								.catch(function(err) {
 									deferred.reject(err);
@@ -420,10 +445,20 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 		return {
 			getFeatureList: getFeatureList,
 
+			pureWiqlQuery: function(parameters) {
+				return queryUsingWiql(parameters.Token,
+					adoRestApi.TemplateWiqlQuery,
+					parameters.Wiql,
+					null,
+					parameters.ReturnFields);
+			},
+
 			getAdoTaskUsingWiql: function(parameters) {
 				var apis = adoRestApi.getWitUrl(parameters);
-				return getAdoTaskUsingWiql(apis.url, apis.wiql, parameters.Token);
+				return getAdoTaskUsingWiql(parameters.Token, apis.url, apis.wiql);
 			},
+
+			getTaskDetailInfo: getTaskDetailInfo,
 
 			getCpeStatistics: getCpeStatistics,
 			

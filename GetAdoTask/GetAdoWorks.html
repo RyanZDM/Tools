@@ -29,7 +29,7 @@
 						<strong>{{ErrorMsg}}</strong>
 					</div>
 					<div class="row">
-						<div class="col-md-6"><rally-login></rally-login></div>
+						<div class="col-md-6"><ado-login></ado-login></div>
 						<span class="col-md-5 text-right alert alert-warning" ng-show="taskForm.owner.$error.email">
 							The email address is invalid
 						</span>
@@ -202,7 +202,7 @@
 								<li>
 									<div class="checkbox">
 										<label>
-											<input type="checkbox" ng-model="ShowEverFailedField" />Ever Failed
+											<input type="checkbox" ng-model="ShowFeatureField" />Feature
 										</label>
 									</div>
 								</li>
@@ -236,7 +236,7 @@
 				</div>
 			</div>
 			<div class="row">
-				<table class="table table-hover table-bordered table-responsive" border="1" id="result">
+				<table class="table table-hover table-bordered table-responsive" border="1" id="result">ShowEverFailedField
 					<thead>
 					<tr>
 						<th>#</th>
@@ -249,7 +249,7 @@
 						<th ng-show="ShowIterationField">Iteration</th>
 						<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
 						<th ng-show="ShowRejectField" ng-if="!QueryForOpenDefect">Reject</th>
-						<th ng-show="ShowEverFailedField" ng-if="!QueryForOpenDefect">Ever Failed</th>
+						<th ng-show="ShowFeatureField">Feature</th>
 						<!--<th ng-if="!QueryForOpenDefect'" data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>-->
 						<th class="col-3" width="10%">
 							<div class="input-group">
@@ -286,7 +286,7 @@
 							   data-toggle="tooltip" title={{task.Description}} data-html="true" data-placement="right" data-delay='{ "show": "1500", "hide": "1000" }'>
 								{{task.Title}}
 							</a>
-						</td>
+						</td>e
 
 						<td align="center">{{task.Priority}}</td>
 						<td ng-show="ShowProductField" align="center" width="5%">{{task.CSH_FoundInProduct}}</td>
@@ -299,16 +299,16 @@
 							</a>
 						</td>
 						<td ng-show="ShowRejectField" ng-if="!QueryForOpenDefect" align="center">{{task.Rejected ? 'Y' : ''}}</td>
-						<td ng-show="ShowEverFailedField" ng-if="!QueryForOpenDefect" align="center">
-							<div style="color:red; font-weight:bold">{{task.EverFailed ? 'Y' : ''}}</div>
-						</td>
-						<td ng-if="!QueryForOpenDefect" align="center">
-							<div ng-style="{ 'color' : (task.UTNeed == 'Missed') ? 'red' : 'black', 'fontWeight' : (task.UTNeed == 'Missed') ? 'bold' : 'normal' }">{{task.UTNeed}}</div>
+						<td ng-show="ShowFeatureField" align="center">
+							<a href="{{task.ParentLink}}" target="_blank"
+							   dta-toggle="tooltip" title="{{getFeatureName(task.Parent)}}">
+								{{task.Parent}}
+							</a>
 						</td>
 						<td class="col-3" width="10%">
 							<textarea style="word-break:break-all" class="form-control" ng-model="task.Other"></textarea>
 						</td>
-						<td ng-show="ShowBlockReasonField" width="10%">{{task.CSH_BlockedReason}}</td>
+						<td ng-show="ShowBlockReasonField" width="10%" data-toggle="tooltip" data-html="true" data-placement="top" data-delay='{ "show": "1500", "hide": "1000" }' title="{{task.CSH_BlockedReason}}">{{task.OmittedBlockedReason}}</td>
 					</tr>
 					</tbody>
 				</table>
@@ -316,61 +316,65 @@
 				
 			<div class="row"></div>
 			<!-- Summary of developer's story points per the current filter' -->
-			<table-and-chart
-				uid="WorkloadSummaryTableChart"
-				label="Workload Summary"
-				headers="workloadStat.Headers"
-				columns="workloadStat.Columns"
-				source-data="workloadStat.Workload"
-				chart-data="workloadStat"
-				action="collectWorkloadStatData()"
-				export-data="exportData(workloadStat)"
-				title="Working hours statistics by sprint & owner">
-			</table-and-chart>
+			<div class="table-bordered" style="border-color:lightblue; margin: 2px;">
+				<table-and-chart
+					uid="WorkloadSummaryTableChart"
+					label="Workload Summary"
+					headers="workloadStat.Headers"
+					columns="workloadStat.Columns"
+					source-data="workloadStat.Workload"
+					chart-data="workloadStat"
+					action="collectWorkloadStatData()"
+					export-data="exportData(workloadStat)"
+					title="Working hours statistics by sprint & owner">
+				</table-and-chart>
+			</div>
 			<!-- End -->
 
 			<!-- Summary of developer's working hour by the sub task' -->
-			<div class="row"></div>
-			<table-and-chart
-				uid="workingHoursStatOwnerTableChart"
-				label="Working hours statistics by owner"
-				headers="workingHoursStatOwner.Headers"
-				columns="workingHoursStatOwner.Columns"
-				source-data="workingHoursStatOwner.Workload"
-				chart-data="workingHoursStatOwner"
-				action="calcWorkingHours()"
-				export-data="exportData(workingHoursStatOwner)"
-				title="Working hours statistics by owner">
-			</table-and-chart>
-
+			<div class="table-bordered" style="border-color:lightblue; margin: 2px;">
+				<table-and-chart
+					uid="workingHoursStatOwnerTableChart"
+					label="Working hours statistics by owner"
+					headers="workingHoursStatOwner.Headers"
+					columns="workingHoursStatOwner.Columns"
+					source-data="workingHoursStatOwner.Workload"
+					chart-data="workingHoursStatOwner"
+					action="calcWorkingHours()"
+					export-data="exportData(workingHoursStatOwner)"
+					title="Working hours statistics by owner">
+				</table-and-chart>
+			</div>
 			<!-- Summary of team's working hour by the sub task' -->
-			<div class="row"></div>
-			<table-and-chart
-				uid="workingHoursStatTeamTableChart"
-				label="Working hours statistics by team"
-				headers="workingHoursStatTeam.Headers"
-				columns="workingHoursStatTeam.Columns"
-				source-data="workingHoursStatTeam.Workload"
-				chart-data="workingHoursStatTeam"
-				export-data="exportData(workingHoursStatTeam)"
-				disable-button="true"
-				title="Working hours statistics by tea">
-			</table-and-chart>
+			<div class="table-bordered" style="border-color:lightblue; margin: 2px;">
+				<table-and-chart
+					uid="workingHoursStatTeamTableChart"
+					label="Working hours statistics by team"
+					headers="workingHoursStatTeam.Headers"
+					columns="workingHoursStatTeam.Columns"
+					source-data="workingHoursStatTeam.Workload"
+					chart-data="workingHoursStatTeam"
+					export-data="exportData(workingHoursStatTeam)"
+					disable-button="true"
+					title="Working hours statistics by tea">
+				</table-and-chart>
+			</div>
 			<!-- End -->
 			
 			<!-- CPE data statistics -->
-			<div class="row"></div>
-			<table-and-chart
-				uid="CPEStatisticsByCatalog"
-				label="CPE statistics by catalog"
-				headers="cpeCatalogStat.Headers"
-				columns="cpeCatalogStat.Columns"
-				source-data="cpeCatalogStat.Workload"
-				chart-data="cpeCatalogStat"
-				action="getCpeStatistics()"
-				export-data="exportData(cpeCatalogStat)"
-				title="Gets CPE statistics">
-			</table-and-chart>
+			<div class="table-bordered" style="border-color:lightblue; margin: 2px;">
+				<table-and-chart
+					uid="CPEStatisticsByCatalog"
+					label="CPE statistics by catalog"
+					headers="cpeCatalogStat.Headers"
+					columns="cpeCatalogStat.Columns"
+					source-data="cpeCatalogStat.Workload"
+					chart-data="cpeCatalogStat"
+					action="getCpeStatistics()"
+					export-data="exportData(cpeCatalogStat)"
+					title="Gets CPE statistics">
+				</table-and-chart>
+			</div>
 			<!-- End-->
 			</div>
 			</div>
