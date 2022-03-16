@@ -1,5 +1,5 @@
 define(["angular", "angular-chart"
 ], function (angular) {
-	var app = angular.module("getRallyWorksApp", ["chart.js"]);
+	var app = angular.module("getAdoTasksApp", ["chart.js"]);
 	return app;
 });

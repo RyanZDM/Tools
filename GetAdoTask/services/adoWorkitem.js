@@ -1,14 +1,14 @@
 /**
  *construct a ADO work item object from JSON object
- *
- *param restApi		The lib in which contains the REST APIs
+ * 
  *param jsonObj		The json object contains one ADO bugs and/or user stories
+ *param tools		The tools including restApi, moment
  *
  *return			The ADO work item collection
  */
-function adoWorkItem(restApi, jsonObj) {
+function adoWorkItem(jsonObj, tools) {
 	this.Id = ("id" in jsonObj) ? jsonObj["id"] : "";
-	this.Link = restApi.WitLink + this.Id;
+	this.Link = tools.restApi.WitLink + this.Id;
 
 	if (!jsonObj["fields"]) return;
 
@@ -48,9 +48,6 @@ function adoWorkItem(restApi, jsonObj) {
 			break;
 		default:
 	}
-
-	// TODO:
-	this.FakeTask = false;
 
 	if (!this["Blocked"] || this["Blocked"] !== "Yes") {
 		this["Blocked"] = "No";
@@ -99,7 +96,7 @@ function adoWorkItem(restApi, jsonObj) {
 
 	// Parent
 	if (this.Parent) {
-		this.ParentLink = restApi.WitLink + this.Parent;
+		this.ParentLink = tools.restApi.WitLink + this.Parent;
 	}
 
 	// Child
@@ -132,45 +129,90 @@ function adoWorkItem(restApi, jsonObj) {
 	};
 
 	function getCpeInfo(wit) {
-		//var text =
-		//	"<div>submit time=&quot;2022-01-13 16:03&quot;;first reply time=&quot;2022-01-20 15:20&quot;;complete time=&quot;&quot;;catalog=&quot;Techniques&quot;;close reason=&quot;&quot;;modality=&quot;EVO&quot;; </div>";
-		
 		//submit time="2022-01-13 16:03";first reply time="2022-01-20 15:20";complete time="";catalog="Techniques";close reason="";modality="EVO";
 		if (wit.CPEInfo) {
 				_.extend(wit.CPEInfo, { catalog: "<empty>" });
 		} else {
 			wit.CPEInfo = { catalog: "<empty>" };
 		}
-		
-		if (!wit.CSH_Notes || wit.CSH_Notes.trim() === "") return;
 
-		var cpeInfo = html2PlainText(wit.CSH_Notes).trim().replaceAll(";;", ";");
-		if (cpeInfo.indexOf("=") === -1) return;
-		if (cpeInfo.toLowerCase().indexOf("catalog") === -1) return;
-
-		if (cpeInfo.endsWith(";")) {
-			// Remove last ";"
-			cpeInfo = cpeInfo.substr(0, cpeInfo.length - 1);
-		}
-
-		var cpeInfoDict = {};
-		var infoList = cpeInfo.split(";");
-		for (var index in infoList) {
-			if (infoList[index].length > 0) {
-				var dict = infoList[index].split("=");
-				var key = dict[0].replaceAll('"', '').toLowerCase();
-				var value = (dict[1] && dict[1].length > 0) ? dict[1] : "<empty>";
-				cpeInfoDict[key] = value.replaceAll('"', '');
+		// Gets escalation ID
+		if (wit.Title) {
+			var match = wit.Title.match(/(?<=\[).*?(?=\])/);
+			if (match && match.length > 0) {
+				wit.EscalationId = match[0];
 			}
 		}
 
-		// temp
-		if (cpeInfoDict["catalog"] && cpeInfoDict["catalog"].length > 50) {
-			// Means has not recognized the catalog, uses the default template which contains all catalog items
-			cpeInfoDict["catalog"] = "<empty>";
+		// Gets info dictionary from "Notes" field		
+		if (wit.CSH_Notes && wit.CSH_Notes.trim() !== "") {
+
+			var cpeInfo = html2PlainText(wit.CSH_Notes).trim().replaceAll(";;", ";");
+			if (cpeInfo.indexOf("=") === -1) return;
+			if (cpeInfo.toLowerCase().indexOf("catalog") === -1) return;
+
+			if (cpeInfo.endsWith(";")) {
+				// Remove last ";"
+				cpeInfo = cpeInfo.substr(0, cpeInfo.length - 1);
+			}
+
+			var cpeInfoDict = {};
+			var infoList = cpeInfo.split(";");
+			for (var index in infoList) {
+				if (infoList[index].length > 0) {
+					var dict = infoList[index].split("=");
+					var key = dict[0].replaceAll('"', '').replaceAll(' ', '').toLowerCase();
+					var value = (dict[1] && dict[1].length > 0) ? dict[1] : "<empty>";
+					cpeInfoDict[key] = value.replaceAll('"', '');
+				}
+			}
+
+			// temp
+			if (cpeInfoDict["catalog"] && cpeInfoDict["catalog"].length > 50) {
+				// Means has not recognized the catalog, uses the default template which contains all catalog items
+				cpeInfoDict["catalog"] = "<empty>";
+			}
+
+			_.extend(wit.CPEInfo, cpeInfoDict);
 		}
-		
-		_.extend(wit.CPEInfo, cpeInfoDict);
+
+		// Gets the submitted year/week (from CreatedDate or "Submit time")
+		// ADO uses the UTC date
+		var startDate = tools.moment.utc(wit["CreatedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
+		if (startDate.isValid()) {
+			startDate.local();
+		}
+		if (wit.CPEInfo["submittime"]) {
+			var date = tools.moment(wit.CPEInfo["submittime"], "YYYY-MM-DD HH:mm:ss");
+			if (date.isValid()) {
+				startDate = date;
+			}
+
+			wit.CPEInfo.SubmittedYear = date.year();
+			wit.CPEInfo.SubmittedMonth = date.month();
+			wit.CPEInfo.SubmittedWeek = date.week();
+		}
+
+		var endDate = tools.moment();
+		if (wit.State === "Closed") {
+			var closeDate = tools.moment.utc(wit["ClosedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
+			if (closeDate.isValid()) {
+				closeDate.local();
+				endDate = closeDate;	// uses the ClosedDate as the last date
+			}
+
+			wit.CPEInfo.ClosedYear = endDate.year();
+			wit.CPEInfo.ClosedMonth = endDate.month();
+			wit.CPEInfo.ClosedWeek = endDate.week();
+		}
+
+		if (startDate.isValid()) {
+			// Calculates the open working days
+			wit.CPEInfo.OpenDays = endDate.diff(startDate, "days") + 1;
+			wit.CPEInfo.OpenWorkingDays = endDate.businessDiff(startDate);
+		}
+
+		// temp
 		wit.CPEInfoHtml = "";
 	}
 

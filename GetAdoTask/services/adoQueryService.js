@@ -1,6 +1,6 @@
 "use strict";
 
-define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
+define(["jquery", "underscore", "moment", "app", "moment-business-days"], function ($, _, moment, app) {
 	/**
 	 * @name adoQueryService
 	 * @description - service for querying info from ADO
@@ -388,11 +388,12 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 		 * @param returnType	"Feature" or "WIT"
 		 * @return			The ADO record collection
 		 */
-		function getList(resetApi, itemArray, returnType) {
+		function getList(restApi, itemArray, returnType) {
 			returnType = returnType.toLowerCase();
-			
-			if (returnType === "wit") return getWorkItems(resetApi, itemArray);
-			if (returnType === "feature") return getFeatures(resetApi, itemArray);
+
+			var tools = { restApi: restApi, moment: moment };
+			if (returnType === "wit") return getWorkItems(itemArray, tools);
+			if (returnType === "feature") return getFeatures(restApi, itemArray);
 
 			return [];
 		}
@@ -418,17 +419,17 @@ define(["jquery", "underscore", "moment", "app"], function ($, _, moment, app) {
 		/**
 		 * @name getWorkItems
 		 * @description		Analyze the JSON object and return the work item list against on the target type. Call by other methods internally
-		 * @param restApi	The restApi object
 		 * @param itemArray	The json object contains records get from ADO
-		 * @return			The ADO record collection
+		 * @param tools	The restApi object and moment
+ 		 * @return			The ADO record collection
 		 */
-		function getWorkItems(restApi, itemArray) {
+		function getWorkItems(itemArray, tools) {
 			if (!itemArray || itemArray.length === 0) return [];
 
 			var today = moment().format("YYYYMMDD");
 			var witList = [];
 			itemArray.forEach(function(item) {
-				var wit = new adoWorkItem(restApi, item);
+				var wit = new adoWorkItem(item, tools);
 
 				wit.WasChangedToday = false;
 				if (wit.StateChangeDate) {

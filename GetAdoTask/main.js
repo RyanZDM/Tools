@@ -8,6 +8,7 @@ require.config({
 		"bootstrap": "libs/bootstrap/current/bootstrap",
 		"underscore": "libs/underscore/1.8.3/underscore",
 		"moment": "libs/momentjs/2.23.0/moment.min",
+		"moment-business-days": "libs/moment-business-days/1.2.0/moment-business-days.min",
 		"chart": "libs/chartjs/2.8.0/Chart.min",
 		"angular-chart": "libs/angular-chart.js/1.1.1/angular-chart.min",
 		"app": "app"
@@ -18,6 +19,9 @@ require.config({
 		"underscore": { exports: "_" },
 		"chart.js": {
 			deps: ["angular", "chart"]
+		},
+		"moment-business-days": {
+			deps: ["moment"]
 		}
 	}
 });
@@ -54,14 +58,14 @@ require(['controllers/adoTaskController'], function (adoTaskController) { });
 /* Uses domReady is better than document.ready()
 require(['angular', 'app'], function(angular) {
 	angular.element(document).ready(function() {  
-				angular.bootstrap(document, ['getRallyWorksApp']); 
+				angular.bootstrap(document, ['getAdoTasksApp']);
 			});
 });
 */
 
 require(["domReady!"], function (document) {
 	require(["jquery", "angular"], function ($, angular) {
-		angular.bootstrap(document, ["getRallyWorksApp"]);
+		angular.bootstrap(document, ["getAdoTasksApp"]);
 		//$('[data-toggle="tooltip"]').tooltip()
 	});
 });
