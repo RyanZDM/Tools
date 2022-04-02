@@ -16,7 +16,7 @@ define(["app"], function (app) {
 						</div>\
 					</div>\
 				</div >\
-				<div class="row collapse" id="{{uid}}">\
+				<div class="row {{state}}" id="{{uid}}">\
 					<div class="col-md-4">\
 						<table class="table table-hover table-bordered table-responsive" border="1">\
 							<thead>\
@@ -58,6 +58,7 @@ define(["app"], function (app) {
 				exportData: "&",
 				disableButton: "@",// Show a label instead of button
 				class: "@",		// Should be btn-info, btn-success etc.
+				state: "@",	// if collapse the div
 				title: "@"		// Title for tooltip
 			},
 			template: html

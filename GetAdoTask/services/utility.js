@@ -51,9 +51,11 @@ define(["app", "underscore"], function (app, _) {
 		 * @param	array								data array to be group by.
 		 * @param	{(string|function)[]}	iteratee	The iteratees to transform keys.
 		 * @param	cumulativeItems						items will be accumulated.
+		 * @param	caseSensitive						if case sensitive
+		 * @param	ignoreNonAlphanumericChar			if ignore non Alphanumeric char
 		 * @returns	The cumulated items specified by 'cumulativeItems' group by 'iteratee'.
 		 */
-		function groupByMultiple(array, iteratee, cumulativeItems) {
+		function groupByMultiple(array, iteratee, cumulativeItems, caseSensitive, ignoreNonAlphanumericChar) {
 			if (!array || array.length < 1) return [];
 			if (!iteratee || iteratee.length < 1) return array;
 			//if (!cumulativeItems || cumulativeItems.length < 1) return array;
@@ -71,28 +73,65 @@ define(["app", "underscore"], function (app, _) {
 				} else {
 					cumulativeItems = [].concat(cumulativeItems);
 				}
-								
+
+				// Find out all duplicated columns (case insensitive, remove -, _ and white space)
+				// and return the first matched column 
+				var uniqueKeyDict = {};
+				var uniqueList = [];
+				Object.keys(firstBy).forEach(function (col) {
+					var pureName = getPureNameString(col, caseSensitive, ignoreNonAlphanumericChar);
+					//uniqueKeyDict[col] = pureName;
+
+					var found = false;
+					for (const [key, value] of Object.entries(uniqueKeyDict)) {
+						// Find a duplicated item, use that one as pure name
+						if (value === pureName) {
+							uniqueKeyDict[col] = key;
+							found = true;
+							break;
+						}
+					}
+
+					if (!found) {
+						// This is first one, record the pure name
+						uniqueKeyDict[col] = pureName;
+						uniqueList.push(col);
+					}
+				});
+
+				// Change the column name back
+				uniqueList.forEach(function (col) {
+					uniqueKeyDict[col] = col;
+				})
+
 				var cumulatedRecords = {};
 				for (var lastGroupItem in firstBy) {
-					var count = 0;
-					var cumulatedRecord = { };
-					_.each(cumulativeItems,
-						function(item) {
-							cumulatedRecord[item] = 0;
-						});
+					var correctColName = uniqueKeyDict[lastGroupItem];
+					var cumulatedRecord = {};
+					if (cumulatedRecords[correctColName]) {
+						cumulatedRecord = cumulatedRecords[correctColName];
+					} else {
+						_.each(cumulativeItems,
+							function (item) {
+								cumulatedRecord[item] = 0;
+							});
+
+						cumulatedRecord._Count = 0;
+					}
 
 					_.each(firstBy[lastGroupItem], function (record) {
 						_.each(cumulativeItems, function (item) {
-							if (record[item]) {
-								cumulatedRecord[item] = cumulatedRecord[item] + record[item];
-							}
+							cumulatedRecord[item].MatchedColumns.forEach(function (matched) {
+								if (record[col]) {
+									cumulatedRecord[item] = cumulatedRecord[item] + record[item]
+								}
+							});
 						});
 
-						count++;
+						cumulatedRecord._Count++;
 					});
 
-					cumulatedRecord._Count = count;
-					cumulatedRecords[lastGroupItem] = cumulatedRecord;					
+					cumulatedRecords[correctColName] = cumulatedRecord;
 				}
 				
 				return cumulatedRecords;
@@ -164,6 +203,15 @@ define(["app", "underscore"], function (app, _) {
 			var ccString = (cc && cc.trim() !== "") ? ("cc=" + cc + "&") : "";
 			var attach = (attachment && attachment.trim() !== "") ? '&attach="' + attachment + '"' : "";
 			window.open("mailto:" + to + "?" + ccString + "subject=" + subject + "&body=" + body + attach);
+		};
+
+		function getPureNameString(name, caseSensitive, ignoreNonAlphanumericChar) {
+			var newCol = caseSensitive ? name : name.toLowerCase();
+			if (ignoreNonAlphanumericChar) {
+				newCol = newCol.replace(/[^a-zA-Z0-9]/g, "").replace(/\s+/g, "");
+			}
+
+			return newCol;
 		};
 	});
 });

@@ -160,11 +160,17 @@ define(["app"], function (app) {
 			}
 
 			if (parameters.Release && parameters.Release !== "") {
-				var conditionRelease = "<prefix>[Custom.CSH_Release] = '<release>'".replace("<prefix>", columnPrefix).replace(parameters.Release);
+				var conditionRelease = "<prefix>[Custom.CSH_Release] = '<release>'".replace("<prefix>", columnPrefix).replace("release", parameters.Release);
 				conditions.push(conditionRelease);
 			} else if (parameters.ReleaseContains && parameters.ReleaseContains !== "") {
 				var conditionReleaseEx = "<prefix>[Custom.CSH_Release] Contains '<release>'".replace("<prefix>", columnPrefix).replace("<release>", parameters.ReleaseContains);
 				conditions.push(conditionReleaseEx);
+			}
+
+			if (parameters.CreatedAfter) {
+				// Assume the date format should be "YYYY-MM-DD"
+				var conditionCreatedAfter = "<prefix>[System.CreatedDate] >= '<date>'".replace("<prefix>", columnPrefix).replace("<date>", parameters.CreatedAfter);
+				conditions.push(conditionCreatedAfter);
 			}
 			
 			return conditions.join(" AND ");
