@@ -507,8 +507,8 @@
 												<tbody>
 													<tr ng-repeat="data in CPE.TaskList | orderBy:CPE.OrderByValue |filter: CPE.dataFilter as filteredCpeRecords">
 														<td style="vertical-align: middle; text-align: center">{{ $index + 1}}</td>
-														<td style="vertical-align: middle" ng-repeat="column in CPE.Columns">
-															<span ng-if="column === 'Id'"><a href="{{data['Link']}}" target="_blank">{{data[column]}}</a></span>
+														<td style="vertical-align: middle" ng-repeat="column in CPE.FullColumns">
+															<span ng-if="column === 'Id'" style="display: block; text-align: center"><a href="{{data['Link']}}" target="_blank">{{data[column]}}</a></span>
 															<span ng-if="column === 'Title'"
 																  data-toggle="tooltip"
 																  title={{data["Description"]}}
@@ -517,7 +517,7 @@
 																  data-delay='{ "show": "1500", "hide": "1000" }'>
 																{{getRowData(data, column)}}
 															</span>
-															<span ng-if="column !== 'Id' && column !== 'Title'">{{getRowData(data, column)}}</span>
+															<span style="display: block; text-align: center" ng-if="column !== 'Id' && column !== 'Title'">{{getRowData(data, column)}}</span>
 														</td>
 													</tr>
 												</tbody>

@@ -37,6 +37,7 @@ require(["services/adoFeature"]);
 require(["services/utility"]);
 require(["services/adoAuthService"]);
 require(["services/adoQueryService"]);
+require(["services/adoComputedFiledService"]);
 require(["directives/adoLoginDirective"]);
 require(["directives/labeledCheckboxDirective"]);
 require(["directives/tableAndChartDirective"]);

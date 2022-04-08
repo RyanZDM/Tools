@@ -14,8 +14,9 @@ define(["app", "underscore", "jquery"],
 			"currentSettings",
 			"LocalStorageKey",
 			"$sce",
+			"adoComputedFiledService",
 
-			function ($scope, $rootScope, $http, $q, adoAuthService, adoQueryService, adoRestApi, utility, currentSettings, LocalStorageKey, $sce) {
+			function ($scope, $rootScope, $http, $q, adoAuthService, adoQueryService, adoRestApi, utility, currentSettings, LocalStorageKey, $sce, adoComputedFiledService) {
 				$scope.RALLY_INTERNAL_ERROR = "RallyInternalError";
 				$scope.CanUseLocalStorage = adoAuthService.CanUseLocalStorage;
 				$scope.FeatureList = [];
@@ -343,7 +344,7 @@ define(["app", "underscore", "jquery"],
 				$scope.Dev.OrderByValue = $scope.Dev.OrderByValues[0];
 
 				$scope.CPE = {
-					CreatedAfter: new Date(moment().startOf("month")),	//moment().startOf('month'),//.format("YYYY-MM-DD"),
+					CreatedAfter: new Date(moment().startOf("month")),
 					SpecialDateRange: "",
 					TaskList: [],
 					OrderByOptionIndex: 0,
@@ -359,8 +360,11 @@ define(["app", "underscore", "jquery"],
 						["-CPEInfo.OpenWorkingDays", "State", "Priority"]
 					],
 
-					Headers: ["ADO ID", "Esclation ID", "Title", "Priority", "State", "Points", "Assigned TO", "Blocked", "Created", "Closed", "Open Days"],
-					Columns: ["Id", "EscalationId", "Title", "Priority", "State","StoryPoints", "Owner", "Blocked", "CreatedDate", "ClosedDate", "CPEInfo.OpenWorkingDays"],
+					Headers: ["ADO ID", "Esclation ID", "Title", "Priority", "State", "Points", "Assigned TO", "Blocked", "Created", "Closed", "Open Days", "Ver"],
+					Columns: ["Id", "EscalationId", "Title", "Priority", "State", "StoryPoints", "Owner", "Blocked", "CreatedDate", "ClosedDate", "CPEInfo.OpenWorkingDays", "CSHSoftwareVersion"],
+					ColAlign: ["center", "center", "left", "center", "center", "center", "center", "center", "center", "center", "center", "center"],
+					ComputedFieldScript: "",//DoubleDays=(wit.CPEInfo.OpenWorkingDays * 2)",
+					ComputedFields: [],// will be updated by ComputedFieldScript
 
 					WorkloadStat: {
 						Collected: false,
@@ -454,8 +458,14 @@ define(["app", "underscore", "jquery"],
 
 						var parameters = { CreatedAfter: moment($scope.CPE.CreatedAfter).format("YYYY-MM-DD"), WorkItemType: "User Story", Teams: "CPE" };
 						getAdoTask(parameters, null, function (result, token) {
+							var hasCustomizedField = ($scope.CPE.ComputedFields.length > 0);
 
 							result.forEach(function (record) {
+								if (hasCustomizedField) {
+									// Calculate the computed fields
+									adoComputedFiledService.updateCustomizedFields(record, $scope.CPE.ComputedFields);
+								}
+
 								record["CreatedDate"] = moment.utc(record["CreatedDate"], "YYYY-MM-DDTHH:mm:ss.SSS").local().format("YYYY-MM-DD");
 								if (record["ClosedDate"] && record["ClosedDate"] !== "") {
 									record["ClosedDate"] = moment.utc(record["ClosedDate"], "YYYY-MM-DDTHH:mm:ss.SSS").local().format("YYYY-MM-DD");
@@ -525,7 +535,16 @@ define(["app", "underscore", "jquery"],
 					}
 				};
 
-				$scope.CPE.OrderByValue = $scope.CPE.OrderByValues[0],
+				$scope.CPE.OrderByValue = $scope.CPE.OrderByValues[0];
+				// For computed fields
+				$scope.CPE.ComputedFields = adoComputedFiledService.getComputedFields($scope.CPE.ComputedFieldScript);
+				$scope.CPE.FullColumns = [].concat($scope.CPE.Columns).concat($scope.CPE.ComputedFields.map(cfg => { return cfg.Field }));
+				if ($scope.CPE.FullColumns.length > $scope.CPE.Headers.length) {
+					var end = $scope.CPE.FullColumns.length;
+					for (var i = $scope.CPE.Headers.length; i < end; i++) {
+						$scope.CPE.Headers.push($scope.CPE.FullColumns[i]);
+					}
+				}
 
 				$scope.workingHoursStatOwner = {
 												Workload: [], ChartData: []
@@ -542,19 +561,7 @@ define(["app", "underscore", "jquery"],
 				// Statistics end
 
 				$scope.getRowData = function (row, colName) {
-					if (!row || !colName || colName === "") return "";
-
-					var val = row[colName];
-					if (!val) {
-						if (colName.indexOf(".") === -1) return "";
-
-						val = row;
-						colName.split(".").forEach(function (col) {
-							val = val[col];
-						});
-					}
-
-					return val;
+					return utility.getRowData(row, colName);
 				};
 
 				// Re-enable the Tooltip since the filtered the tasks changed

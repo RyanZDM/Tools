@@ -11,7 +11,9 @@ define(["app", "underscore"], function (app, _) {
 			groupByMultiple: groupByMultiple,
 			saveToHtml: saveToHtml,
 			html2PlainText: html2PlainText,
-			sendEmail: sendEmail
+			sendEmail: sendEmail,
+			getRowData: getRowData,
+			setRowData: setRowData
 		}
 
 		/**
@@ -213,5 +215,53 @@ define(["app", "underscore"], function (app, _) {
 
 			return newCol;
 		};
+
+		/**
+		 * getRowData 
+		 * @param {any} row	The row data set
+		 * @param {any} colName	The column name in which may contains the "."
+		 *				e.g. "CPE.Proper1.Proper11
+		 */
+		function getRowData (row, colName) {
+			if (!row || !colName || colName === "") return "";
+
+			var val = row[colName];
+			if (!val) {
+				if (colName.indexOf(".") === -1) return "";
+
+				val = row;
+				colName.split(".").forEach(function (col) {
+					val = val[col];
+				});
+			}
+
+			return val;
+		};
+
+		function setRowData(row, colName, val) {
+			if (!row || !colName || colName === "") return false;
+
+			if (row[colName]) {
+				// Found the column, directly set value
+				row[colName] = val;
+				return true;
+			} else if (colName.indexOf(".") === -1) {
+				row[colName] = val;
+			} else {
+				var colList = colName.split(".");
+				var realCol = colList.pop();
+				var tempProperty = row;
+				colList.forEach(col => {
+					if (!tempProperty[col]) {
+						// Init it since no this property yet
+						tempProperty[col] = {};
+					};
+
+					tempProperty = tempProperty[col];
+				});
+
+				tempProperty[realCol] = val;
+			}
+		}
 	});
 });

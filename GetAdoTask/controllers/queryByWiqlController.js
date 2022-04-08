@@ -13,8 +13,9 @@ define(["app", "underscore", "jquery"],
 			"utility",
 			"currentSettings",
 			"LocalStorageKey",
+			"adoComputedFiledService",
 
-			function ($scope, $rootScope, $http, $q, adoAuthService, adoQueryService, adoRestApi, utility, currentSettings, LocalStorageKey) {
+			function ($scope, $rootScope, $http, $q, adoAuthService, adoQueryService, adoRestApi, utility, currentSettings, LocalStorageKey, adoComputedFiledService) {
 				$scope.CanUseLocalStorage = adoAuthService.CanUseLocalStorage;
 				$scope.UserId = "";
 				$scope.UserPwd = "";
@@ -29,7 +30,6 @@ define(["app", "underscore", "jquery"],
 				$scope.FullColumns = [];
 				$scope.ComputedFields = [];
 				$scope.Data = [];
-
 
 				// Re-enable the Tooltip since the filtered the tasks changed
 				$scope.$watch("filteredRecords", function () {
@@ -60,7 +60,7 @@ define(["app", "underscore", "jquery"],
 								result.forEach(function(wit) {
 									if (hasCustomizedField) {
 										// Calculate the computed fields
-										updateCustomizedFields(wit);
+										adoComputedFiledService.updateCustomizedFields(wit, $scope.ComputedFields);
 									}
 
 									$scope.FullColumns.forEach(function(col) {
@@ -92,27 +92,6 @@ define(["app", "underscore", "jquery"],
 						});
 				};
 
-				function getComputedFields() {
-					if (!$scope.CustomizedScript || $scope.CustomizedScript.trim() === "") {
-						$scope.ComputedFields = [];
-						return $scope.ComputedFields;
-					}
-
-					var defineList = $scope.CustomizedScript.trim().split("^");
-					defineList.forEach(function(define) {
-						var pos = define.indexOf("=");
-						if (pos === -1) return;
-
-						var field = define.substr(0, pos).trimStart().trimEnd();
-						var script = define.substr(pos + 1).trimStart().trimEnd();
-						if (script === "") return;
-
-						$scope.ComputedFields.push({ Field: field, Script: script });
-					});
-
-					return $scope.ComputedFields;
-				};
-
 				function getColumns() {
 					var select = $scope.Select.trimStart().trimEnd();
 					var regex = new RegExp("^Select", "i");
@@ -133,27 +112,15 @@ define(["app", "underscore", "jquery"],
 					});
 
 					var fullColumns = [].concat(columns);	// include the computed fields
-					if (getComputedFields().length > 0) {
-						$scope.ComputedFields.forEach(function(cf) {
-							headers.push(cf.Field);
-							fullColumns.push(cf.Field);
-						});
-					}
+					$scope.ComputedFields = adoComputedFiledService.getComputedFields($scope.CustomizedScript);
+					$scope.ComputedFields.forEach(function(cf) {
+						headers.push(cf.Field);
+						fullColumns.push(cf.Field);
+					});
 
 					$scope.Columns = columns;
 					$scope.FullColumns = fullColumns;
 					$scope.Headers = headers;
-				}
-
-				function updateCustomizedFields(wit) {
-					$scope.ComputedFields.forEach(function(fieldSetting) {
-						try {
-							var value = eval(fieldSetting.Script);
-							wit[fieldSetting.Field] = value;
-						} catch (e) {
-							wit[fieldSetting.Field] = "<syntax error>";
-						}
-					});
 				}
 
 				/**
