@@ -13,10 +13,9 @@ define(["app", "underscore", "jquery"],
 			"utility",
 			"currentSettings",
 			"LocalStorageKey",
-			"$sce",
 			"adoComputedFiledService",
 
-			function ($scope, $rootScope, $http, $q, adoAuthService, adoQueryService, adoRestApi, utility, currentSettings, LocalStorageKey, $sce, adoComputedFiledService) {
+			function ($scope, $rootScope, $http, $q, adoAuthService, adoQueryService, adoRestApi, utility, currentSettings, LocalStorageKey, adoComputedFiledService) {
 				$scope.RALLY_INTERNAL_ERROR = "RallyInternalError";
 				$scope.CanUseLocalStorage = adoAuthService.CanUseLocalStorage;
 				$scope.FeatureList = [];
@@ -341,7 +340,14 @@ define(["app", "underscore", "jquery"],
 					}
 				};
 
+				//#region Dev data init
 				$scope.Dev.OrderByValue = $scope.Dev.OrderByValues[0];
+
+				// Re-enable the Tooltip since the filtered the tasks changed
+				$scope.$watch("filteredRecords", function () {
+					$scope.enableHtmlFormatTooltip();
+				});
+				//#endregion Dev data init end
 
 				$scope.CPE = {
 					CreatedAfter: new Date(moment().startOf("month")),
@@ -362,7 +368,6 @@ define(["app", "underscore", "jquery"],
 
 					Headers: ["ADO ID", "Esclation ID", "Title", "Priority", "State", "Points", "Assigned TO", "Blocked", "Created", "Closed", "Open Days", "Ver"],
 					Columns: ["Id", "EscalationId", "Title", "Priority", "State", "StoryPoints", "Owner", "Blocked", "CreatedDate", "ClosedDate", "CPEInfo.OpenWorkingDays", "CSHSoftwareVersion"],
-					ColAlign: ["center", "center", "left", "center", "center", "center", "center", "center", "center", "center", "center", "center"],
 					ComputedFieldScript: "",//DoubleDays=(wit.CPEInfo.OpenWorkingDays * 2)",
 					ComputedFields: [],// will be updated by ComputedFieldScript
 
@@ -535,6 +540,7 @@ define(["app", "underscore", "jquery"],
 					}
 				};
 
+				//#region CPE data init
 				$scope.CPE.OrderByValue = $scope.CPE.OrderByValues[0];
 				// For computed fields
 				$scope.CPE.ComputedFields = adoComputedFiledService.getComputedFields($scope.CPE.ComputedFieldScript);
@@ -545,6 +551,12 @@ define(["app", "underscore", "jquery"],
 						$scope.CPE.Headers.push($scope.CPE.FullColumns[i]);
 					}
 				}
+
+				// Re-enable the Tooltip since the filtered the tasks changed
+				$scope.$watch("filteredCpeRecords", function () {
+					$scope.enableHtmlFormatTooltip();
+				});
+				//#endregion CPE data init end
 
 				$scope.workingHoursStatOwner = {
 												Workload: [], ChartData: []
@@ -563,11 +575,6 @@ define(["app", "underscore", "jquery"],
 				$scope.getRowData = function (row, colName) {
 					return utility.getRowData(row, colName);
 				};
-
-				// Re-enable the Tooltip since the filtered the tasks changed
-				$scope.$watch("filteredRecords", function () {
-					$scope.enableHtmlFormatTooltip();
-				});
 
 				loadSavedParameters();
 
@@ -1047,21 +1054,7 @@ define(["app", "underscore", "jquery"],
 				 * @param	error	The error object.
 				 */
 				function reportError(error) {
-					var errorMsg = "";
-
-					if (error.status == 401) {
-						errorMsg = "incorrect user name or password";
-					} else {
-						if (error.statusText !== "") {
-							if (error.statusText === $scope.RALLY_INTERNAL_ERROR) {
-								errorMsg = error.QueryResult.Errors.join(" || ");
-							} else {
-								errorMsg = error.statusText;;
-							}
-						} else {
-							errorMsg = error.toString();
-						}
-					}
+					var errorMsg = adoQueryService.getErrorMessage(error);
 
 					console.error(errorMsg);
 					$scope.ErrorMsg = errorMsg;

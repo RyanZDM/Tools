@@ -56,9 +56,9 @@
 					<div class="row">
 						<div class="form-group">
 							<label for="selectclause"
-							       data-toggle="tooltip"
-							       data-html="true"
-							       title="<b>Syntax: Select</b> [<em>columns 1</em>], ... [<em>columns n</em>] <b>From</b> <em>table</em>">
+								   data-toggle="tooltip"
+								   data-html="true"
+								   title="<b>Syntax: Select</b> [<em>columns 1</em>], ... [<em>columns n</em>] <b>From</b> <em>table</em>">
 								Select Clause:
 							</label>
 							<textarea class="form-control" row="5" id="selectclause" ng-model="Select" placeholder="e.g. Select [System.Id],[System.State],[System.AssignedTo] From workitems"></textarea>
@@ -67,20 +67,33 @@
 					<div class="row">
 						<div class="form-group">
 							<label for="whereclause"
-							       data-toggle="tooltip"
-							       data-html="true"
-							       title="<b>Syntax:</b> <em>condition 1</em> AND (<em>condition 2</em> OR <em>condition 3</em>) <br>The keyword <b>Where</b> is not necessary.">
-							       Where Clause:</label>
+								   data-toggle="tooltip"
+								   data-html="true"
+								   title="<b>Syntax:</b> <em>condition 1</em> AND (<em>condition 2</em> OR <em>condition 3</em>) <br>The keyword <b>Where</b> is not necessary.">
+								Where Clause:
+							</label>
 							<textarea class="form-control" row="8" id="whereclause" ng-model="Where" placeholder="e.g. [System.TeamProject] = 'Software' AND [System.WorkItemType] IN ('User Story', 'Bug') AND [System.IterationPath] = 'Software\Sprint 90' AND [System.AreaPath] IN ( 'Software\Console\Team Taiji', 'Software\Console\Team Wudang', 'Software\Console\Team Dunhuang') AND [System.State] IN ('Submitted', 'New', 'Assigned', 'Active')"></textarea>
 						</div>
 					</div>
 					<div class="row">
 						<div class="form-group">
+							<label for="customized-whereclause"
+								   data-toggle="tooltip"
+								   data-html="true"
+								   title="The customized where clause which is not formally supported by WIQL<br><b>Syntax:</b> <em>condition 1</em> AND (<em>condition 2</em> OR <em>condition 3</em>) <br>The keyword <b>Where</b> is not necessary.">
+								Where Clause (Customized):
+							</label>
+							<textarea class="form-control" row="8" id="customized-whereclause" ng-model="CustomizedWhere" placeholder="e.g. wit['System.Parent']=xxx"></textarea>
+						</div>
+					</div>
+					<div class="row">
+						<div class="form-group">
 							<label for="customizedScript"
-							       data-toggle="tooltip"
-							       data-html="true"
-							       title="<b>Syntax: <em>new field 1</em></b>=<em>JavaScript that returns a value</em> <b>^</b> <em>new field 2</em></b>=<em>JavaScript that returns a value</em><br>Uses <b>wit[</b><em>field name</em><b>]</b> to indicate a field.">
-							Computed Fields:</label>
+								   data-toggle="tooltip"
+								   data-html="true"
+								   title="<b>Syntax: <em>new field 1</em></b>=<em>JavaScript that returns a value</em> <b>^</b> <em>new field 2</em></b>=<em>JavaScript that returns a value</em><br>Uses <b>wit[</b><em>field name</em><b>]</b> to indicate a field.">
+								Computed Fields:
+							</label>
 							<textarea class="form-control" row="8" id="customizedScript" ng-model="CustomizedScript" placeholder="e.g. RealAssign=(wit['System.AssignedTo'].displayName === 'Ryan ZHANG') ? 'Me' : 'Others'^RealState=(wit['System.State']==='Ready to Implement')? 'Ready' : 'Not Ready'"></textarea>
 						</div>
 					</div>
@@ -96,10 +109,10 @@
 						<div class="col-md-1">
 							<div class="pull-right">
 								<button type="button" class="btn btn-primary" style="width: auto"
-								        data-toggle="tooltip"
-								        data-placement="right"
-								        title="Export data to Clipboard"
-								        ng-click="export()">
+										data-toggle="tooltip"
+										data-placement="right"
+										title="Export data to Clipboard"
+										ng-click="export()">
 									Clipboard
 								</button>
 							</div>
@@ -109,16 +122,16 @@
 					<div class="row">
 						<table class="table table-hover table-bordered table-responsive" border="1" ng-show="Headers.length > 0">
 							<thead>
-							<tr>
-								<th>#</th>
-								<th ng-repeat="header in Headers">{{ header }}</th>
-							</tr>
+								<tr>
+									<th>#</th>
+									<th ng-repeat="header in Headers">{{ header }}</th>
+								</tr>
 							</thead>
 							<tbody ng-show="Data.length > 0">
-							<tr ng-repeat="wit in Data">
-								<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
-								<td ng-repeat="column in FullColumns">{{wit[column]}}</td>
-							</tr>
+								<tr ng-repeat="wit in Data">
+									<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
+									<td ng-repeat="column in FullColumns">{{wit[column]}}</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>

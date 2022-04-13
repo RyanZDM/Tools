@@ -22,8 +22,9 @@ define(["app", "underscore", "jquery"],
 				$scope.InQuerying = false;
 				$scope.ErrorMsg = "";
 				$scope.QueryTypeString = "";
-				$scope.Select = "SELECT [System.Id],[System.WorkItemType],[System.Title],[System.AssignedTo],[System.State],[Custom.CSH_Release],[Custom.CSH_SignoffNA],[Custom.CSH_SignoffDIDRequirementsApproved],[Custom.CSH_SignoffHLDUseCasesApproved],[Custom.CSH_SignoffUCDSpecApproved],[Custom.CSH_SignoffTestDesignApproved],[Custom.CSH_SignoffFinalFeatureReviewComplete] FROM workitems";
-				$scope.Where = "[System.WorkItemType] = 'Feature' AND [System.State] <> 'Closed' AND [System.State] <> 'Rejected/Cancelled' AND [Custom.CSH_Release] = 'Jing-A (ImageView 1.12)' ORDER BY [Microsoft.VSTS.Common.StackRank]";
+				$scope.Select = "SELECT [System.Id],[System.WorkItemType],[System.Title],[System.AssignedTo],[System.State],[Custom.CSH_Release] FROM workitems";
+				$scope.Where = "[System.State] <> 'Closed' AND [System.State] <> 'Rejected/Cancelled' AND [Custom.CSH_Release] = 'Jing-A (ImageView 1.12)' ORDER BY [Microsoft.VSTS.Common.StackRank]";
+				$scope.CustomizedWhere = "wit['System.Parent']==508471";	//temp
 				$scope.CustomizedScript = "RealAssign=(wit['System.AssignedTo'].displayName === 'Ryan ZHANG') ? 'Me' : 'Others'^RealState=(wit['System.State']==='Ready to Implement')? 'Ready' : 'Not Ready'";
 				$scope.Headers = [];
 				$scope.Columns = [];
@@ -52,21 +53,22 @@ define(["app", "underscore", "jquery"],
 
 					getColumns();
 
+					$scope.CustomizedWhere = $scope.CustomizedWhere.trimStart().trimEnd();
 					var wiql = $scope.Select + " Where " + $scope.Where;
 					var parameters = { Wiql: wiql, ReturnFields: $scope.Columns, Token: adoAuthService.getAuthenticationToken() };
 					var hasCustomizedField = ($scope.ComputedFields.length > 0);
 					adoQueryService.pureWiqlQuery(parameters)
 						.then(function (result) {
-								result.forEach(function(wit) {
-									if (hasCustomizedField) {
-										// Calculate the computed fields
-										adoComputedFiledService.updateCustomizedFields(wit, $scope.ComputedFields);
-									}
+							result.forEach(function (wit) {
+								if (hasCustomizedField) {
+									// Calculate the computed fields
+									adoComputedFiledService.updateCustomizedFields(wit, $scope.ComputedFields);
+								}
 
-									$scope.FullColumns.forEach(function(col) {
-										var val = wit[col];
-										var valType = typeof val;
-										switch (valType) {
+								$scope.FullColumns.forEach(function (col) {
+									var val = wit[col];
+									var valType = typeof val;
+									switch (valType) {
 										case "string":
 											wit[col] = utility.html2PlainText(wit[col]);
 											break;
@@ -76,12 +78,19 @@ define(["app", "underscore", "jquery"],
 											}
 											break;
 										default:
-										}
-									});
+									}
 								});
+							});
 
-								$scope.Data = result;
-							},
+							// Filter by the customized where clause
+							if ($scope.CustomizedWhere !== "") {
+								result = _.filter(result, (wit) => {
+									return eval($scope.CustomizedWhere);
+								});
+							}
+
+							$scope.Data = result;
+						},
 							function (error) {
 								reportError(error);
 							})
@@ -172,17 +181,7 @@ define(["app", "underscore", "jquery"],
 				 * @param	error	The error object.
 				 */
 				function reportError(error) {
-					var errorMsg = "";
-
-					if (error.status == 401) {
-						errorMsg = "incorrect user name or password";
-					} else {
-						if (error.statusText !== "") {
-							errorMsg = error.statusText;
-						} else {
-							errorMsg = error.toString();
-						}
-					}
+					var errorMsg = adoQueryService.getErrorMessage(error);
 
 					console.error(errorMsg);
 					$scope.ErrorMsg = errorMsg;

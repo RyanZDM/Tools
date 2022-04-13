@@ -2,11 +2,11 @@
 
 require.config({
 	paths: {
-		"jquery": "libs/jquery/3.5.1/jquery",
-		"angular": "libs/angularjs/1.8.0/angular",
-		"domReady": "libs/require-domready/2.0.1/domReady",
-		"bootstrap": "libs/bootstrap/current/bootstrap",
-		"underscore": "libs/underscore/1.8.3/underscore",
+		"jquery": "libs/jquery/3.5.1/jquery.min",
+		"angular": "libs/angularjs/1.8.0/angular.min",
+		"domReady": "libs/require-domready/2.0.1/domReady.min",
+		"bootstrap": "libs/bootstrap/current/bootstrap.min",
+		"underscore": "libs/underscore/1.8.3/underscore-min",
 		"moment": "libs/momentjs/2.23.0/moment.min",
 		"moment-business-days": "libs/moment-business-days/1.2.0/moment-business-days.min",
 		"chart": "libs/chartjs/2.8.0/Chart.min",

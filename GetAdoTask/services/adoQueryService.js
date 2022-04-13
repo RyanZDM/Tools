@@ -338,41 +338,48 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 			var deferred = $.Deferred();
 			jQueryPost(url, authToken, JSON.stringify({ "query": wiql }))
 				.then(function (result) {
-						if (result.queryResultType && result.queryResultType === "workItem") {
-							// This is a "flat" query
-							// There is a limitation that ADO query returns max 200 records one time
-							var newUrl = url.replace("wiql", "workitemsbatch");
-							var witIds = _.pluck(result.workItems, "id");
-							if (returnFields && returnFields.length === 0) {
+					if (result.queryResultType && result.queryResultType === "workItem") {
+						// This is a "flat" query
+						// There is a limitation that ADO query returns max 200 records one time
+						var newUrl = url.replace("wiql", "workitemsbatch");
+						var witIds = _.pluck(result.workItems, "id");
+
+						if (returnFields) {
+							if (returnFields.length === 0) {
 								returnFields = _.pluck(result.columns, "referenceName");
 							}
 
-							getTaskDetailInfo(newUrl, witIds, returnFields, authToken).then(function(list) {
-									if (returnType != null && returnType !== "") {
-										deferred.resolve(getList(adoRestApi, list, returnType));
-									} else {
-										deferred.resolve(_.pluck(list, "fields"));
-									}
-								})
-								.catch(function(err) {
-									deferred.reject(err);
-								});
-						} else if (result.queryResultType && result.queryResultType === "workItemLink") {
-							// This is a "Work items and direct links" query
-							// Format:
-							// For top level (US or bug), 
-							//		rel: null
-							//		source: null
-							//		target:
-							//			id: <id of itself>
-							//			url: <http url ti itself>
-							// For second level (task)
-							//			rel: "System.LinkTypes.Hierarchy-Forward"
-							//			source: refer to parent (id, url)
-							//			target: refer to the sub task (id, url)
-							deferred.resolve(result.workItemRelations);
+							// Add filed "System.Parent" since need to know its Parent
+							returnFields.push("System.Parent");
 						}
-					},
+
+						getTaskDetailInfo(newUrl, witIds, returnFields, authToken).then(function (list) {
+							if (returnType != null && returnType !== "") {
+								deferred.resolve(getList(adoRestApi, list, returnType));
+							} else {
+								// Gets the Parent
+								deferred.resolve(_.pluck(list, "fields"));
+							}
+						})
+							.catch(function (err) {
+								deferred.reject(err);
+							});
+					} else if (result.queryResultType && result.queryResultType === "workItemLink") {
+						// This is a "Work items and direct links" query
+						// Format:
+						// For top level (US or bug), 
+						//		rel: null
+						//		source: null
+						//		target:
+						//			id: <id of itself>
+						//			url: <http url ti itself>
+						// For second level (task)
+						//			rel: "System.LinkTypes.Hierarchy-Forward"
+						//			source: refer to parent (id, url)
+						//			target: refer to the sub task (id, url)
+						deferred.resolve(result.workItemRelations);
+					}
+				},
 					function (error) {
 						deferred.reject(error);
 					});
@@ -443,6 +450,29 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 			return witList;
 		};
 
+		/**
+		* @name	getErrorMessage
+		* @description	Get error messager
+		* @param	error	The error object.
+		*/
+		function getErrorMessage(error) {
+			var errorMsg = "";
+
+			if (error.status == 401) {
+				errorMsg = "incorrect user name or password";
+			} else {
+				if (error.responseText && error.responseText !== "") {
+					errorMsg = error.responseText;
+				} else if (error.statusText !== "") {
+					errorMsg = error.statusText;
+				} else {
+					errorMsg = error.toString();
+				}
+			}
+
+			return errorMsg;
+		};
+
 		return {
 			getFeatureList: getFeatureList,
 
@@ -463,7 +493,9 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 
 			getCpeStatistics: getCpeStatistics,
 			
-			calculateTaskSpentTime: calculateTaskSpentTime
+			calculateTaskSpentTime: calculateTaskSpentTime,
+
+			getErrorMessage: getErrorMessage
 		}
 	}]);
 }); 

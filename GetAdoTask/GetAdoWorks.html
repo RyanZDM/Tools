@@ -72,7 +72,6 @@
 													   name="owner"
 													   list="emailOptions"
 													   ng-model="Dev.Owner"
-													   required
 													   placeholder="Enter owner's ADO account here" />
 												<datalist id="emailOptions">
 													<option ng-repeat="email in Dev.EmailList | orderBy: email" value={{email}}></option>
@@ -427,7 +426,7 @@
 										</div>
 										<div draggable="true" class="col-md-1 pull-right">
 													<button class="btn btn-md btn-block btn-default"
-															id="btnRefresh"
+															id="btnCpeRefresh"
 															ng-disabled="InQuerying"
 															ng-click="CPE.query()"
 															data-toggle="tooltip"
