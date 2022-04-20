@@ -17,6 +17,7 @@ define(["app", "underscore", "jquery"],
 
 			function ($scope, $rootScope, $http, $q, adoAuthService, adoQueryService, adoRestApi, utility, currentSettings, LocalStorageKey, adoComputedFiledService) {
 				$scope.CanUseLocalStorage = adoAuthService.CanUseLocalStorage;
+				$scope.SAVED_PARAMETERS = "Params_QryByWiql";
 				$scope.UserId = "";
 				$scope.UserPwd = "";
 				$scope.InQuerying = false;
@@ -37,10 +38,14 @@ define(["app", "underscore", "jquery"],
 					$scope.enableHtmlFormatTooltip();
 				});
 
+				loadSavedParameters();
+
 				function initBeforeQuery () {
 					$scope.InQuerying = true;
 					$scope.clearError();
 					$scope.Data = [];
+
+					saveCurrentParameters();
 				};
 
 				/**
@@ -133,6 +138,44 @@ define(["app", "underscore", "jquery"],
 				}
 
 				/**
+				 * @name	saveCurrentParameters()
+				 * @description	Saves the current parameters to browser local cache
+				 */
+				function saveCurrentParameters() {
+					if (!$scope.CanUseLocalStorage) return;
+
+					var data = {
+						Select: $scope.Select,
+						Where: $scope.Where,
+						CustomizedWhere: $scope.CustomizedWhere,
+						CustomizedScript: $scope.CustomizedScript
+					};
+
+					localStorage.setItem($scope.SAVED_PARAMETERS, JSON.stringify(data));
+				}
+
+				/**
+				 * @name	loadSavedParameters()
+				 * @description	Loads saved parameters from browser local cache
+				 */
+				function loadSavedParameters() {
+					if (!$scope.CanUseLocalStorage) return;
+
+					var savedParameters = localStorage.getItem($scope.SAVED_PARAMETERS);
+					if (!savedParameters || savedParameters.trim() === "") { return; }
+					try {
+						savedParameters = JSON.parse(savedParameters);
+
+						if (savedParameters["Select"] != undefined) { $scope.Select = savedParameters.Select; }
+						if (savedParameters["Where"] != undefined) { $scope.Where = savedParameters.Where; }
+						if (savedParameters["CustomizedWhere"] != undefined) { $scope.CustomizedWhere = savedParameters.CustomizedWhere; }
+						if (savedParameters["CustomizedScript"] != undefined) { $scope.CustomizedScript = savedParameters.CustomizedScript; }
+					} catch (err) {
+						reportError(err);
+					}
+				};
+
+				/**
 				 * @name	enableHtmlFormatTooltip()
 				 * @description	Enables the HTML format Tooltip
 				 */
@@ -181,10 +224,8 @@ define(["app", "underscore", "jquery"],
 				 * @param	error	The error object.
 				 */
 				function reportError(error) {
-					var errorMsg = adoQueryService.getErrorMessage(error);
-
-					console.error(errorMsg);
-					$scope.ErrorMsg = errorMsg;
+					console.error(error);
+					$scope.ErrorMsg = error;
 				};
 			}]);
 	});

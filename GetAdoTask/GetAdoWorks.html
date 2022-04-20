@@ -243,7 +243,7 @@
 											<div class="pull-right">
 												<labeled-checkbox class="btn-default" uid="indefine" label="New" shortlabel="{{Dev.QueryForOpenDefect ? 'New' : 'ID'}}" ng-model="Dev.ShowNew" action="Dev.resetWorkloadStat()" title="New"></labeled-checkbox>
 												<labeled-checkbox class="btn-info" uid="defined" label="Assigned" shortlabel="{{Dev.QueryForOpenDefect ? 'Assigned' : 'D'}}" ng-model="Dev.ShowAssigned" action="Dev.resetWorkloadStat()" title="Defined"></labeled-checkbox>
-												<labeled-checkbox class="btn-primary" uid="wip" label="Active" shortlabel="{{Dev.QueryForOpenDefect ? 'Active' : 'P'}}" ng-model="Dev.ShowWActive" action="Dev.resetWorkloadStat()" title="Active"></labeled-checkbox>
+												<labeled-checkbox class="btn-primary" uid="wip" label="Active" shortlabel="{{Dev.QueryForOpenDefect ? 'Active' : 'P'}}" ng-model="Dev.ShowActive" action="Dev.resetWorkloadStat()" title="Active"></labeled-checkbox>
 												<labeled-checkbox ng-hide="Dev.QueryForOpenDefect" class="btn-warning" uid="completed" label="Resolved" shortlabel="C" ng-model="Dev.ShowResolved" action="Dev.resetWorkloadStat()" title="Resolved"></labeled-checkbox>
 												<labeled-checkbox ng-hide="Dev.QueryForOpenDefect" class="btn-success" uid="accepted" label="Closed" shortlabel="A" ng-model="Dev.ShowClosed" action="Dev.resetWorkloadStat()" title="Closed"></labeled-checkbox>
 												<labeled-checkbox class="btn-default" uid="rejected" label="Reject/Postpone" ng-model="Dev.ShowRejectedDefects" action="Dev.resetWorkloadStat()" title="If to show tasks that mark as Rejected/Reject Requested/Postponed/Postpone Requested/Duplicate"></labeled-checkbox>

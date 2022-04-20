@@ -66,7 +66,7 @@ define(["app", "underscore"], function (app, _) {
 			var next = iteratee.slice(1);
 			if (next.length > 0) {
 				for (var prop in firstBy) {
-					firstBy[prop] = groupByMultiple(firstBy[prop], next, cumulativeItems);
+					firstBy[prop] = groupByMultiple(firstBy[prop], next, cumulativeItems, caseSensitive, ignoreNonAlphanumericChar);
 				}
 			} else {
 				// The dat got grouped by all iteratees, accumulate the item values
@@ -78,6 +78,24 @@ define(["app", "underscore"], function (app, _) {
 
 				// Find out all duplicated columns (case insensitive, remove -, _ and white space)
 				// and return the first matched column 
+				// e.g.
+				//		Columns: "Test Col1", "TestCol1", "test col1", "Test Col2"
+				//		1st round, the uniqueKeyDict would be:
+				//			{
+				//				"Test Col1": "testcol1",
+				//				"TestCol1": "Test Col1",
+				//				"test col1": "Test Col1",
+				//				"Test Col2": "testcol2"
+				//			}
+				//		rnd round, the uniqueKeyDict would be:
+				//			{
+				//				"Test Col1": "Test Col1",
+				//				"TestCol1": "Test Col1",
+				//				"test col1": "Test Col1"
+				//				"Test Col2": "Test Col2"
+				//			}
+				// i.e. Always uses the first matched column name
+
 				var uniqueKeyDict = {};
 				var uniqueList = [];
 				Object.keys(firstBy).forEach(function (col) {
@@ -123,11 +141,9 @@ define(["app", "underscore"], function (app, _) {
 
 					_.each(firstBy[lastGroupItem], function (record) {
 						_.each(cumulativeItems, function (item) {
-							cumulatedRecord[item].MatchedColumns.forEach(function (matched) {
-								if (record[col]) {
-									cumulatedRecord[item] = cumulatedRecord[item] + record[item]
-								}
-							});
+							if (record[item]) {
+								cumulatedRecord[item] = cumulatedRecord[item] + record[item]
+							}
 						});
 
 						cumulatedRecord._Count++;

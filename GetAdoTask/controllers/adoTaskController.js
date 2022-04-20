@@ -46,7 +46,7 @@ define(["app", "underscore", "jquery"],
 					Show2ndRelease: true,
 					SecondRelease: currentSettings.SecondRelease,
 					ShowOthers: false,
-					SHowNew: true,
+					ShowNew: true,
 					ShowAssigned: true,
 					ShowActive: true,
 					ShowResolved: true,
@@ -64,11 +64,13 @@ define(["app", "underscore", "jquery"],
 
 					OrderByOptions: [{ value: 0, name: "Default" },
 					{ value: 1, name: "Priority" },
-					{ value: 2, name: "State" }
+					{ value: 2, name: "State" },
+					{ value: 3, name: "Feature" }
 					],
 					OrderByValues: [["Owner", "Iteration", "-State", "Priority"],
 					["Priority", "-State"],
-					["-State", "Priority"]
+					["-State", "Priority"],
+					["Feature", "-State", "Priority"]
 					],
 					OrderByOptionIndex: 0,
 					ProjectTeamList: ["Taiji", "Wudang", "Penglai", "Dunhuang", "CPE"],
@@ -295,8 +297,13 @@ define(["app", "underscore", "jquery"],
 							var totalDays = 0, actualHours = 0;
 							_.each(records,
 								function (record) {
-									totalDays = totalDays + record.Estimate;
-									actualHours = actualHours + (record.Actuals ? record.Actuals : 0);
+									if (record.StoryPoints) {
+										totalDays = totalDays + record.StoryPoints;
+									}
+
+									if (record.Actuals) {
+										actualHours = actualHours + (record.Actuals ? record.Actuals : 0);
+									}
 								});
 
 							result = "-- Est. Days:" + totalDays + " | Act. Hours:" + Math.round(actualHours);
@@ -596,7 +603,12 @@ define(["app", "underscore", "jquery"],
 						ShowProductField: $scope.Dev.ShowProductField,
 						ShowIterationField: $scope.Dev.ShowIterationField,
 						ShowRejectField: $scope.Dev.ShowRejectField,
-						ShowBlockReasonField: $scope.Dev.ShowBlockReasonField
+						ShowBlockReasonField: $scope.Dev.ShowBlockReasonField,
+						ShowNew: $scope.Dev.ShowNew,
+						ShowAssigned: $scope.Dev.ShowAssigned,
+						ShowActive: $scope.Dev.ShowActive,
+						ShowResolved: $scope.Dev.ShowResolved,
+						ShowClosed: $scope.Dev.ShowClosed
 					};
 
 					localStorage.setItem(LocalStorageKey.SAVED_PARAMETERS, JSON.stringify(data));
@@ -625,6 +637,11 @@ define(["app", "underscore", "jquery"],
 						if (savedParameters["ShowIterationField"] != undefined) { $scope.Dev.ShowIterationField = savedParameters.ShowIterationField; }
 						if (savedParameters["ShowRejectField"] != undefined) { $scope.Dev.ShowRejectField = savedParameters.ShowRejectField; }
 						if (savedParameters["ShowBlockReasonField"] != undefined) { $scope.Dev.ShowBlockReasonField = savedParameters.ShowBlockReasonField; }
+						if (savedParameters["ShowNew"] != undefined) { $scope.Dev.ShowNew = savedParameters.ShowNew; }
+						if (savedParameters["ShowAssigned"] != undefined) { $scope.Dev.ShowAssigned = savedParameters.ShowAssigned; }
+						if (savedParameters["ShowActive"] != undefined) { $scope.Dev.ShowActive = savedParameters.ShowActive; }
+						if (savedParameters["ShowResolved"] != undefined) { $scope.Dev.ShowResolved = savedParameters.ShowResolved; }
+						if (savedParameters["ShowClosed"] != undefined) { $scope.Dev.ShowClosed = savedParameters.ShowClosed; }
 
 						if ($scope.Dev.IfSaveOtherInfo2Local && $scope.Dev.TaskList.length > 0) {
 							var otherInfo = localStorage.getItem(LocalStorageKey.SAVED_OTHERINFO);
@@ -889,7 +906,7 @@ define(["app", "underscore", "jquery"],
 					var parameters = { WorkItemType: "Task", Sprint: $scope.Dev.Sprint, Teams: ["Taiji", "Wudang", "Dunhuang"] };
 					adoQueryService.calculateTaskSpentTime(parameters, token).then(function (result) {
 						// For chart display (owner)
-						var groupByOwner = utility.groupByMultiple(result, ["Owner"], ["OriginalEstimate", "CompletedWork"]);
+						var groupByOwner = utility.groupByMultiple(result, ["Owner"], ["OriginalEstimate", "CompletedWork"], false, false);
 						groupByOwner = Object.keys(groupByOwner).map(function (owner) {
 							var obj = groupByOwner[owner];
 							return { Owner: owner, CompletedWork: obj.CompletedWork, Count: obj._Count };
@@ -900,7 +917,7 @@ define(["app", "underscore", "jquery"],
 						refreshChart($scope.workingHoursStatOwner, groupByOwner, "Owner", ["Count", "CompletedWork"]);
 
 						// For chart display (team)
-						var groupByTeam = utility.groupByMultiple(result, ["AreaPath"], ["OriginalEstimate", "CompletedWork"]);
+						var groupByTeam = utility.groupByMultiple(result, ["AreaPath"], ["OriginalEstimate", "CompletedWork"], false, false);
 						groupByTeam = Object.keys(groupByTeam).map(function (team) {
 							var obj = groupByTeam[team];
 							return { Team: team.split(" ").pop(), CompletedWork: obj.CompletedWork, Count: obj._Count };
@@ -1054,10 +1071,8 @@ define(["app", "underscore", "jquery"],
 				 * @param	error	The error object.
 				 */
 				function reportError(error) {
-					var errorMsg = adoQueryService.getErrorMessage(error);
-
-					console.error(errorMsg);
-					$scope.ErrorMsg = errorMsg;
+					console.error(error);
+					$scope.ErrorMsg = error;
 				};
 			}]);
 	});

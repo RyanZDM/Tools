@@ -294,7 +294,7 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 					deferred.resolve(list);
 				})
 				.catch(function(err) {
-					deferred.reject(err);
+					deferred.reject(getErrorMessage(err));
 				});
 
 			return deferred.promise();
@@ -381,7 +381,7 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 					}
 				},
 					function (error) {
-						deferred.reject(error);
+						deferred.reject(getErrorMessage(error));
 					});
 
 			return deferred.promise();
@@ -456,6 +456,8 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 		* @param	error	The error object.
 		*/
 		function getErrorMessage(error) {
+			if (typeof error === "string") return error;
+
 			var errorMsg = "";
 
 			if (error.status == 401) {

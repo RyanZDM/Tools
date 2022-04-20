@@ -80,7 +80,7 @@
 							<label for="customized-whereclause"
 								   data-toggle="tooltip"
 								   data-html="true"
-								   title="The customized where clause which is not formally supported by WIQL<br><b>Syntax:</b> <em>condition 1</em> AND (<em>condition 2</em> OR <em>condition 3</em>) <br>The keyword <b>Where</b> is not necessary.">
+								   title="The customized where clause which is not formally supported by WIQL.<br><b>Syntax: </b>A JavaScript code block which will be executed runtime<br><em>condition 1</em> AND (<em>condition 2</em> OR <em>condition 3</em>)<br><b>Note:</b><br><ul><li>The keyword <b>Where</b> is not necessary.</li><li>Uses <b>wit[</b><em>field name</em><b>]</b> to indicate a field</li></ul>">
 								Where Clause (Customized):
 							</label>
 							<textarea class="form-control" row="8" id="customized-whereclause" ng-model="CustomizedWhere" placeholder="e.g. wit['System.Parent']=xxx"></textarea>
@@ -102,7 +102,7 @@
 					<div class="row">
 						<div class="col-md-4">
 							<h4 class="text-primary">
-								<b>Query Results</b>
+								<b>Query Results ({{Data.length}})</b>
 							</h4>
 						</div>
 						<div class="col-md-7"></div>
