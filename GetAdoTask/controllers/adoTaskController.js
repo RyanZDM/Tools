@@ -26,6 +26,7 @@ define(["app", "underscore", "jquery"],
 				$scope.QueryTypeString = "";
 
 				$scope.Dev = {
+					QueryTypeString: "",
 					TaskList: [],
 					Sprint: 0,
 					Owner: "",
@@ -88,7 +89,7 @@ define(["app", "underscore", "jquery"],
 					 * @description	Get the task list of specified engineer from ADO, save to $scope.Dev.TaskList
 					 */
 					refreshTaskList: function () {
-						$scope.QueryTypeString = " --- " + $scope.Dev.Owner + "'s ADO task in sprint " + $scope.Dev.Sprint + " @" + new Date().toLocaleTimeString();
+						$scope.Dev.QueryTypeString = " --- " + $scope.Dev.Owner + "'s ADO task in sprint " + $scope.Dev.Sprint + " @" + new Date().toLocaleTimeString();
 
 						var parameters = { Owners: $scope.Dev.Owner, Sprint: $scope.Dev.Sprint, Teams: $scope.Dev.CurrentTeam };
 						getAdoTask(parameters, callbackBeforeQuery, function (result, token) {
@@ -105,7 +106,7 @@ define(["app", "underscore", "jquery"],
 					 * @description	Gets the task list of all engineers from ADO, save to $scope.Dev.TaskList
 					 */
 					refreshAll: function () {
-						$scope.QueryTypeString = " --- ADO task in sprint " + $scope.Dev.Sprint + " for ALL person @" + new Date().toLocaleTimeString();
+						$scope.Dev.QueryTypeString = " --- ADO task in sprint " + $scope.Dev.Sprint + " for ALL person @" + new Date().toLocaleTimeString();
 
 						var parameters = { Owners: "", Sprint: $scope.Dev.Sprint, Teams: $scope.Dev.CurrentTeam };
 						getAdoTask(parameters, $scope.Dev.callbackBeforeQuery, function (result, token) {
@@ -139,7 +140,7 @@ define(["app", "underscore", "jquery"],
 						var token = adoAuthService.getAuthenticationToken();
 
 						$scope.Dev.QueryForOpenDefect = true;
-						$scope.QueryTypeString = " --- ALL " + project.Name + " open tasks @" + new Date().toLocaleTimeString();
+						$scope.Dev.QueryTypeString = " --- ALL " + project.Name + " open tasks @" + new Date().toLocaleTimeString();
 
 						var parameters = { Token: token, States: ["Submitted", "New", "Assigned", "Active"] };
 						_.extend(parameters, project.Parameters)
@@ -357,6 +358,7 @@ define(["app", "underscore", "jquery"],
 				//#endregion Dev data init end
 
 				$scope.CPE = {
+					QueryTypeString: "",
 					CreatedAfter: new Date(moment().startOf("month")),
 					SpecialDateRange: "",
 					TaskList: [],
@@ -466,7 +468,7 @@ define(["app", "underscore", "jquery"],
 					},
 
 					query: function () {
-						$scope.QueryTypeString = " --- ALL CPE Tasks @" + new Date().toLocaleTimeString();
+						$scope.CPE.QueryTypeString = " --- ALL CPE Tasks @" + new Date().toLocaleTimeString();
 
 						var parameters = { CreatedAfter: moment($scope.CPE.CreatedAfter).format("YYYY-MM-DD"), WorkItemType: "User Story", Teams: "CPE" };
 						getAdoTask(parameters, null, function (result, token) {
@@ -565,6 +567,7 @@ define(["app", "underscore", "jquery"],
 				});
 				//#endregion CPE data init end
 
+				//#region Statistics
 				$scope.workingHoursStatOwner = {
 												Workload: [], ChartData: []
 					, Headers: ["Name", "Completed Hours", "Task Count"]
@@ -577,7 +580,12 @@ define(["app", "underscore", "jquery"],
 					, Columns: ["Team", "CompletedWork", "Count"]
 				};
 
-				// Statistics end
+				//#endregion Statistics
+
+				$scope.currentTab = "FeatureTeam";
+				$scope.switchTab = function(tabName) {
+					$scope.currentTab = tabName;
+				}
 
 				$scope.getRowData = function (row, colName) {
 					return utility.getRowData(row, colName);
@@ -610,7 +618,7 @@ define(["app", "underscore", "jquery"],
 						ShowResolved: $scope.Dev.ShowResolved,
 						ShowClosed: $scope.Dev.ShowClosed
 					};
-
+					 
 					localStorage.setItem(LocalStorageKey.SAVED_PARAMETERS, JSON.stringify(data));
 				}
 

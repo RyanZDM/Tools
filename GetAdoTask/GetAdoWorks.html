@@ -17,8 +17,14 @@
 <body>
 	<form name="taskForm" ng-controller="adoTaskController">
 		<!--<form name="taskForm" ng-app="getAdoTasksApp" ng-controller="adoTaskController">-->
-		<div class="page-header text-primary text-center" data-toggle="modal" data-target="#selectProjectTeamModal">
-			<h1>Get ADO Tasks <small>{{QueryTypeString}}</small></h1>
+		<div ng-show="currentTab === 'FeatureTeam'" class="page-header text-primary text-center" data-toggle="modal" data-target="#selectProjectTeamModal">
+			<h1>Get ADO Tasks <small>{{Dev.QueryTypeString}}</small></h1>
+		</div>
+		<div ng-show="currentTab === 'Statistics'" class="page-header text-primary text-center">
+			<h1>Get Statistics Data <small>{{QueryTypeString}}</small></h1>
+		</div>
+		<div ng-show="currentTab === 'CPE'" class="page-header text-primary text-center">
+			<h1>Get CPE Tasks <small>{{CPE.QueryTypeString}}</small></h1>
 		</div>
 		<div ng-show="InQuerying" id="busy"></div>
 		<div class="container-fluid">
@@ -49,12 +55,12 @@
 						</div>
 					</div>
 				</div>
-				
+
 				<div class="panel-body">
 					<ul class="nav nav-tabs nav-pills nav-justified">
-						<li class="active"><a data-toggle="tab" href="#FeatureTeam">Feature Team</a></li>
-						<li><a data-toggle="tab" href="#Statistics">Statistics</a></li>
-						<li><a data-toggle="tab" href="#CPE">CPE</a></li>
+						<li class="active" ng-click="switchTab('FeatureTeam')"><a data-toggle="tab" href="#FeatureTeam">Feature Team</a></li>
+						<li ng-click="switchTab('Statistics')"><a data-toggle="tab" href="#Statistics">Statistics</a></li>
+						<li ng-click="switchTab('CPE')"><a data-toggle="tab" href="#CPE">CPE</a></li>
 					</ul>
 
 					<div class="tab-content">
@@ -334,14 +340,14 @@
 									<!-- Summary of developer's story points per the current filter' -->
 									<div class="table-bordered" style="border-color: lightblue; margin: 2px;">
 										<table-and-chart uid="DevWorkloadSummaryTableChart"
-															label="Workload Summary"
-															headers="Dev.WorkloadStat.Headers"
-															columns="Dev.WorkloadStat.Columns"
-															source-data="Dev.WorkloadStat.Workload"
-															chart-data="Dev.WorkloadStat"
-															action="Dev.collectWorkloadStatData()"
-															export-data="exportData(Dev.WorkloadStat)"
-															title="Working hours statistics by sprint & owner">
+														 label="Workload Summary"
+														 headers="Dev.WorkloadStat.Headers"
+														 columns="Dev.WorkloadStat.Columns"
+														 source-data="Dev.WorkloadStat.Workload"
+														 chart-data="Dev.WorkloadStat"
+														 action="Dev.collectWorkloadStatData()"
+														 export-data="exportData(Dev.WorkloadStat)"
+														 title="Working hours statistics by sprint & owner">
 										</table-and-chart>
 									</div>
 									<!-- End -->
@@ -349,7 +355,7 @@
 							</div>
 						</div>
 						<div id="Statistics" class="tab-pane fade">
-							<br/>
+							<br />
 							<div class="panel panel-default">
 								<div class="panel-heading">
 									<label>Heading</label>
@@ -425,15 +431,15 @@
 											</div>
 										</div>
 										<div draggable="true" class="col-md-1 pull-right">
-													<button class="btn btn-md btn-block btn-default"
-															id="btnCpeRefresh"
-															ng-disabled="InQuerying"
-															ng-click="CPE.query()"
-															data-toggle="tooltip"
-															data-placement="top"
-															title="Get CPE records from ADO">
-														Query
-													</button>
+											<button class="btn btn-md btn-block btn-default"
+													id="btnCpeRefresh"
+													ng-disabled="InQuerying"
+													ng-click="CPE.query()"
+													data-toggle="tooltip"
+													data-placement="top"
+													title="Get CPE records from ADO">
+												Query
+											</button>
 										</div>
 									</div>
 								</div>
