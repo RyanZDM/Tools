@@ -18,6 +18,7 @@ define(["app", "underscore", "jquery"],
 			function ($scope, $rootScope, $http, $q, adoAuthService, adoQueryService, adoRestApi, utility, currentSettings, LocalStorageKey, adoComputedFiledService) {
 				$scope.CanUseLocalStorage = adoAuthService.CanUseLocalStorage;
 				$scope.SAVED_PARAMETERS = "Params_QryByWiql";
+				$scope.QueryType = "flat";	// flat/tree/oneHop
 				$scope.UserId = "";
 				$scope.UserPwd = "";
 				$scope.InQuerying = false;
@@ -32,6 +33,9 @@ define(["app", "underscore", "jquery"],
 				$scope.FullColumns = [];
 				$scope.ComputedFields = [];
 				$scope.Data = [];
+				$scope.CpeRelated = false;
+				$scope.CurrentWiql = "";
+				$scope.PredefinedWiqlList = [];
 
 				// Re-enable the Tooltip since the filtered the tasks changed
 				$scope.$watch("filteredRecords", function () {
@@ -39,6 +43,8 @@ define(["app", "underscore", "jquery"],
 				});
 
 				loadSavedParameters();
+
+				getPredefinedWiql();
 
 				function initBeforeQuery () {
 					$scope.InQuerying = true;
@@ -58,9 +64,36 @@ define(["app", "underscore", "jquery"],
 
 					getColumns();
 
+					// temp
+					$scope.QueryType = "tree";
+
 					$scope.CustomizedWhere = $scope.CustomizedWhere.trimStart().trimEnd();
 					var wiql = $scope.Select + " Where " + $scope.Where;
-					var parameters = { Wiql: wiql, ReturnFields: $scope.Columns, Token: adoAuthService.getAuthenticationToken() };
+					var parameters = { Wiql: wiql, QueryType: $scope.QueryType, ReturnFields: $scope.Columns, Token: adoAuthService.getAuthenticationToken(), ReturnType: ($scope.CpeRelated ? "WIT" : null) };
+					if ($scope.CpeRelated) {
+						var fieldString = parameters.ReturnFields.join(",").toLowerCase();
+
+						// For CPE US, there are many info record in the Notes field
+						if (fieldString.indexOf("custom.csh_notes") === -1) {
+							parameters.ReturnFields.push("Custom.CSH_Notes");
+						}
+
+						if (fieldString.indexOf("system.workitemtype") === -1) {
+							parameters.ReturnFields.push("System.WorkItemType");
+						}
+
+						if (fieldString.indexOf("system.areapath") === -1) {
+							parameters.ReturnFields.push("System.AreaPath");
+						}
+
+						if (fieldString.indexOf("system.createddate") === -1) {
+							parameters.ReturnFields.push("System.CreatedDate");
+						}
+
+						if (fieldString.indexOf("microsoft.vsts.common.closeddate") === -1) {
+							parameters.ReturnFields.push("Microsoft.VSTS.Common.ClosedDate");
+						}
+					}
 					var hasCustomizedField = ($scope.ComputedFields.length > 0);
 					adoQueryService.pureWiqlQuery(parameters)
 						.then(function (result) {
@@ -106,6 +139,18 @@ define(["app", "underscore", "jquery"],
 						});
 				};
 
+				$scope.getAdoQuerys = function () {
+					var parameters = { QueryId: "32dd8e9d-f515-4e4f-a6ea-824ece0fabda", Token: adoAuthService.getAuthenticationToken() };
+					adoQueryService.getWiqlOfNameqdQuery(parameters).then(function(result) {
+						var clause = result.wiql.split(/where/gi);
+						$scope.Select = clause[0];
+						$scope.Where = clause[1];
+						
+					}, function (error) {
+						reportError(error);
+					});
+				}
+
 				function getColumns() {
 					var select = $scope.Select.trimStart().trimEnd();
 					var regex = new RegExp("^Select", "i");
@@ -125,7 +170,7 @@ define(["app", "underscore", "jquery"],
 						return col.split(".").pop();
 					});
 
-					var fullColumns = [].concat(columns);	// include the computed fields
+					var fullColumns = [].concat(headers);	// include the computed fields, not use the Columns filed
 					$scope.ComputedFields = adoComputedFiledService.getComputedFields($scope.CustomizedScript);
 					$scope.ComputedFields.forEach(function(cf) {
 						headers.push(cf.Field);
@@ -175,6 +220,32 @@ define(["app", "underscore", "jquery"],
 					}
 				};
 
+				function getPredefinedWiql() {
+					$scope.PredefinedWiqlList = adoRestApi.PredefinedWiqlList;
+				}
+
+				$scope.applyWiql = function() {
+					if ($scope.CurrentWiql === "") {
+						$scope.Select = "";
+						$scope.Where = "";
+						$scope.CustomizedWhere = "";
+						$scope.CustomizedScript = "";
+
+						return;
+					}
+
+					var wiql = $scope.PredefinedWiqlList.find(function (item) {
+						return $scope.CurrentWiql === item.Name;
+					});
+
+					if (wiql) {
+						$scope.Select = wiql.Select;
+						$scope.Where = wiql.Where;
+						$scope.CustomizedWhere = wiql.CustomizedWhere;
+						$scope.CustomizedScript = wiql.CustomizedScript;
+					}
+				}
+
 				/**
 				 * @name	enableHtmlFormatTooltip()
 				 * @description	Enables the HTML format Tooltip
@@ -200,7 +271,7 @@ define(["app", "underscore", "jquery"],
 					var rows = "";
 					$scope.Data.forEach(function(record) {
 						var row = "";
-						$scope.Columns.forEach(function(col) {
+						$scope.FullColumns.forEach(function(col) {
 							row = row + (record[col] ? record[col] : "") + "\t";
 						});
 

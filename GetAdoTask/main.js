@@ -28,7 +28,11 @@ require.config({
 
 require(["jquery"]);
 require(["bootstrap"]);
+require(["angular"]);
 require(["angular-chart"]);
+require(["moment"]);
+require(["moment-business-days"]);
+require(["underscore"]);
 require(["app"]);
 require(["currentSettings"]);
 require(["services/adoRestApi"]);

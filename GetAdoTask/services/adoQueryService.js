@@ -334,7 +334,7 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 		 * @param {string} returnType	The type of return list, "Feature" or "WIT" (Bug/US/Task)
 		 * @param {string or Array<string>} returnFields	[] means specify by SELECT clause, null means return all fields
 		 */
-		function queryUsingWiql(authToken, url, wiql, returnType, returnFields) {
+		function queryUsingWiql(authToken, url, wiql, returnType, returnFields, queryType) {
 			var deferred = $.Deferred();
 			jQueryPost(url, authToken, JSON.stringify({ "query": wiql }))
 				.then(function (result) {
@@ -354,18 +354,13 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 						}
 
 						getTaskDetailInfo(newUrl, witIds, returnFields, authToken).then(function (list) {
-							if (returnType != null && returnType !== "") {
-								deferred.resolve(getList(adoRestApi, list, returnType));
-							} else {
-								// Gets the Parent
-								deferred.resolve(_.pluck(list, "fields"));
-							}
+							deferred.resolve(getList(adoRestApi, list, returnType));
 						})
 							.catch(function (err) {
 								deferred.reject(err);
 							});
 					} else if (result.queryResultType && result.queryResultType === "workItemLink") {
-						// This is a "Work items and direct links" query
+						// This is a "Work items and direct links" query, gets date from [workItemRelations] node
 						// Format:
 						// For top level (US or bug), 
 						//		rel: null
@@ -396,6 +391,29 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 		 * @return			The ADO record collection
 		 */
 		function getList(restApi, itemArray, returnType) {
+			if (!returnType || returnType === "") {
+				var list = _.pluck(itemArray, "fields")
+				var witList = [];
+
+				var fieldMapping = {};
+				for (var propertyName in list[0]) {
+					var newProp = propertyName.split(".").pop();
+					fieldMapping[propertyName] = newProp;
+				}
+
+				list.forEach(function (item) {
+					var wit = {};
+					for (var propertyName in item) {
+						var newProp = propertyName.split(".").pop();
+						wit[newProp] = item[propertyName];
+					}
+
+					witList.push(wit);
+				});
+
+				return witList;
+			}
+
 			returnType = returnType.toLowerCase();
 
 			var tools = { restApi: restApi, moment: moment };
@@ -450,6 +468,11 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 			return witList;
 		};
 
+		function getWiqlOfNamedQuery(queryId, token) {
+			var url = adoRestApi.TemplateDefineOfNamedQuery.replace("{queryid}", queryId);
+			return jQueryGet(url, token);
+		}
+
 		/**
 		* @name	getErrorMessage
 		* @description	Get error messager
@@ -482,13 +505,17 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 				return queryUsingWiql(parameters.Token,
 					adoRestApi.TemplateWiqlQuery,
 					parameters.Wiql,
-					null,
+					parameters.ReturnType,
 					parameters.ReturnFields);
 			},
 
 			getAdoTaskUsingWiql: function(parameters) {
 				var apis = adoRestApi.getWitUrl(parameters);
 				return getAdoTaskUsingWiql(parameters.Token, apis.url, apis.wiql);
+			},
+
+			getWiqlOfNameqdQuery: function (parameters) {
+				return getWiqlOfNamedQuery(parameters.QueryId, parameters.Token);
 			},
 
 			getTaskDetailInfo: getTaskDetailInfo,

@@ -39,7 +39,7 @@ GET https://dev.azure.com/{organization}/{project}/_apis/wit/workItems/{workItem
 	return: {totalCount:<count>, count:<count>, omments: [{mentions:[], id:<id>, text:<html msg>, createdBy:{displayName:<name>, uniqueName:<email>}, url:<url> }]}
 // Get the updates																updates
 
-// Get list via WIQL
+// *** Get list via WIQL *******************************************************************************************************************************
 https://dev.azure.com/cshdevops/{project}/_apis/wit/wiql?api-version=6.1-preview.2
 https://dev.azure.com/cshdevops/{project}/{team}/_apis/wit/wiql?api-version=6.1-preview.2
 https://dev.azure.com/cshdevops/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/acb24d64-e07f-4472-9e35-d2ccd882f073/_apis/wit/wiql?api-version=6.1-preview.2
@@ -55,7 +55,7 @@ Request Body
 	workItems: Array[]	{ id: 212322, url: "https://dev.azure.com/cshdevops/_apis/wit/workItems/212322" }
 							--> id, rev, fields (System.AreaPath, System.TeamProject, System.IterationPath...)
 							
-Returns a list of work items (Maximum 200)
+//*** Returns a list of work items (Maximum 200) *********************************************************************************************************
 GET https://dev.azure.com/{organization}/{project}/_apis/wit/workitems?ids={ids}&fields={fields}&asOf={asOf}&$expand={$expand}&errorPolicy={errorPolicy}&api-version=6.0
 -- The comma-separated list of requested work item ids
 https://dev.azure.com/cshdevops/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/_apis/wit/workitems?ids=500733,00734,500735,500736&fields=System.Id,System.Title,System.AssignedTo,System.State,System.WorkItemType,System.IterationPath,Custom.CSH_Release&api-version=6.0							
@@ -79,10 +79,13 @@ Request Body
 	}
 
 
-// Get shared quries
-https://dev.azure.com/{organization}/{project}/_apis/wit/queries/{query}?api-version=6.0
-https://dev.azure.com/cshdevops/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/_apis/wit/queries/{query}?api-version=6.0
-https://dev.azure.com/cshdevops/1ac86ff4-e28a-44e9-a4a4-4302e58eb44d/_apis/wit/queries/32dd8e9d-f515-4e4f-a6ea-824ece0fabda
+//*** Get shared quries ***************************************************************************************************************************
+// Get query definition
+https://dev.azure.com/cshdevops/software/_apis/wit/queries/{query}?api-version=6.0
+https://dev.azure.com/cshdevops/software/_apis/wit/queries/32dd8e9d-f515-4e4f-a6ea-824ece0fabda?api-version=6.0
+// Execute query and return result
+https://dev.azure.com/cshdevops/software/_apis/wit/wiql/{query id}?api-version=6.0
+https://dev.azure.com/cshdevops/software/_apis/wit/wiql/32dd8e9d-f515-4e4f-a6ea-824ece0fabda?api-version=6.0
 
 // Create a work item
 POST https://dev.azure.com/{organization}/{project}/_apis/wit/workitems/${type}?api-version=6.0
@@ -103,7 +106,7 @@ JSON Body: [
 			  }
 			]
 
-*** Field Mapping:
+//*** Field Mapping: *******************************************************************************************************************
 System.Id						-> 288731
 System.AreaPath					-> "Software\Console\Team Taiji"
 System.TeamProject				-> "Software"
@@ -116,6 +119,7 @@ System.AssignedTo
 System.CreatedDate				-> "2021-11-03T06:54:11.46Z"
 System.CreatedBy				-> refer to System.AssignedTo
 System.ChangedDate				-> "2021-11-03T06:54:11.46Z"
+Microsoft.VSTS.Common.ClosedDate
 System.Title					-> Title
 System.Description				-> HTML format text
 custom.Csh_FixedInBuild			-> "1.11.08800"
@@ -129,6 +133,7 @@ Microsoft.VSTS.Scheduling.StoryPoints	-> 2
 Microsoft.VSTS.Common.ResolvedDate		-> "2021-12-15T08:22:38.797Z"
 Microsoft.VSTS.CMMI.Blocked		-> "No", "Yes"
 Custom.CSH_BlockedReason		-> HTML format text
+Custom.CSH_Notes				-> Contains CPE info
 
 *** For US only
 Microsoft.VSTS.Common.AcceptanceCriteria	-> HTML format text

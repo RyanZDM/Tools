@@ -34,9 +34,6 @@
 						<div class="col-md-6"><ado-login></ado-login></div>
 						<div class="col-md-6">
 							<div class="row">
-								<span class="text-right alert alert-warning pull-right" ng-show="taskForm.owner.$error.email">
-									The email address is invalid
-								</span>
 								<br/><br/>
 								<button class="btn btn-primary pull-right"
 								        style="margin-right: 15px;"
@@ -53,6 +50,27 @@
 					<p></p>
 				</div>
 				<div class="panel-body">
+					<div class="row">
+						<div class="col-md-1 col-lg-1 col-sm-1">
+							<div class="input-group" data-toggle="tooltip" data-html="true" data-placement="top" title="Will gets additional fields specially for CPE">
+								<span class="input-group-addon" style="border:0; background:transparent;"><input type="checkbox" ng-model="CpeRelated" />&nbsp;&nbsp;CPE Related</span>
+							</div>
+						</div>
+						<div class="col-md-11 col-lg-11 col-sm-11">
+							<span class="pull-right">
+								<div class="input-group">
+									<span class="input-group-addon">Predefined WIQL:</span>
+									<select class="btn btn-default"
+											ng-model="CurrentWiql"
+											ng-change="applyWiql()">
+										<option value="">--- Select ---</option>
+										<option ng-repeat="wiql in PredefinedWiqlList" value="{{wiql.Name}}">{{wiql.Name}}</option>
+									</select>
+								</div>
+							</span>
+						</div>
+					</div>
+					<hr />
 					<div class="row">
 						<div class="form-group">
 							<label for="selectclause"

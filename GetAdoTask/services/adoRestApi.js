@@ -2,9 +2,9 @@
 
 define(["app"], function (app) {
 	app.service("adoRestApi", ["currentSettings", function (currentSettings) {		
-		var project = "software";
 		var URL = "https://dev.azure.com/cshdevops/";
-		var urlWiql = URL + "software/_apis/wit/wiql?api-version=6.0";
+		var WitApiPref = URL + "software/_apis/wit/";
+		var urlWiql = WitApiPref + "wiql?api-version=6.0";
 		var urlWiqlDetail = urlWiql.replace("wiql", "workitemsbatch");
 
 		var templateWiqlTaskAndParent =
@@ -18,7 +18,7 @@ define(["app"], function (app) {
 																	[System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward'\
 																) \
 																AND (\
-																	[Target].[System.TeamProject] = '{project}' AND [Target].[System.WorkItemType] = 'Task'\
+																	[Target].[System.WorkItemType] = 'Task'\
 																) \
 																MODE (MustContain)\
 															";
@@ -35,8 +35,7 @@ define(["app"], function (app) {
 							AND [System.Title] CONTAINS '[' ";		// the title always contains [xxx] for an escalation issue us
 
 		function formatQuery(url) {
-			return url.replace(/\{project\}/g, project)
-						.replace(/\t/g, "");
+			return url.replace(/\t/g, "");
 		}
 
 		// Add new object if new added a release, refer to "Maelstrom" about how to...
@@ -202,6 +201,25 @@ define(["app"], function (app) {
 			return wiql;
 		}
 
+		function getPredefinedWiqlList() {
+			return [
+				{
+					Name: "Gets task list of a feature",
+					Select: "SELECT [System.Id],[System.Title],[System.AssignedTo],[Microsoft.VSTS.Scheduling.StoryPoints],[System.State],[Custom.CSH_Release],[System.IterationPath],[System.AreaPath] FROM workitemLinks",
+					Where: "([Source].[System.TeamProject]=@project AND [Source].[System.WorkItemType]='Feature' AND [Source].[System.Id]=508471) AND ([System.Links.LinkType]='System.LinkTypes.Hierarchy-Forward') AND ([Target].[System.WorkItemType] IN ('UserStory','Bug')) ORDER BY [Custom.CSH_Release] MODE (Recursive,MayContain)",
+					CustomizedWhere: "",
+					CustomizedScript: ""
+				}
+				,{
+					Name: "Gets task list by parent",
+					Select: "SELECT [System.Id],[System.Title],[System.AssignedTo],[Microsoft.VSTS.Scheduling.StoryPoints],[System.State],[Custom.CSH_Release],[System.IterationPath],[System.AreaPath] FROM workitems",
+					Where: "([Custom.CSH_Release]='Jing-A (ImageView 1.12)' AND [System.State] IN ('New', 'Assigned', 'Active', 'Resolved', 'Closed', 'Verified')) ORDER BY [System.State],[System.AssignedTo]",
+					CustomizedWhere: "wit['Parent'] == <parent id>",
+					CustomizedScript: ""
+				}
+			];
+		}
+
 		return {
 			MaxRecordsEveryQuery: 200,
 
@@ -210,7 +228,7 @@ define(["app"], function (app) {
 			CurrentWorkspace: "278792303760ud",
 
 			// The HTTP URL of a ADO task (Bug, US, Feature, Sub task)
-			WitLink: formatQuery("https://dev.azure.com/cshdevops/{project}/_workitems/edit/"),
+			WitLink: formatQuery(URL + "software/_workitems/edit/"),
 
 			// POST: Gets work item list via WIQL (only return id and url of work item)
 			TemplateWiqlQuery: formatQuery(urlWiql),
@@ -219,10 +237,16 @@ define(["app"], function (app) {
 			TemplateWitBatchQuery: formatQuery(urlWiqlDetail),
 
 			// GET: Gets a bunche of work items via IDs. Call this after called <templateWiqlUrl>
-			TemplateWitsQuery: formatQuery(URL + "{project}/_apis/wit/workitems?ids={ids}&fields={fields}&api-version=6.0"),
+			TemplateWitsQuery: formatQuery(WitApiPref + "workitems?ids={ids}&fields={fields}&api-version=6.0"),
 
 			// GET: Gets detail of a bug, user story or feature
-			TemplateWitQuery: formatQuery(URL + "_apis/wit/workitems/{id}"),
+			TemplateWitQuery: formatQuery(WitApiPref + "workitems/{id}"),
+
+			// GET: Executes a ADO query and return the result
+			TemplateExecuteNamedQuery: formatQuery(WitApiPref + "wiql/{queryid}?api-version=6.0"),
+
+			// GET: Gets the definition of a named query
+			TemplateDefineOfNamedQuery: formatQuery(WitApiPref + "queries/{queryid}?$expand=clauses&api-version=6.0"),
 
 			// WIQL for querying feature
 			TemplateWiqlFeatureList: formatQuery(
@@ -231,6 +255,8 @@ define(["app"], function (app) {
 			TemplateWiqlCalculateTaskSpentHours: formatQuery(templateWiqlCalculateTaskSpentHours),
 			
 			WiqlCpeStatistics: formatQuery(wiqlCpeStat),
+
+			PredefinedWiqlList: getPredefinedWiqlList(),
 
 			/**
 			 * @name			getWitUrl

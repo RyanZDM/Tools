@@ -32,9 +32,9 @@ function adoWorkItem(jsonObj, tools) {
 	// Testable flag
 	this.Testable = true;
 	if (this["AcceptanceCriteria"]) {
-		var ac = this["AcceptanceCriteria"].trim()
+		this["AcceptanceCriteria"] = this["AcceptanceCriteria"].trim()
 											.replace(/&nbsp;/g, " ");
-		if (/not?\W?test|non-test|Not?\W?need/i.test(ac)) {
+		if (/not?\W?test|non-test|Not?\W?need|not?\W?necessary|unnecessary|^na$/i.test(this["AcceptanceCriteria"])) {
 			this.Testable = false;
 		}
 	};
@@ -231,6 +231,7 @@ function adoWorkItem(jsonObj, tools) {
 	function checkRequiredFields(wit) {
 		wit.RequiredFieldMissed = false;
 		wit.RequiredFieldMissedReason = "";
+		wit.CanDirectlyClose = false;
 
 		var resolved = (wit["State"] === "Resolved");
 		var closed = (wit["State"] === "Closed");
@@ -285,12 +286,21 @@ function adoWorkItem(jsonObj, tools) {
 
 		} else if (wit["WorkItemType"] === "User Story") {
 			wit.AcMissed = false;
-			if (resolved || closed) {
-				if (!wit["AcceptanceCriteria"] ||
-					wit["AcceptanceCriteria"].trim() === "") {
-					wit.AcMissed = true;
-					wit.RequiredFieldMissed = true;
-					wit.RequiredFieldMissedReason += "AC missed,";
+
+			// No neet to check the AC field since it is not testable
+			if (wit.Testable) {
+				if (resolved || closed) {
+					if (!wit["AcceptanceCriteria"] ||
+						wit["AcceptanceCriteria"].trim() === "") {
+						wit.AcMissed = true;
+						wit.RequiredFieldMissed = true;
+						wit.RequiredFieldMissedReason += "AC missed,";
+					}
+				}
+			} else {
+				// Can directly close a Resolved US since it is not testable
+				if (resolved) {
+					wit.CanDirectlyClose = true;
 				}
 			}
 		}

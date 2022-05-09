@@ -162,7 +162,7 @@
 												<labeled-checkbox ng-hide="Dev.QueryForOpenDefect" class="btn-info" uid="secondRelease" label="{{Dev.SecondRelease}}" ng-model="Dev.Show2ndRelease" action="Dev.resetWorkloadStat()"></labeled-checkbox>
 												<labeled-checkbox ng-hide="Dev.QueryForOpenDefect" class="btn-primary" uid="CurrentRelease" label="{{CurrentRelease}}" ng-model="Dev.ShowCurrentRelease" action="Dev.resetWorkloadStat()"></labeled-checkbox>
 												<labeled-checkbox class="btn-warning" uid="SDC" label="SDC Only" shortlabel="{{QueryForOpenDefect ? 'SDC Only' : 'SDC'}}" ng-model="Dev.SDCOnly" action="Dev.resetWorkloadStat()" title="Show tasks owned by SDC only"></labeled-checkbox>
-												<labeled-checkbox class="btn-success" uid="CurrentTeam" label="{{CurrentTeamShortName}} Only" shortlabel="{{Dev.QueryForOpenDefect ? Dev.CurrentTeamShortName + ' Only' : Dev.CurrentTeamShortName}}" ng-model="Dev.CurrentTeamOnly" action="Dev.resetWorkloadStat()" title="Show team {{Dev.CurrentTeamShortName}} task only"></labeled-checkbox>
+												<labeled-checkbox class="btn-success" uid="CurrentTeam" label="{{Dev.CurrentTeamShortName}} Only" shortlabel="{{Dev.QueryForOpenDefect ? Dev.CurrentTeamShortName + ' Only' : Dev.CurrentTeamShortName}}" ng-model="Dev.CurrentTeamOnly" action="Dev.resetWorkloadStat()" title="Show team {{Dev.CurrentTeamShortName}} task only"></labeled-checkbox>
 												<span>
 													<select class="btn btn-primary" ng-model="Dev.DeOrUs" ng-change="Dev.resetWorkloadStat()">
 														<option>ALL</option>
@@ -268,7 +268,7 @@
 														<th data-toggle="tooltip">Description</th>
 														<th>Priority</th>
 														<th ng-show="Dev.ShowProductField" width="5%">Product</th>
-														<th>Points</th>
+														<th data-toggle="tooltip" title="If show with underline style, means it has child task.">Points</th>
 														<th>Owner</th>
 														<th ng-show="Dev.ShowIterationField">Iteration</th>
 														<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
@@ -294,9 +294,13 @@
 																		, 'fontStyle' : task.Testable ? 'normal' : 'italic'
 																		, 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray'))
 																	}">
-														<td style="white-space: pre-wrap;" align="center">{{$index + 1}}</td>
-														<td><div ng-style="{ 'fontWeight' : (task.WasChangedToday == true) ? 'bold' : 'normal' }">{{task.Id}}</div></td>
-														<td>
+														<td style="vertical-align: middle; text-align: center" class="supportHover">
+															{{$index + 1}}
+															<!--<button type="button" class="btnShowOnHoverOnly btn btn-info" ng-click="getChildren(task)">Children</button>-->
+														</td>
+														<td style="vertical-align: middle; text-align: center"><div ng-style="{ 'fontWeight' : (task.WasChangedToday == true) ? 'bold' : 'normal' }">{{task.Id}}</div></td>
+														<td style="vertical-align: middle;">
+															<b ng-show="task.CanDirectlyClose" data-toggle="tooltip" data-html="true" title="<i>Should directly close since it is not testable</i>"><font color="red">[DirectlyClose]</font></b>
 															<b ng-show="task.Blocked === 'Yes'" data-toggle="tooltip" data-html="true" title="<i><b>Blocked with the reason:</b><br>{{task.CSH_BlockedReason}}</i>"><font color="red">[Blocked]</font></b>
 															<b ng-show="task.Requirement == '' && task.Feature == ''" data-toggle="tooltip" data-html="true" title="<i>It should be associated with a feature or user story</i>"><font color="red">[No Parent]</font></b>
 															<b ng-show="task.Duplicate" data-toggle="tooltip" data-html="true" title="<i>Duplicate with another defect</i>"><font color="black">[Duplicate]</font></b>
@@ -309,18 +313,28 @@
 																{{task.Title}}
 															</a>
 														</td>
-														<td align="center">{{task.Priority}}</td>
-														<td ng-show="Dev.ShowProductField" align="center" width="5%">{{task.CSH_FoundInProduct}}</td>
-														<td align="right">{{task.StoryPoints}}</td>
-														<td align="center">{{task.Owner}}</td>
-														<td ng-show="Dev.ShowIterationField" align="center">{{task.Iteration}}</td>
-														<td align="center">
+														<td style="vertical-align: middle; text-align: center">{{task.Priority}}</td>
+														<td ng-show="Dev.ShowProductField" style="vertical-align: middle; text-align: center" width="5%">{{task.CSH_FoundInProduct}}</td>
+														<!-- Should use the [data-original-title] if to show html format (especially a table format data) tooltip -->
+														<td style="vertical-align: middle; text-align: center">
+															<span ng-style="{ textDecorationLine: task.ChildrenTooltip ? 'underline' : 'none', verticalAlign: 'middle', textAlign: 'center', display: 'block' }"
+																  data-toggle="tooltip"
+																  data-html="true"
+																  data-placement="top"
+																  data-delay='{ "show": "1500", "hide": "1000" }'
+																  data-original-title="{{task.ChildrenTooltip}}">
+																{{task.StoryPoints}}
+															</span>
+														</td>
+														<td style="vertical-align: middle; text-align: center">{{task.Owner}}</td>
+														<td ng-show="Dev.ShowIterationField" style="vertical-align: middle; text-align: center">{{task.Iteration}}</td>
+														<td style="vertical-align: middle; text-align: center">
 															<a href="{{task.Link}}" target="_blank" ng-style="{ 'fontWeight' : (task.WasChangedToday === true) ? 'bold' : 'normal' }">
 																{{task.State}}
 															</a>
 														</td>
-														<td ng-show="Dev.ShowRejectField" ng-if="!Dev.QueryForOpenDefect" align="center">{{task.Rejected ? 'Y' : ''}}</td>
-														<td ng-show="Dev.ShowFeatureField" align="center">
+														<td ng-show="Dev.ShowRejectField" ng-if="!Dev.QueryForOpenDefect" style="vertical-align: middle; text-align: center">{{task.Rejected ? 'Y' : ''}}</td>
+														<td ng-show="Dev.ShowFeatureField" style="vertical-align: middle; text-align: center">
 															<a href="{{task.ParentLink}}" target="_blank"
 															   dta-toggle="tooltip" title="{{getFeatureName(task.Parent)}}">
 																{{task.Parent}}
@@ -329,7 +343,7 @@
 														<td class="col-3" width="10%">
 															<textarea style="word-break:break-all" class="form-control" ng-model="task.Other"></textarea>
 														</td>
-														<td ng-show="Dev.ShowBlockReasonField" width="10%" data-toggle="tooltip" data-html="true" data-placement="top" data-delay='{ "show": "1500", "hide": "1000" }' title="{{task.CSH_BlockedReason}}">{{task.OmittedBlockedReason}}</td>
+														<td ng-show="Dev.ShowBlockReasonField" width="10%" style="vertical-align: middle;" data-toggle="tooltip" data-html="true" data-placement="top" data-delay='{ "show": "1500", "hide": "1000" }' title="{{task.CSH_BlockedReason}}">{{task.OmittedBlockedReason}}</td>
 													</tr>
 												</tbody>
 											</table>

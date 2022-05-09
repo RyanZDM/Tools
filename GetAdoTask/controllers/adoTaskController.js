@@ -94,10 +94,6 @@ define(["app", "underscore", "jquery"],
 						var parameters = { Owners: $scope.Dev.Owner, Sprint: $scope.Dev.Sprint, Teams: $scope.Dev.CurrentTeam };
 						getAdoTask(parameters, callbackBeforeQuery, function (result, token) {
 							$scope.Dev.TaskList = result;
-
-							// Load the sub task state
-							//TODO
-							//loadSubTaskState(result, token);
 						});
 					},
 
@@ -112,9 +108,15 @@ define(["app", "underscore", "jquery"],
 						getAdoTask(parameters, $scope.Dev.callbackBeforeQuery, function (result, token) {
 							$scope.Dev.TaskList = result;
 
-							// Load the sub task state
-							//TODO
-							//loadSubTaskState(result, token);
+							setTimeout(() => {
+								$scope.Dev.TaskList.forEach(wit => {
+									loadSubTaskState(wit, token).then(result => {
+										wit.ChildrenTooltip = generateHtmlFormatTableData(result, ["Estimate", "Completed"]);
+
+										$scope.$apply();
+									})
+								})
+							}, 0);
 						});
 					},
 
@@ -487,6 +489,8 @@ define(["app", "underscore", "jquery"],
 							});
 
 							$scope.CPE.TaskList = result;
+
+							// TODO: Calculate the working hours background
 						});
 					},
 
@@ -813,38 +817,6 @@ define(["app", "underscore", "jquery"],
 							$scope.$apply();
 						});
 				};
-				
-				// Loads the sub task state
-				function loadSubTaskState(list, token) {
-					var taskDict = {};
-					list.forEach(function(wit) {
-						if (wit.Children && wit.Children.length > 0) {
-							wit.Children.forEach(function(task) {
-								taskDict[task.Id] = wit.Id;
-							});
-						}
-					});
-
-					var ids = _.pluck(_.flatten(_.pluck(list, "Children")), "Id");
-					adoQueryService.getTaskDetailInfo(adoRestApi.TemplateWitBatchQuery, ids, ["System.Id", "System.Title", "System.State", "System.AssignedTo"], token)
-						.then(function(list) {
-							list = _.flatten(_.pluck(list, "fields")).map(function(task) {
-								var id = task["System.Id"];
-								return {
-									Id: id,
-									Parent: taskDict[id],
-									Owner: task["System.AssignedTo"].displayName,
-									Title: task["System.Title"],
-									State: task["System.State"]
-								};
-							});
-
-							// TODO update the return list
-						})
-						.catch(function(err) {
-							reportError(err);
-						});
-				};
 
 				/**
 				* @name	collectWorkloadStatData
@@ -985,12 +957,113 @@ define(["app", "underscore", "jquery"],
 				}
 
 				/**
+				 * @name	Loads the sub tasks of a US or Bug
+				 * @param {any} wit	A work item
+				 * @param {any} token	The token string to be sent to ADO for the authentication
+				 */
+				function loadSubTaskState(wit, token) {
+					var deferred = $.Deferred();
+
+					if (!wit || !wit.Children || wit.Children.length === 0) {
+						deferred.resolve([]);
+						return deferred.promise();
+					}
+
+					var ids = _.pluck(wit.Children, "Id");
+					adoQueryService.getTaskDetailInfo(adoRestApi.TemplateWitBatchQuery, ids, ["System.Id", "System.Title", "System.State", "System.AssignedTo", "Microsoft.VSTS.Scheduling.OriginalEstimate", "Microsoft.VSTS.Scheduling.CompletedWork"], token)
+						.then(function (list) {
+							list = _.flatten(_.pluck(list, "fields")).map(function (task) {
+								return {
+									Id: task["System.Id"],
+									Owner: task["System.AssignedTo"].displayName,
+									Title: task["System.Title"],
+									State: task["System.State"],
+									Estimate: task["Microsoft.VSTS.Scheduling.OriginalEstimate"],
+									Completed: task["Microsoft.VSTS.Scheduling.CompletedWork"]
+								};
+							});
+
+							deferred.resolve(list);
+						})
+						.catch(function (err) {
+							deferred(err);
+						});
+
+					return deferred.promise();
+				}
+
+				/**
+				 * @name	Generates the HTML table format message to be shown within Tooltip
+				 * @param {Array} data	Data array
+				 * @param {string or array} fieldsToSummary The list of field to be accumulated and show at footpage
+				 */
+				function generateHtmlFormatTableData(data, fieldsToSummary) {
+					if (!data || !Array.isArray(data) || data.length === 0) return "";
+
+					var html = "<table border=1><thead><tr><th><header-data></th></tr></thead><tbody><row-data></tbody><foot-data></table>";
+
+					var footData = "";
+					if (fieldsToSummary) {
+						fieldsToSummary = [].concat(fieldsToSummary);
+					} else {
+						fieldsToSummary = [];
+					}
+
+					if (fieldsToSummary.length > 0) {
+						footData = "<thead><tr><th><summary-data></th></tr></thead>";
+					}
+
+					var summaryData = {};
+					var headers = [];
+					for (var propName in data[0]) {
+						headers.push(propName);
+						summaryData[propName] = 0;
+					}
+
+					var tasks = 0;
+					var rowsData = "";
+					data.forEach(row => {
+						tasks++;
+
+						var tr = "<td>" + tasks + "</td>";
+						headers.forEach(header => {
+							var val = row[header] ? row[header] : "";
+							tr = tr + "<td>" + val + "</td>";
+
+							if ((val !== "") && !isNaN(val)) {
+								if (fieldsToSummary.findIndex(field => { return field === header }) !== -1) {
+									summaryData[header] += row[header];
+								}
+							}
+						})
+
+						rowsData = rowsData + "<tr>" + tr + "</tr>";
+					});
+
+					if (footData !== "") {
+						var summary = [""];
+						headers.forEach(header => {
+							summary.push(((summaryData[header] !== 0) ? summaryData[header] : ""));
+						})
+
+						footData = footData.replace("<summary-data>", summary.join("</th><th>"));
+					}
+
+					headers = ["#"].concat(headers);
+					html = html.replace("<header-data>", headers.join("</th><th>"))
+								.replace("<row-data>", rowsData)
+								.replace("<foot-data>", footData);
+
+					return html;
+				}
+
+				/**
 				 * @name	enableHtmlFormatTooltip()
 				 * @description	Enables the HTML format Tooltip
 				 */
 				$scope.enableHtmlFormatTooltip = function () {
 					setTimeout(function () {
-						$('[data-html="true"]').tooltip();
+						$('[data-html="true"]').tooltip({ sanitize: false });	// sanitize=falase for showing table in tooltip
 					}, 100);
 				};
 
