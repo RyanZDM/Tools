@@ -16,7 +16,6 @@
 </head>
 <body>
 	<form name="taskForm" ng-controller="adoTaskController">
-		<!--<form name="taskForm" ng-app="getAdoTasksApp" ng-controller="adoTaskController">-->
 		<div ng-show="currentTab === 'FeatureTeam'" class="page-header text-primary text-center" data-toggle="modal" data-target="#selectProjectTeamModal">
 			<h1>Get ADO Tasks <small>{{Dev.QueryTypeString}}</small></h1>
 		</div>
@@ -107,7 +106,7 @@
 													<button class="btn btn-md btn-block btn-default"
 															id="btnRefresh"
 															ng-disabled="InQuerying"
-															ng-click="Dev.refreshTaskList()"
+															ng-click="Dev.refreshSingle()"
 															data-toggle="tooltip"
 															data-placement="top"
 															title="Get tasks belongs to the [Owner] of the specified [Sprint]">
@@ -291,7 +290,7 @@
 												<tbody>
 													<tr ng-repeat="task in Dev.TaskList | orderBy:Dev.OrderByValue |filter: Dev.scheduleStateFilter as filteredRecords"
 														ng-style="{ 'textDecoration' : (task.Rejected || task.Duplicate || task.Postpone) ? 'line-through' : 'none'
-																		, 'fontStyle' : task.Testable ? 'normal' : 'italic'
+										8								, 'fontStyle' : task.Testable ? 'normal' : 'italic'
 																		, 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray'))
 																	}">
 														<td style="vertical-align: middle; text-align: center" class="supportHover">
@@ -525,7 +524,16 @@
 												</thead>
 												<tbody>
 													<tr ng-repeat="data in CPE.TaskList | orderBy:CPE.OrderByValue |filter: CPE.dataFilter as filteredCpeRecords">
-														<td style="vertical-align: middle; text-align: center">{{ $index + 1}}</td>
+														<td style="vertical-align: middle; text-align: center">
+															<span ng-style="{ textDecorationLine: data.ChildrenTooltip ? 'underline' : 'none', verticalAlign: 'middle', textAlign: 'center', display: 'block' }"
+																  data-toggle="tooltip"
+																  data-html="true"
+																  data-placement="top"
+																  data-delay='{ "show": "1500", "hide": "1000" }'
+																  data-original-title="{{data.ChildrenTooltip}}">
+																{{ $index + 1}}
+															</span>
+														</td>
 														<td style="vertical-align: middle" ng-repeat="column in CPE.FullColumns">
 															<span ng-if="column === 'Id'" style="display: block; text-align: center"><a href="{{data['Link']}}" target="_blank">{{data[column]}}</a></span>
 															<span ng-if="column === 'Title'"
@@ -596,15 +604,19 @@
 					</div>
 					<div class="modal-body">
 						<div class="row">
-							<div class="input-group">
-								<span class="input-group-addon">Project Team</span>
-								<select class="btn btn-default" ng-model="Dev.CurrentTeam" , ng-options="team for team in Dev.ProjectTeamList" ng-change="Dev.projectTeamChanged(Dev.CurrentTeam)"></select>
+							<div class="col-md-6">
+								<div class="input-group">
+									<span class="input-group-addon">Project Team</span>
+									<select class="btn btn-default" ng-model="Dev.CurrentTeam" , ng-options="team for team in Dev.ProjectTeamList" ng-change="Dev.projectTeamChanged(Dev.CurrentTeam)"></select>
+								</div>
 							</div>
 						</div>
 						<div class="row">
-							<div class="input-group">
-								<span class="input-group-addon">Short Name</span>
-								<input type="form-control" ng-model="Dev.CurrentTeamShortName" />
+							<div class="col-md-6">
+								<div class="input-group">
+									<span class="input-group-addon">Short Name</span>
+									<input class="form-control" ng-model="Dev.CurrentTeamShortName" />
+								</div>
 							</div>
 						</div>
 					</div>

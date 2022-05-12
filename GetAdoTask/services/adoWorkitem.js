@@ -100,15 +100,34 @@ function adoWorkItem(jsonObj, tools) {
 	}
 
 	// Child
-	this.Children = [];
+	this._children = [];
 	if (jsonObj["relations"] && jsonObj["relations"].length > 0) {
 		var relations = jsonObj["relations"];
 		_.forEach(relations, function (rel) {
 			if (rel.attributes.name.toLowerCase() === "child") {
-				this.Children.push({ Id: rel.url.split("/").pop() });
+				this._children.push({ Id: rel.url.split("/").pop() });
 			}
 		}, this);
 	}
+
+	Object.defineProperty(this, "Children", {
+		//writable: true,
+		get() { return this._children; },
+		set(newValue) {
+			this._children = newValue;
+			if (this._children && this._children.length > 0) {
+				//
+			} else {
+				this.ChildrenSummary = {
+					Count: 0,
+					OriginalEstimate: 0,
+					CompletedWork: 0,
+					OtherOriginalEstimate: 0,
+					OtherCompletedWork: 0
+				}
+			}
+		}
+	})
 
 	this.clone = function (exclude) {
 		var excludes = [];

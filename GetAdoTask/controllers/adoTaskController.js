@@ -85,26 +85,14 @@ define(["app", "underscore", "jquery"],
 					},
 
 					/**
-					 * @name	refreshTaskList()
-					 * @description	Get the task list of specified engineer from ADO, save to $scope.Dev.TaskList
+					 * @name	refreshTaskList() call by refreshSingle and refreshAll
 					 */
-					refreshTaskList: function () {
-						$scope.Dev.QueryTypeString = " --- " + $scope.Dev.Owner + "'s ADO task in sprint " + $scope.Dev.Sprint + " @" + new Date().toLocaleTimeString();
+					refreshTaskList: function (owner) {
+						$scope.Dev.QueryTypeString = (owner & owner !== "") ?
+							" --- " + owner + "'s ADO task in sprint " + $scope.Dev.Sprint + " @" + new Date().toLocaleTimeString()
+							: " --- ADO task in sprint " + $scope.Dev.Sprint + " for ALL person @" + new Date().toLocaleTimeString();
 
-						var parameters = { Owners: $scope.Dev.Owner, Sprint: $scope.Dev.Sprint, Teams: $scope.Dev.CurrentTeam };
-						getAdoTask(parameters, callbackBeforeQuery, function (result, token) {
-							$scope.Dev.TaskList = result;
-						});
-					},
-
-					/**
-					 * @name	refreshAll()
-					 * @description	Gets the task list of all engineers from ADO, save to $scope.Dev.TaskList
-					 */
-					refreshAll: function () {
-						$scope.Dev.QueryTypeString = " --- ADO task in sprint " + $scope.Dev.Sprint + " for ALL person @" + new Date().toLocaleTimeString();
-
-						var parameters = { Owners: "", Sprint: $scope.Dev.Sprint, Teams: $scope.Dev.CurrentTeam };
+						var parameters = { Owners: owner, Sprint: $scope.Dev.Sprint, Teams: $scope.Dev.CurrentTeam };
 						getAdoTask(parameters, $scope.Dev.callbackBeforeQuery, function (result, token) {
 							$scope.Dev.TaskList = result;
 
@@ -118,6 +106,22 @@ define(["app", "underscore", "jquery"],
 								})
 							}, 0);
 						});
+					},
+
+					/**
+					 * @name	refreshSingle()
+					 * @description	Get the task list of specified engineer from ADO, save to $scope.Dev.TaskList
+					 */
+					refreshSingle: function () {
+						$scope.Dev.refreshTaskList($scope.Dev.Owner);
+					},
+
+					/**
+					 * @name	refreshAll()
+					 * @description	Gets the task list of all engineers from ADO, save to $scope.Dev.TaskList
+					 */
+					refreshAll: function () {
+						$scope.Dev.refreshTaskList("");
 					},
 
 					resetWorkloadStat: function () {
@@ -243,7 +247,6 @@ define(["app", "underscore", "jquery"],
 					 */
 					collectWorkloadStatData: function () {
 						if (!$scope.filteredRecords) {
-							// todo chart series
 							initChart($scope.Dev.WorkloadStat);
 							return false;
 						}
@@ -491,6 +494,15 @@ define(["app", "underscore", "jquery"],
 							$scope.CPE.TaskList = result;
 
 							// TODO: Calculate the working hours background
+							setTimeout(() => {
+								$scope.CPE.TaskList.forEach(wit => {
+									loadSubTaskState(wit, token).then(result => {
+										wit.ChildrenTooltip = generateHtmlFormatTableData(result, ["Estimate", "Completed"]);
+
+										$scope.$apply();
+									})
+								})
+							}, 0);
 						});
 					},
 
@@ -983,7 +995,12 @@ define(["app", "underscore", "jquery"],
 								};
 							});
 
-							deferred.resolve(list);
+							wit.Children.forEach(task => {
+								var data = list.find(item => item.Id == task.Id);
+								_.extend(task, data);
+							})
+
+							deferred.resolve(wit.Children);
 						})
 						.catch(function (err) {
 							deferred(err);
