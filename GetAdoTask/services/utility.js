@@ -13,7 +13,8 @@ define(["app", "underscore"], function (app, _) {
 			html2PlainText: html2PlainText,
 			sendEmail: sendEmail,
 			getRowData: getRowData,
-			setRowData: setRowData
+			setRowData: setRowData,
+			monitorOnArrayChnage: monitorOnArrayChnage
 		}
 
 		/**
@@ -278,6 +279,21 @@ define(["app", "underscore"], function (app, _) {
 
 				tempProperty[realCol] = val;
 			}
+		};
+
+		/**
+		 * @name monitorOnArrayChnage
+		 * @param {any} arr
+		 * @param {any} callback
+		 */
+		function monitorOnArrayChnage(arr, callback) {
+			["pop", "push", "shift", "unshift", "splice"].forEach(method => {
+				arr[method] = function () {
+					var ret = Array.prototype[method].apply(arr, arguments);
+					callback.apply(arr, arguments);
+					return ret;
+				}
+			})
 		}
 	});
 });

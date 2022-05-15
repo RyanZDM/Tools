@@ -80,8 +80,8 @@ define(["app", "underscore", "jquery"],
 						Collected: false,
 						Workload: [],
 						ChartData: []
-						, Headers: ["Name", "Count", "Story Points"]
-						, Columns: ["Owner", "Count", "Points"]
+						, Headers: ["Name", "Count", "Story Points", "Completed Hours"]
+						, Columns: ["Owner", "Count", "Points", "CompletedHours"]
 					},
 
 					/**
@@ -257,12 +257,15 @@ define(["app", "underscore", "jquery"],
 
 						if ($scope.filteredRecords.length > 0) {
 							var result = $scope.filteredRecords.reduce(function (total, task) {
+								var owner = task.Owner;
 								var storyPoints = (task.StoryPoints) ? task.StoryPoints : 0;
-								if (!(task.Owner in total)) {
-									total[task.Owner] = { Points: storyPoints, Count: 1 };
+								var completedHours = task.CompletedHours;
+								if (!(owner in total)) {
+									total[owner] = { Points: storyPoints, Count: 1, CompletedHours: 0 };
 								} else {
-									total[task.Owner].Points += storyPoints;
-									total[task.Owner].Count += 1;
+									total[owner].Points += storyPoints;
+									total[owner].Count += 1;
+									total[owner].CompletedHours += completedHours;
 								}
 
 								return total;
@@ -270,7 +273,7 @@ define(["app", "underscore", "jquery"],
 
 							var orderedData = _.map(Object.keys(result),
 								function (key) {
-									return { Owner: key, Points: result[key].Points, Count: result[key].Count }
+									return { Owner: key, Points: result[key].Points, Count: result[key].Count, CompletedHours: result[key].CompletedHours }
 								});
 
 							// Order by Points, order by Count desc
@@ -282,7 +285,7 @@ define(["app", "underscore", "jquery"],
 								} else { return 1; }
 							});
 
-							refreshChart($scope.Dev.WorkloadStat, orderedData, "Owner", ["Points", "Count"]);
+							refreshChart($scope.Dev.WorkloadStat, orderedData, "Owner", ["Points", "Count", "CompletedHours"]);
 						}
 
 						$scope.Dev.WorkloadStat.Collected = true;
@@ -609,7 +612,7 @@ define(["app", "underscore", "jquery"],
 
 				loadSavedParameters();
 
-            	/**
+				/**
 				 * @name	saveCurrentParameters()
 				 * @description	Saves the current parameters (owner, sprint, scope etc.) to browser local cache
 				 */
@@ -634,11 +637,11 @@ define(["app", "underscore", "jquery"],
 						ShowResolved: $scope.Dev.ShowResolved,
 						ShowClosed: $scope.Dev.ShowClosed
 					};
-					 
+
 					localStorage.setItem(LocalStorageKey.SAVED_PARAMETERS, JSON.stringify(data));
 				}
 
-            	/**
+				/**
 				 * @name	loadSavedParameters()
 				 * @description	Loads saved parameters from browser local cache
 				 */
@@ -650,22 +653,22 @@ define(["app", "underscore", "jquery"],
 					try {
 						savedParameters = JSON.parse(savedParameters);
 
-						if (savedParameters["Owner"] != undefined) { $scope.Dev.Owner = savedParameters.Owner; }
-						if (savedParameters["Sprint"] != undefined) { $scope.Dev.Sprint = savedParameters.Sprint; }
-						if (savedParameters["Show2ndRelease"] != undefined) { $scope.Dev.Show2ndRelease = savedParameters.Show2ndRelease; }
-						if (savedParameters["ShowCurrentRelease"] != undefined) { $scope.Dev.ShowCurrentRelease = savedParameters.ShowCurrentRelease; }
-						if (savedParameters["ShowOthers"] != undefined) { $scope.Dev.ShowOthers = savedParameters.ShowOthers; }
-						if (savedParameters["IfSaveOtherInfo2Local"] != undefined) { $scope.Dev.IfSaveOtherInfo2Local = savedParameters.IfSaveOtherInfo2Local; }
-						if (savedParameters["OtherInfoLabel"] != undefined) { $scope.Dev.OtherInfoLabel = savedParameters.OtherInfoLabel; }
-						if (savedParameters["ShowProductField"] != undefined) { $scope.Dev.ShowProductField = savedParameters.ShowProductField; }
-						if (savedParameters["ShowIterationField"] != undefined) { $scope.Dev.ShowIterationField = savedParameters.ShowIterationField; }
-						if (savedParameters["ShowRejectField"] != undefined) { $scope.Dev.ShowRejectField = savedParameters.ShowRejectField; }
-						if (savedParameters["ShowBlockReasonField"] != undefined) { $scope.Dev.ShowBlockReasonField = savedParameters.ShowBlockReasonField; }
-						if (savedParameters["ShowNew"] != undefined) { $scope.Dev.ShowNew = savedParameters.ShowNew; }
-						if (savedParameters["ShowAssigned"] != undefined) { $scope.Dev.ShowAssigned = savedParameters.ShowAssigned; }
-						if (savedParameters["ShowActive"] != undefined) { $scope.Dev.ShowActive = savedParameters.ShowActive; }
-						if (savedParameters["ShowResolved"] != undefined) { $scope.Dev.ShowResolved = savedParameters.ShowResolved; }
-						if (savedParameters["ShowClosed"] != undefined) { $scope.Dev.ShowClosed = savedParameters.ShowClosed; }
+						if (savedParameters["Owner"] !== undefined) { $scope.Dev.Owner = savedParameters.Owner; }
+						if (savedParameters["Sprint"] !== undefined) { $scope.Dev.Sprint = savedParameters.Sprint; }
+						if (savedParameters["Show2ndRelease"] !== undefined) { $scope.Dev.Show2ndRelease = savedParameters.Show2ndRelease; }
+						if (savedParameters["ShowCurrentRelease"] !== undefined) { $scope.Dev.ShowCurrentRelease = savedParameters.ShowCurrentRelease; }
+						if (savedParameters["ShowOthers"] !== undefined) { $scope.Dev.ShowOthers = savedParameters.ShowOthers; }
+						if (savedParameters["IfSaveOtherInfo2Local"] !== undefined) { $scope.Dev.IfSaveOtherInfo2Local = savedParameters.IfSaveOtherInfo2Local; }
+						if (savedParameters["OtherInfoLabel"] !== undefined) { $scope.Dev.OtherInfoLabel = savedParameters.OtherInfoLabel; }
+						if (savedParameters["ShowProductField"] !== undefined) { $scope.Dev.ShowProductField = savedParameters.ShowProductField; }
+						if (savedParameters["ShowIterationField"] !== undefined) { $scope.Dev.ShowIterationField = savedParameters.ShowIterationField; }
+						if (savedParameters["ShowRejectField"] !== undefined) { $scope.Dev.ShowRejectField = savedParameters.ShowRejectField; }
+						if (savedParameters["ShowBlockReasonField"] !== undefined) { $scope.Dev.ShowBlockReasonField = savedParameters.ShowBlockReasonField; }
+						if (savedParameters["ShowNew"] !== undefined) { $scope.Dev.ShowNew = savedParameters.ShowNew; }
+						if (savedParameters["ShowAssigned"] !== undefined) { $scope.Dev.ShowAssigned = savedParameters.ShowAssigned; }
+						if (savedParameters["ShowActive"] !== undefined) { $scope.Dev.ShowActive = savedParameters.ShowActive; }
+						if (savedParameters["ShowResolved"] !== undefined) { $scope.Dev.ShowResolved = savedParameters.ShowResolved; }
+						if (savedParameters["ShowClosed"] !== undefined) { $scope.Dev.ShowClosed = savedParameters.ShowClosed; }
 
 						if ($scope.Dev.IfSaveOtherInfo2Local && $scope.Dev.TaskList.length > 0) {
 							var otherInfo = localStorage.getItem(LocalStorageKey.SAVED_OTHERINFO);
@@ -751,7 +754,7 @@ define(["app", "underscore", "jquery"],
 					var otherInfo = localStorage.getItem(LocalStorageKey.SAVED_OTHERINFO);
 					if (!otherInfo) {
 						window.alert("Did not find the data in local storage.");
-						 return;
+						return;
 					}
 
 					var file = new Blob([otherInfo], { type: "application/json" });
@@ -799,11 +802,11 @@ define(["app", "underscore", "jquery"],
 					}
 				}
 
-            	/**
+				/**
 				 * @name	getAdoTask()
 				 * @description	Get the ADO task according to the specified parameters. Called by refreshTaskList() and refreshAll(). Call by others internally
 				 * @param	parameters	Options for querying the tasks from ADO.
-            	 * @param callbackBeforeQuery	the callback function before query
+				 * @param callbackBeforeQuery	the callback function before query
 				 * @param callbackAfterQuery(result, token)	the callback function after data returned
 				 */
 				function getAdoTask(parameters, callbackBeforeQuery, callbackAfterQuery) {
@@ -995,10 +998,12 @@ define(["app", "underscore", "jquery"],
 								};
 							});
 
-							wit.Children.forEach(task => {
-								var data = list.find(item => item.Id == task.Id);
-								_.extend(task, data);
-							})
+							// TODO: The change did not trigger the auto calculation
+							wit.Children = list;
+							//wit.Children.forEach(task => {
+							//	var data = list.find(item => item.Id == task.Id);
+							//	_.extend(task, data);
+							//})
 
 							deferred.resolve(wit.Children);
 						})
@@ -1084,7 +1089,7 @@ define(["app", "underscore", "jquery"],
 					}, 100);
 				};
 
-            	/**
+				/**
 				 * @name	export
 				 * @description	Copy the current filtered data to clipboard
 				 */
@@ -1163,7 +1168,7 @@ define(["app", "underscore", "jquery"],
 					$scope.ErrorMsg = "";
 				};
 
-            	/**
+				/**
 				 * @name	reportError
 				 * @description	Reports an error
 				 * @param	error	The error object.

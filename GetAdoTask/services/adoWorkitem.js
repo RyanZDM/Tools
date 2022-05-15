@@ -99,8 +99,16 @@ function adoWorkItem(jsonObj, tools) {
 		this.ParentLink = tools.restApi.WitLink + this.Parent;
 	}
 
-	// Child
+	//#region Child data
 	this._children = [];
+	this.ChildrenSummary = {
+		Count: 0,
+		Estimate: 0,
+		Completed: 0,
+		OtherEstimate: 0,
+		OtherCompleted: 0
+	};
+
 	if (jsonObj["relations"] && jsonObj["relations"].length > 0) {
 		var relations = jsonObj["relations"];
 		_.forEach(relations, function (rel) {
@@ -110,24 +118,116 @@ function adoWorkItem(jsonObj, tools) {
 		}, this);
 	}
 
+	function updateChildrenSummary() {
+		if (this._children && this._children.length > 0) {
+			var count = 0;
+			var estimate = 0;
+			var completed = 0;
+			var otherEstimate = 0;
+			var otherCompleted = 0;
+			this._children.forEach(child => {
+				count++;
+				var val = child["Estimate"] ? child["Estimate"] : "";
+				if ((val !== "") && !isNaN(val)) {
+					if (child["Owner"] && child["Owner"] === this.Owner) {
+						estimate += child["Estimate"];
+					} else {
+						otherEstimate += child["Estimate"];
+					}
+
+				}
+
+				val = child["Completed"] ? child["Completed"] : "";
+				if ((val !== "") && !isNaN(val)) {
+					if (child["Owner"] && child["Owner"] === this.Owner) {
+						completed += child["Completed"];
+					} else {
+						otherCompleted += child["Completed"];
+					}
+				}
+			})
+
+			this.ChildrenSummary = {
+				Count: count,
+				Estimate: estimate,
+				Completed: completed,
+				OtherEstimate: otherEstimate,
+				OtherCompleted: otherCompleted
+			}
+		} else {
+			this.ChildrenSummary = {
+				Count: 0,
+				Estimate: 0,
+				Completed: 0,
+				OtherEstimate: 0,
+				OtherCompleted: 0
+			}
+		}
+	}
+
+	// Monitor on the children record change and calculate the children summary data
+	tools.utility.monitorOnArrayChnage(this._children, updateChildrenSummary);
+	// Monitor on the whole children array change and calculate the children summary data
 	Object.defineProperty(this, "Children", {
 		//writable: true,
 		get() { return this._children; },
 		set(newValue) {
 			this._children = newValue;
 			if (this._children && this._children.length > 0) {
-				//
+				var count = 0;
+				var estimate = 0;
+				var completed = 0;
+				var otherEstimate = 0;
+				var otherCompleted = 0;
+				this._children.forEach(child => {
+					count++;
+					var val = child["Estimate"] ? child["Estimate"] : "";
+					if ((val !== "") && !isNaN(val)) {
+						if (child["Owner"] && child["Owner"] === this.Owner) {
+							estimate += child["Estimate"];
+						} else {
+							otherEstimate += child["Estimate"];
+						}
+						
+					}
+
+					val = child["Completed"] ? child["Completed"] : "";
+					if ((val !== "") && !isNaN(val)) {
+						if (child["Owner"] && child["Owner"] === this.Owner) {
+							completed += child["Completed"];
+						} else {
+							otherCompleted += child["Completed"];
+						}
+					}
+				})
+
+				this.ChildrenSummary = {
+					Count: count,
+					Estimate: estimate,
+					Completed: completed,
+					OtherEstimate: otherEstimate,
+					OtherCompleted: otherCompleted
+				}
 			} else {
 				this.ChildrenSummary = {
 					Count: 0,
-					OriginalEstimate: 0,
-					CompletedWork: 0,
-					OtherOriginalEstimate: 0,
-					OtherCompletedWork: 0
+					Estimate: 0,
+					Completed: 0,
+					OtherEstimate: 0,
+					OtherCompleted: 0
 				}
 			}
 		}
 	})
+
+	Object.defineProperty(this, "CompletedHours", {
+		get() { return this.ChildrenSummary.Completed; }
+	})
+
+	Object.defineProperty(this, "EstimateHours", {
+		get() { return this.ChildrenSummary.Estimate; }
+	})
+	//#endregion
 
 	this.clone = function (exclude) {
 		var excludes = [];

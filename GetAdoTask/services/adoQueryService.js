@@ -5,7 +5,7 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 	 * @name adoQueryService
 	 * @description - service for querying info from ADO
 	 */
-	app.service("adoQueryService", ["$http", "$q", "adoRestApi", function ($http, q, adoRestApi) {
+	app.service("adoQueryService", ["$http", "$q", "adoRestApi", "utility", function ($http, q, adoRestApi, utility) {
 		/**
 		 * @name xhrGet
 		 * @description		Query to ADO via the typical way
@@ -416,7 +416,7 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 
 			returnType = returnType.toLowerCase();
 
-			var tools = { restApi: restApi, moment: moment };
+			var tools = { restApi: restApi, moment: moment, utility: utility };
 			if (returnType === "wit") return getWorkItems(itemArray, tools);
 			if (returnType === "feature") return getFeatures(restApi, itemArray);
 
@@ -483,7 +483,7 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 
 			var errorMsg = "";
 
-			if (error.status == 401) {
+			if (error.status === 401) {
 				errorMsg = "incorrect user name or password";
 			} else {
 				if (error.responseText && error.responseText !== "") {

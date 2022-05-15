@@ -290,7 +290,7 @@
 												<tbody>
 													<tr ng-repeat="task in Dev.TaskList | orderBy:Dev.OrderByValue |filter: Dev.scheduleStateFilter as filteredRecords"
 														ng-style="{ 'textDecoration' : (task.Rejected || task.Duplicate || task.Postpone) ? 'line-through' : 'none'
-										8								, 'fontStyle' : task.Testable ? 'normal' : 'italic'
+																		, 'fontStyle' : task.Testable ? 'normal' : 'italic'
 																		, 'color' : (task.Blocked ? 'red' : (task.Testable ? 'black' : 'gray'))
 																	}">
 														<td style="vertical-align: middle; text-align: center" class="supportHover">
