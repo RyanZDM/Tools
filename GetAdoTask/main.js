@@ -36,6 +36,8 @@ require(["underscore"]);
 require(["app"]);
 require(["currentSettings"]);
 require(["services/adoRestApi"]);
+require(["services/catalogDefinition"]);
+require(["services/modalityDefinition"]);
 require(["services/adoWorkItem"]);
 require(["services/adoFeature"]);
 require(["services/utility"]);

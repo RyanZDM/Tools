@@ -29,6 +29,24 @@ function adoWorkItem(jsonObj, tools) {
 		this.Iteration = -1;
 	}
 
+	//#region Conver UTC date to local date
+	if (this["CreatedDate"]) {
+		var startDate = tools.moment.utc(this["CreatedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
+		if (startDate.isValid()) {
+			startDate.local();
+			this["CreatedDate"] = startDate.format("YYYY-MM-DD");
+		}
+	}
+
+	if (this["ClosedDate"]) {
+		var closedtDate = tools.moment.utc(this["ClosedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
+		if (closedtDate.isValid()) {
+			closedtDate.local();
+			this["ClosedDate"] = closedtDate.format("YYYY-MM-DD");
+		}
+	}
+	//#endregion
+
 	// Testable flag
 	this.Testable = true;
 	if (this["AcceptanceCriteria"]) {
@@ -250,9 +268,9 @@ function adoWorkItem(jsonObj, tools) {
 	function getCpeInfo(wit) {
 		//submit time="2022-01-13 16:03";first reply time="2022-01-20 15:20";complete time="";catalog="Techniques";close reason="";modality="EVO";
 		if (wit.CPEInfo) {
-				_.extend(wit.CPEInfo, { catalog: "<empty>" });
+			_.extend(wit.CPEInfo, { catalog: "<unspecified>", modality: "<unspecified>" });
 		} else {
-			wit.CPEInfo = { catalog: "<empty>" };
+			wit.CPEInfo = { catalog: "<unspecified>", modality: "<unspecified>" };
 		}
 
 		// Gets escalation ID
@@ -276,53 +294,78 @@ function adoWorkItem(jsonObj, tools) {
 			}
 
 			var cpeInfoDict = {};
+
 			var infoList = cpeInfo.split(";");
 			for (var index in infoList) {
 				if (infoList[index].length > 0) {
 					var dict = infoList[index].split("=");
 					var key = dict[0].replaceAll('"', '').replaceAll(' ', '').toLowerCase();
-					var value = (dict[1] && dict[1].length > 0) ? dict[1] : "<empty>";
+					var value = (dict[1] && dict[1].length > 0) ? dict[1].trimStart().trimEnd() : "<unspecified>";
 					cpeInfoDict[key] = value.replaceAll('"', '');
 				}
 			}
 
-			// temp
-			if (cpeInfoDict["catalog"] && cpeInfoDict["catalog"].length > 50) {
-				// Means has not recognized the catalog, uses the default template which contains all catalog items
-				cpeInfoDict["catalog"] = "<empty>";
+			// Re-format the catalog display name
+			if (cpeInfoDict["catalog"]) {
+				if (cpeInfoDict["catalog"].length > 50) {
+					// Means has not recognized the catalog, uses the default template which contains all catalog items
+					cpeInfoDict["catalog"] = "<unspecified>";
+				} else {
+					// Gets the uique display name
+					var pureCatalogName = tools.utility.getPureNameString(cpeInfoDict["catalog"], false, true);
+					if (tools.catalogDefinition[pureCatalogName]) {
+						cpeInfoDict["catalog"] = tools.catalogDefinition[pureCatalogName];
+					}
+				}
+			}
+
+			// Re-format the modality display name
+			if (cpeInfoDict["modality"]) {
+				if (cpeInfoDict["modality"].length === 0) {
+					cpeInfoDict["modality"] = "<unspecified>";
+				} else {
+					// Gets the uique display name
+					var pureModalityName = tools.utility.getPureNameString(cpeInfoDict["modality"], false, true);
+					if (tools.modalityDefinition[pureModalityName]) {
+						cpeInfoDict["modality"] = tools.modalityDefinition[pureModalityName];
+					}
+				}
 			}
 
 			_.extend(wit.CPEInfo, cpeInfoDict);
 		}
 
 		// Gets the submitted year/week (from CreatedDate or "Submit time")
-		// ADO uses the UTC date
-		var startDate = tools.moment.utc(wit["CreatedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
-		if (startDate.isValid()) {
-			startDate.local();
-		}
+		var startDate = tools.moment(wit["CreatedDate"], "YYYY-MM-DD");
 		if (wit.CPEInfo["submittime"]) {
 			var date = tools.moment(wit.CPEInfo["submittime"], "YYYY-MM-DD HH:mm:ss");
 			if (date.isValid()) {
 				startDate = date;
+				wit["CreatedDate"] = date.format("YYYY-MM-DD");
 			}
-
-			wit.CPEInfo.SubmittedYear = date.year();
-			wit.CPEInfo.SubmittedMonth = date.month();
-			wit.CPEInfo.SubmittedWeek = date.week();
+		}
+		wit.Created = {
+			Year: startDate.year(),
+			Month: startDate.month() + 1,	// start from zero
+			Week: startDate.week(),
+			YearMonth: startDate.format("YYYY-MM"),
+			YearWeek: startDate.year() + "-" + startDate.week()
 		}
 
 		var endDate = tools.moment();
 		if (wit.State === "Closed") {
-			var closeDate = tools.moment.utc(wit["ClosedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
+			var closeDate = tools.moment(wit["ClosedDate"], "YYYY-MM-DD");
 			if (closeDate.isValid()) {
-				closeDate.local();
 				endDate = closeDate;	// uses the ClosedDate as the last date
 			}
 
-			wit.CPEInfo.ClosedYear = endDate.year();
-			wit.CPEInfo.ClosedMonth = endDate.month();
-			wit.CPEInfo.ClosedWeek = endDate.week();
+			wit.Closed = {
+				Year: endDate.year(),
+				Month: endDate.month() + 1,
+				Week: endDate.week(),
+				YearMonth: endDate.format("YYYY-MM"),
+				YearWeek: endDate.year() + "-" + endDate.week()
+			}
 		}
 
 		if (startDate.isValid()) {

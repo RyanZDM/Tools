@@ -28,11 +28,13 @@ define(["app"], function (app) {
 																From workitems ";
 																	//[System.WorkItemType] = 'Task' ";
 
-		var wiqlCpeStat = "Select [System.Id],[System.State],[System.WorkItemType],[Custom.CSH_Notes],[Microsoft.VSTS.Common.Priority],[Custom.CSH_ProductFamily],[System.AreaPath]\
+		var wiqlCpeStat = "Select [System.Id],[System.State],[System.WorkItemType],[Custom.CSH_Notes],[Microsoft.VSTS.Common.Priority],[Custom.CSH_ProductFamily],[System.AreaPath],[System.CreatedDate]\
 							From workitems Where\
 							[System.WorkItemType] = 'User Story' \
 							AND [System.AreaPath] = 'Software\\CPE' \
-							AND [System.Title] CONTAINS '[' ";		// the title always contains [xxx] for an escalation issue us
+							AND [System.CreatedDate] >= '10/1/2021'\
+							AND [System.Title] CONTAINS '[' \
+							Order by [System.CreatedDate]";		// the title always contains [xxx] for an escalation issue us
 
 		function formatQuery(url) {
 			return url.replace(/\t/g, "");
@@ -47,7 +49,7 @@ define(["app"], function (app) {
 					Parameters: { ReleaseContains: "Jing-A" },
 
 					inScope: function(release) {
-						return /\Jing/i.test(release);
+						return /Jing/i.test(release);
 					},
 
 					process: function(list) {
@@ -60,7 +62,7 @@ define(["app"], function (app) {
 					Parameters: { ReleaseContains: "Maelstrom" },
 
 					inScope: function(release) {
-						return /\Maelstrom/i.test(release);
+						return /Maelstrom/i.test(release);
 					},
 
 					process: function(list) {
@@ -71,7 +73,7 @@ define(["app"], function (app) {
 					Name: "CPE",
 					Parameters: { Teams: "CPE" },
 					inScope: function(release) {
-						return /\CPE:/i.test(release);
+						return /CPE:/i.test(release);
 					},
 					process: function(list) {
 						return list;

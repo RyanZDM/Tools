@@ -211,10 +211,10 @@ define(["app", "underscore", "jquery"],
 					try {
 						savedParameters = JSON.parse(savedParameters);
 
-						if (savedParameters["Select"] != undefined) { $scope.Select = savedParameters.Select; }
-						if (savedParameters["Where"] != undefined) { $scope.Where = savedParameters.Where; }
-						if (savedParameters["CustomizedWhere"] != undefined) { $scope.CustomizedWhere = savedParameters.CustomizedWhere; }
-						if (savedParameters["CustomizedScript"] != undefined) { $scope.CustomizedScript = savedParameters.CustomizedScript; }
+						if (savedParameters["Select"] !== undefined) { $scope.Select = savedParameters.Select; }
+						if (savedParameters["Where"] !== undefined) { $scope.Where = savedParameters.Where; }
+						if (savedParameters["CustomizedWhere"] !== undefined) { $scope.CustomizedWhere = savedParameters.CustomizedWhere; }
+						if (savedParameters["CustomizedScript"] !== undefined) { $scope.CustomizedScript = savedParameters.CustomizedScript; }
 					} catch (err) {
 						reportError(err);
 					}
@@ -289,7 +289,7 @@ define(["app", "underscore", "jquery"],
 					$scope.ErrorMsg = "";
 				};
 
-            	/**
+				/**
 				 * @name	reportError
 				 * @description	Reports an error
 				 * @param	error	The error object.

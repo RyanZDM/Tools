@@ -15,7 +15,6 @@ define(["app"], function(app) {
 			"Yusheng Liao": "yusheng.liao@carestream.com",
 			"Xijiao Chen": "xijiao.chen@carestream.com",
 			"Shuhua YANG": "shuhua.yang@carestream.com",
-			"Yusheng Liao": "yusheng.liao@carestream.com",
 			// Dunhuang
 			"Xianjun Z": "xianjun.zhan@carestream.com",
 			"Sen Gao": "sen.gao@carestream.com",
@@ -71,8 +70,8 @@ define(["app"], function(app) {
 
 			savedSettings = JSON.parse(savedSettings);
 
-			if (savedSettings["Team"] != undefined) { team = savedSettings.Team; }
-			if (savedSettings["TeamShortName"] != undefined) { teamShortName = savedSettings.TeamShortName; }
+			if (savedSettings["Team"] !== undefined) { team = savedSettings.Team; }
+			if (savedSettings["TeamShortName"] !== undefined) { teamShortName = savedSettings.TeamShortName; }
 
 			return savedSettings;
 		};
@@ -81,7 +80,7 @@ define(["app"], function(app) {
 		
 		return {
 			OwnerEmailMapping: ownerEmailMapping,
-			Release: "Maelstrom",
+			Release: "Jing-A",
 			SecondRelease: "CPE",
 			Team: team,
 			TeamShortName: teamShortName,

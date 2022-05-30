@@ -48,7 +48,7 @@ define(["app", "underscore"], function (app, _) {
 			if (pos === -1) return null;
 
 			var field = script.substr(0, pos).trimStart().trimEnd();
-			var script = script.substr(pos + 1).trimStart().trimEnd();
+			script = script.substr(pos + 1).trimStart().trimEnd();
 			if (script === "") return null;
 
 			return { Field: field, Script: script };

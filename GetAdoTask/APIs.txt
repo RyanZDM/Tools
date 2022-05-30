@@ -134,6 +134,7 @@ Microsoft.VSTS.Common.ResolvedDate		-> "2021-12-15T08:22:38.797Z"
 Microsoft.VSTS.CMMI.Blocked		-> "No", "Yes"
 Custom.CSH_BlockedReason		-> HTML format text
 Custom.CSH_Notes				-> Contains CPE info
+Custom.CSH_ProductFamily		-> IS, IV, DV
 
 *** For US only
 Microsoft.VSTS.Common.AcceptanceCriteria	-> HTML format text

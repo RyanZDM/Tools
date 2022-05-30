@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 define(["app", "underscore", "jquery"],
 	function (app, _, $) {
@@ -80,8 +80,10 @@ define(["app", "underscore", "jquery"],
 						Collected: false,
 						Workload: [],
 						ChartData: []
+						, Name: "DevWorkLoadSummary"
 						, Headers: ["Name", "Count", "Story Points", "Completed Hours"]
 						, Columns: ["Owner", "Count", "Points", "CompletedHours"]
+						, ChartTitle: "Workload statistics by person"
 					},
 
 					/**
@@ -126,7 +128,7 @@ define(["app", "underscore", "jquery"],
 
 					resetWorkloadStat: function () {
 						$scope.Dev.WorkloadStat.Collected = false;
-						initChart($scope.Dev.WorkloadStat, ["Points", "Tasks Total"]);
+						initChart($scope.Dev.WorkloadStat);
 					},
 
 					/**
@@ -285,7 +287,7 @@ define(["app", "underscore", "jquery"],
 								} else { return 1; }
 							});
 
-							refreshChart($scope.Dev.WorkloadStat, orderedData, "Owner", ["Points", "Count", "CompletedHours"]);
+							updateChart($scope.Dev.WorkloadStat, orderedData, "Owner", ["Points", "Count", "CompletedHours"], ["Count", "Points", "Completed Hours"]);
 						}
 
 						$scope.Dev.WorkloadStat.Collected = true;
@@ -383,22 +385,37 @@ define(["app", "underscore", "jquery"],
 						["-CPEInfo.OpenWorkingDays", "State", "Priority"]
 					],
 
-					Headers: ["ADO ID", "Esclation ID", "Title", "Priority", "State", "Points", "Assigned TO", "Blocked", "Created", "Closed", "Open Days", "Ver"],
-					Columns: ["Id", "EscalationId", "Title", "Priority", "State", "StoryPoints", "Owner", "Blocked", "CreatedDate", "ClosedDate", "CPEInfo.OpenWorkingDays", "CSHSoftwareVersion"],
-					ComputedFieldScript: "",//DoubleDays=(wit.CPEInfo.OpenWorkingDays * 2)",
+					Headers: ["ADO ID", "Site", "Title", "State", "Priority", "Created", "Assigned TO", "Blocked", "Closed", "Open Days", "Escalation Id", "Ver", "Product"],
+					Columns: ["Id", "CPEInfo.site", "Title", "State", "Priority", "CreatedDate", "Owner", "Blocked", "ClosedDate", "CPEInfo.OpenWorkingDays", "EscalationId", "CSHSoftwareVersion", "CSH_ProductFamily"],
+					ComputedFieldScript: "ProdctAndVer=(wit.CPEInfo.modality + '/' + wit.CSH_ProductFamily + wit.CSHSoftwareVersion)",//DoubleDays=(wit.CPEInfo.OpenWorkingDays * 2)^<column 2>",
 					ComputedFields: [],// will be updated by ComputedFieldScript
 
 					WorkloadStat: {
 						Collected: false,
 						Workload: [], ChartData: []
+						, Name: "CPEWorkloadSummaryByDays"
 						, Headers: ["Name", "Count", "Story Points"]
 						, Columns: ["Owner", "Count", "StoryPoints"]
+						, ChartTitle: "Worklad by person"
 					},
 
 					CatalogStat: {
 						Workload: [], ChartData: []
+						, Name: "CPEStatisticsByCatalog"
 						, Headers: ["Catalog", "Count"]
 						, Columns: ["catalog", "Count"]
+						, ChartTitle: "CPE Issue Group by Catalog"
+						, ChartSeries: ["<unspecified>", "Evo", "Revo", "Compass", "Ascend", "Transportable"]
+						, ChartOptions: {
+							scales: {
+								yAxes: [{
+									stacked: true
+								}],
+								xAxes: [{
+									stacked: true
+								}]
+							}
+						},
 					},
 
 					ShowNew: true,
@@ -520,7 +537,7 @@ define(["app", "underscore", "jquery"],
 
 					resetWorkloadStat: function () {
 						$scope.CPE.WorkloadStat.Collected = false;
-						initChart($scope.CPE.WorkloadStat, ["Points", "Tasks Total"]);
+						initChart($scope.CPE.WorkloadStat);
 					},
 
 					/**
@@ -531,19 +548,50 @@ define(["app", "underscore", "jquery"],
 						$scope.InQuerying = true;
 						$scope.clearError();
 
-						initChart($scope.CPE.CatalogStat, ["Catalog", "Count"]);
-						$scope.CPE.CatalogStat.CatalogData = [];
+						initChart($scope.CPE.CatalogStat);
 
 						var token = adoAuthService.getAuthenticationToken();
 						adoQueryService.getCpeStatistics({ Token: token })
 							.then(function (result) {
+								if (result.length > 0) {
+									$scope.CPE.CatalogStat.DateRange = {
+										Begin: result[0].CreatedDate.substr(0, 10),
+										End: result[result.length - 1].CreatedDate.substr(0, 10)
+									};
+								}
+
 								var catalogStat = utility.groupByMultiple(result, [function (ceil) {
 									return ceil.CPEInfo.catalog;
-								}], [], false, true);
+								}, function (ceil) {
+									return ceil.CPEInfo.modality;
+								}], [], true, false);	// catalog and modality have been formated already
 
 								catalogStat = Object.keys(catalogStat)
 									.map(function (catalog) {
-										return { catalog: catalog, Count: catalogStat[catalog]._Count };
+										var row = catalogStat[catalog];
+										var ret = { catalog: catalog, Count: row.__Count, Others: 0 };
+										$scope.CPE.CatalogStat.ChartSeries.forEach(series => {
+											ret[series] = 0;
+										})
+
+										Object.keys(row).forEach(key => {
+											if (key.startsWith("__")) { return; }
+
+											var found = false;
+											var lowerKey = key.toLowerCase();
+											$scope.CPE.CatalogStat.ChartSeries.forEach(series => {
+												if (lowerKey === series.toLowerCase()) {
+													ret[series] = row[key].__Count;
+													found = true;
+												}
+											})
+
+											if (!found) {
+												ret.Others += row[key].__Count;
+											}
+										})
+										
+										return ret;
 									})
 									.sort(function (first, second) {
 										if (second.Count !== first.Count) {
@@ -552,11 +600,12 @@ define(["app", "underscore", "jquery"],
 											return first.catalog.localeCompare(second.catalog);
 										}
 									});
-								// temp, remove the <empty> catalog
-								catalogStat = catalogStat.filter((row) => row.catalog !== '<empty>');
+								// temp, remove the <unspecified> catalog
+								catalogStat = catalogStat.filter((row) => row.catalog !== '<unspecified>');
 
 								$scope.CPE.CatalogStat.CatalogData = catalogStat;
-								refreshChart($scope.CPE.CatalogStat, catalogStat, "catalog", ["Count"]);
+								//updateChart($scope.CPE.CatalogStat, catalogStat, "catalog", ["Count"]);
+								updateChart($scope.CPE.CatalogStat, catalogStat, "catalog", $scope.CPE.CatalogStat.ChartSeries.concat(["Others"]));
 							},
 								function (error) {
 									reportError(error);
@@ -839,15 +888,15 @@ define(["app", "underscore", "jquery"],
 				* @returns	True if the workload stat data is generated successfully. False if no data.
 				*/
 				function collectWorkloadStatData (workladStat, filteredRecords, chartSeries) {
-					initChart(workladStat, chartSeries);
+					if (workladStat["Collected"] && workladStat.Collected) {
+						return true;
+					};
+
+					initChart(workladStat);
 
 					if (!filteredRecords) {
 						return false;
 					}
-
-					if (workladStat["Collected"] && workladStat.Collected) {
-						return true;
-					};
 
 					if (filteredRecords.length > 0) {
 						var result = filteredRecords.reduce(function (total, task) {
@@ -876,7 +925,7 @@ define(["app", "underscore", "jquery"],
 							} else { return 1; }
 						});
 
-						refreshChart(workladStat, orderedData, "Owner", ["Points", "Count"]);
+						updateChart(workladStat, orderedData, "Owner", ["Points", "Count"], chartSeries);
 					}
 
 					workladStat.Collected = true;
@@ -893,9 +942,9 @@ define(["app", "underscore", "jquery"],
 					$scope.clearError();
 
 					// -- For chart display (owner)
-					initChart($scope.workingHoursStatOwner, ["Hours", "Tasks Total"]);
+					initChart($scope.workingHoursStatOwner/*, ["Hours", "Tasks Total"]*/);
 					// -- For chart display (team)
-					initChart($scope.workingHoursStatTeam, ["Hours", "Tasks Total"]);
+					initChart($scope.workingHoursStatTeam/*, ["Hours", "Tasks Total"]*/);
 
 					var token = adoAuthService.getAuthenticationToken();
 					var parameters = { WorkItemType: "Task", Sprint: $scope.Dev.Sprint, Teams: ["Taiji", "Wudang", "Dunhuang"] };
@@ -934,14 +983,20 @@ define(["app", "underscore", "jquery"],
 				/**
 				 * @name initChart (internal use)
 				 * @param {any} chart	reference to the chart object
-				 * @param {any} series	reference to the chart's Series object
 				 */
-				function initChart(chart, series) {
-					chart.ChartSeries = series;
-					chart.ChartOptions = [];
+				function initChart(chart) {
 					chart.ChartLabels = [];
 					chart.ChartData = [];
 					chart.Workload = [];
+
+					if (!chart.ChartOptions) {
+						chart.ChartOptions = {};
+					}
+
+					if (chart.ChartObject) {
+						chart.ChartObject.destroy();
+						chart.ChartObject = null;
+					}
 				}
 
 				/**
@@ -951,7 +1006,7 @@ define(["app", "underscore", "jquery"],
 				 * @param {any} labelColumn	The array contains all label to be shown on chart
 				 * @param {any} valueColumns	The array contains all value to be shown on chart
 				 */
-				function refreshChart(chart, fullData, labelColumn, valueColumns) {
+				function refreshChart1(chart, fullData, labelColumn, valueColumns) {
 					var dataArrays = {};
 					valueColumns.forEach(function(col) {
 						dataArrays[col] = [];
@@ -968,6 +1023,116 @@ define(["app", "underscore", "jquery"],
 					chart.ChartHeight = chart.ChartLabels.length * 10;
 					valueColumns.forEach(function(col) {
 						chart.ChartData.push(dataArrays[col]);
+					});
+				}
+
+				/**
+				 * The data structure for a Chart bar **************************************** /
+				 */
+				/*
+				var data = {
+					labels: ["January", "February", "March", "April", "May", "June", "July"],
+					datasets: [
+						{
+							label: "My First dataset",
+							fillColor: "rgba(220,220,220,0.5)",
+							strokeColor: "rgba(220,220,220,0.8)",
+							highlightFill: "rgba(220,220,220,0.75)",
+							highlightStroke: "rgba(220,220,220,1)",
+							data: [65, 59, 80, 81, 56, 55, 40]
+						},
+						{
+							label: "My Second dataset",
+							fillColor: "rgba(151,187,205,0.5)",
+							strokeColor: "rgba(151,187,205,0.8)",
+							highlightFill: "rgba(151,187,205,0.75)",
+							highlightStroke: "rgba(151,187,205,1)",
+							data: [28, 48, 40, 19, 86, 27, 90]
+						}
+					]
+				};
+				// The option structure
+				var options = {
+					//Boolean - Whether the scale should start at zero, or an order of magnitude down from the lowest value
+					scaleBeginAtZero: true,
+
+					//Boolean - Whether grid lines are shown across the chart
+					scaleShowGridLines: true,
+
+					//String - Colour of the grid lines
+					scaleGridLineColor: "rgba(0,0,0,.05)",
+
+					//Number - Width of the grid lines
+					scaleGridLineWidth: 1,
+
+					//Boolean - Whether to show horizontal lines (except X axis)
+					scaleShowHorizontalLines: true,
+
+					//Boolean - Whether to show vertical lines (except Y axis)
+					scaleShowVerticalLines: true,
+
+					//Boolean - If there is a stroke on each bar
+					barShowStroke: true,
+
+					//Number - Pixel width of the bar stroke
+					barStrokeWidth: 2,
+
+					//Number - Spacing between each of the X value sets
+					barValueSpacing: 5,
+
+					//Number - Spacing between data sets within X values
+					barDatasetSpacing: 1,
+
+					//String - A legend template
+					legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+				}
+				*/	// *********************************************************************** /
+
+
+				function updateChart(chart, fullData, labelColumn, valueColumns, seriesLabels) {
+					var dataArrays = {};
+					valueColumns.forEach(function (col) {
+						dataArrays[col] = [];
+					});
+
+					fullData.forEach(function (data) {
+						chart.ChartLabels.push(data[labelColumn]);
+						valueColumns.forEach(function (col) {
+							dataArrays[col].push(data[col]);
+						});
+					});
+
+					chart.Workload = fullData;
+					var seriesLabelIndex = 0;
+					var backgroundColors = ["#5ec9db", "#dfc765", "#f27d51", "#6462cc", "#e6a0c4", "#c6cdf7", "#d8a499", "#7294d4", "#ffc900", "#595959", "#fe8c00", "#ff5338"];
+					valueColumns.forEach(function (col) {
+						chart.ChartData.push({
+							label: (seriesLabels && seriesLabels[seriesLabelIndex]) ? seriesLabels[seriesLabelIndex] : col,
+							data: dataArrays[col],
+							backgroundColor: backgroundColors[seriesLabelIndex]
+						});
+
+						seriesLabelIndex++;
+					});
+
+					
+					chart.ChartObject = new Chart(chart.Name + "_Chart", {
+						type: "bar",
+						data: {
+							labels: chart.ChartLabels,
+							datasets: chart.ChartData
+						},
+						options: _.extend(chart.ChartOptions, {
+							title: {
+								display: true,
+								text: chart.ChartTitle + (chart.DateRange ? " ( <start> ~ <end>)".replace("<start>", chart.DateRange.Begin).replace("<end>", chart.DateRange.End) : "")
+							},
+							bars: {
+								maxBarThicknet: 20
+							}
+							// TODO: change the size
+							//chart.ChartHeight = chart.ChartLabels.length * 10
+						})
 					});
 				}
 
@@ -1127,8 +1292,9 @@ define(["app", "underscore", "jquery"],
 					var rows = "";
 					records.forEach(function(record) {
 						var row = "";
-						columns.forEach(function(col) {
-							row = row + (record[col] ? record[col] : "") + "\t";
+						columns.forEach(function (col) {
+							var value = utility.getRowData(record, col);
+							row = row + (value ? value : "") + "\t";
 						});
 
 						// remove last tab

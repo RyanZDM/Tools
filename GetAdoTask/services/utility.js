@@ -14,7 +14,8 @@ define(["app", "underscore"], function (app, _) {
 			sendEmail: sendEmail,
 			getRowData: getRowData,
 			setRowData: setRowData,
-			monitorOnArrayChnage: monitorOnArrayChnage
+			monitorOnArrayChnage: monitorOnArrayChnage,
+			getPureNameString: getPureNameString
 		}
 
 		/**
@@ -61,103 +62,61 @@ define(["app", "underscore"], function (app, _) {
 		function groupByMultiple(array, iteratee, cumulativeItems, caseSensitive, ignoreNonAlphanumericChar) {
 			if (!array || array.length < 1) return [];
 			if (!iteratee || iteratee.length < 1) return array;
-			//if (!cumulativeItems || cumulativeItems.length < 1) return array;
 
-			var firstBy = _.groupBy(array, iteratee[0]);
-			var next = iteratee.slice(1);
-			if (next.length > 0) {
-				for (var prop in firstBy) {
-					firstBy[prop] = groupByMultiple(firstBy[prop], next, cumulativeItems, caseSensitive, ignoreNonAlphanumericChar);
-				}
-			} else {
-				// The dat got grouped by all iteratees, accumulate the item values
-				if (!cumulativeItems) {
-					cumulativeItems = [];	// Means calculate the count only
-				} else {
-					cumulativeItems = [].concat(cumulativeItems);
-				}
+			if (caseSensitive && !ignoreNonAlphanumericChar) {
+				// Directly group by
+				return internalGroupByMultiple(array, iteratee, cumulativeItems, caseSensitive, ignoreNonAlphanumericChar);
+			}
 
-				// Find out all duplicated columns (case insensitive, remove -, _ and white space)
-				// and return the first matched column 
-				// e.g.
-				//		Columns: "Test Col1", "TestCol1", "test col1", "Test Col2"
-				//		1st round, the uniqueKeyDict would be:
-				//			{
-				//				"Test Col1": "testcol1",
-				//				"TestCol1": "Test Col1",
-				//				"test col1": "Test Col1",
-				//				"Test Col2": "testcol2"
-				//			}
-				//		rnd round, the uniqueKeyDict would be:
-				//			{
-				//				"Test Col1": "Test Col1",
-				//				"TestCol1": "Test Col1",
-				//				"test col1": "Test Col1"
-				//				"Test Col2": "Test Col2"
-				//			}
-				// i.e. Always uses the first matched column name
+			var groupByColPrefix = "_groupby_col_";
+			var uniqueKeyMappings = [];
+			var newIteratee = [];
+			for (var index in iteratee) {
+				newIteratee.push(groupByColPrefix + index);
+				uniqueKeyMappings.push({});
+			}
 
-				var uniqueKeyDict = {};
-				var uniqueList = [];
-				Object.keys(firstBy).forEach(function (col) {
-					var pureName = getPureNameString(col, caseSensitive, ignoreNonAlphanumericChar);
-					//uniqueKeyDict[col] = pureName;
+			var newData = [];
+			for (index in array) {
+				var row = array[index];
 
-					var found = false;
-					for (const [key, value] of Object.entries(uniqueKeyDict)) {
-						// Find a duplicated item, use that one as pure name
-						if (value === pureName) {
-							uniqueKeyDict[col] = key;
-							found = true;
-							break;
+				var newRow = {};
+
+				// re-calculate the value of group by columns
+				for (var iterIndex in iteratee) {
+					var ite = iteratee[iterIndex];
+
+					var value = (typeof ite === "string") ? getRowData(row, ite) : ite(row);
+					if (!value) {
+						value = "<unspecified>"
+					} else {
+						if ( value.match(/^(unspec|unknow)/i)) {
+							value = "<unspecified>";
 						}
 					}
 
-					if (!found) {
-						// This is first one, record the pure name
-						uniqueKeyDict[col] = pureName;
-						uniqueList.push(col);
-					}
-				});
+					var pureName = (value !== "<unspecified>") ? getPureNameString(value, caseSensitive, ignoreNonAlphanumericChar) : value;
 
-				// Change the column name back
-				uniqueList.forEach(function (col) {
-					uniqueKeyDict[col] = col;
+					// Use the first value represent all duplicated values
+					var iterateeCol = newIteratee[iterIndex];
+					if (!uniqueKeyMappings[iterIndex][pureName]) {
+						uniqueKeyMappings[iterIndex][pureName] = value;
+						newRow[iterateeCol] = value;
+					} else {
+						newRow[iterateeCol] = uniqueKeyMappings[iterIndex][pureName];
+					}
+				}
+
+				// get the columns to be cumulated
+				cumulativeItems.forEach(item => {
+					newRow[item] = getRowData(row, item);
 				})
 
-				var cumulatedRecords = {};
-				for (var lastGroupItem in firstBy) {
-					var correctColName = uniqueKeyDict[lastGroupItem];
-					var cumulatedRecord = {};
-					if (cumulatedRecords[correctColName]) {
-						cumulatedRecord = cumulatedRecords[correctColName];
-					} else {
-						_.each(cumulativeItems,
-							function (item) {
-								cumulatedRecord[item] = 0;
-							});
-
-						cumulatedRecord._Count = 0;
-					}
-
-					_.each(firstBy[lastGroupItem], function (record) {
-						_.each(cumulativeItems, function (item) {
-							if (record[item]) {
-								cumulatedRecord[item] = cumulatedRecord[item] + record[item]
-							}
-						});
-
-						cumulatedRecord._Count++;
-					});
-
-					cumulatedRecords[correctColName] = cumulatedRecord;
-				}
-				
-				return cumulatedRecords;
+				newData.push(newRow);
 			}
 
-			return firstBy;
-		};
+			return internalGroupByMultiple(newData, newIteratee, cumulativeItems, caseSensitive, ignoreNonAlphanumericChar);
+		}
 
 		/**
 		 * @name saveToHtml
@@ -186,14 +145,13 @@ define(["app", "underscore"], function (app, _) {
 			var keywords = [['&quot;', '"']
 				//,['\t', ' ']
 				//,['\r\n', ' ']
-				,['<br>', '\r\n']
-				,['&nbsp;', ' ']
-				,['&lt;', '<']
-				,['&gt;', '>']
+				, ['<br>', '\r\n']
+				, ['&nbsp;', ' ']
+				, ['&lt;', '<']
+				, ['&gt;', '>']
 			];
 
-			for (var index in keywords)
-			{
+			for (var index in keywords) {
 				html = html.replaceAll(keywords[index][0], keywords[index][1]);
 			}
 
@@ -203,7 +161,7 @@ define(["app", "underscore"], function (app, _) {
 				html = html.replaceAll("  ", " ");
 			}
 
-			return html;	
+			return html;
 		};
 
 		/**
@@ -215,7 +173,7 @@ define(["app", "underscore"], function (app, _) {
 		 * @param {string} attachment	The path to email attachment
 		 */
 		function sendEmail(to, cc, subject, body, attachment) {
-			if ( (!to || to.trim() === "") && (!cc || cc.trim() === "") ) return;
+			if ((!to || to.trim() === "") && (!cc || cc.trim() === "")) return;
 
 			if (!to) { to = ""; }
 
@@ -224,6 +182,13 @@ define(["app", "underscore"], function (app, _) {
 			window.open("mailto:" + to + "?" + ccString + "subject=" + subject + "&body=" + body + attach);
 		};
 
+		/**
+		 * @name	getPureNameString
+		 * @description	Gets the string contains the alphabet only
+		 * @param {any} name
+		 * @param {any} caseSensitive
+		 * @param {any} ignoreNonAlphanumericChar
+		 */
 		function getPureNameString(name, caseSensitive, ignoreNonAlphanumericChar) {
 			var newCol = caseSensitive ? name : name.toLowerCase();
 			if (ignoreNonAlphanumericChar) {
@@ -234,12 +199,12 @@ define(["app", "underscore"], function (app, _) {
 		};
 
 		/**
-		 * getRowData 
-		 * @param {any} row	The row data set
+		 * @name getRowData 
+		 * @param {any} row	The data row
 		 * @param {any} colName	The column name in which may contains the "."
-		 *				e.g. "CPE.Proper1.Proper11
+		 *				e.g. "CPE.Property1.Property11
 		 */
-		function getRowData (row, colName) {
+		function getRowData(row, colName) {
 			if (!row || !colName || colName === "") return "";
 
 			var val = row[colName];
@@ -255,6 +220,14 @@ define(["app", "underscore"], function (app, _) {
 			return val;
 		};
 
+		/**
+		 * @name setRowData
+		 * @description	Sets the row value
+		 * @param {any} row	The data row
+		 * @param {any} colName	The column name in which may contains the "."
+		 *				e.g. "CPE.Property1.Property11"
+		 * @param {any} val	The value
+		 */
 		function setRowData(row, colName, val) {
 			if (!row || !colName || colName === "") return false;
 
@@ -294,6 +267,66 @@ define(["app", "underscore"], function (app, _) {
 					return ret;
 				}
 			})
+		}
+
+		/**
+		 * @name	groupByMultiple
+		 * @description	Group by multiple
+		 * @param	array								data array to be group by.
+		 * @param	{(string|function)[]}	iteratee	The iteratees to transform keys.
+		 * @param	cumulativeItems						items will be accumulated.
+		 * @param	caseSensitive						if case sensitive
+		 * @param	ignoreNonAlphanumericChar			if ignore non Alphanumeric char
+		 * @returns	The cumulated items specified by 'cumulativeItems' group by 'iteratee'.
+		 */
+		function internalGroupByMultiple(array, iteratee, cumulativeItems, caseSensitive, ignoreNonAlphanumericChar) {
+			var firstBy = _.groupBy(array, iteratee[0]);
+			var next = iteratee.slice(1);
+			if (next.length > 0) {
+				for (var prop in firstBy) {
+					var cnt = firstBy[prop].length;
+					firstBy[prop] = internalGroupByMultiple(firstBy[prop], next, cumulativeItems, caseSensitive, ignoreNonAlphanumericChar);
+					firstBy[prop].__Count = cnt;
+				}
+			} else {
+				// The dat got grouped by all iteratees, accumulate the item values
+				if (!cumulativeItems) {
+					cumulativeItems = [];	// Means calculate the count only
+				} else {
+					cumulativeItems = [].concat(cumulativeItems);
+				}
+
+				var cumulatedRecords = {};
+				for (var lastGroupItem in firstBy) {
+					var cumulatedRecord = {};
+					if (cumulatedRecords[lastGroupItem]) {
+						cumulatedRecord = cumulatedRecords[lastGroupItem];
+					} else {
+						_.each(cumulativeItems,
+							function (item) {
+								cumulatedRecord[item] = 0;
+							});
+
+						cumulatedRecord.__Count = 0;
+					}
+
+					_.each(firstBy[lastGroupItem], function (record) {
+						_.each(cumulativeItems, function (item) {
+							if (record[item]) {
+								cumulatedRecord[item] = cumulatedRecord[item] + record[item]
+							}
+						});
+
+						cumulatedRecord.__Count++;
+					});
+
+					cumulatedRecords[lastGroupItem] = cumulatedRecord;
+				}
+
+				return cumulatedRecords;
+			}
+
+			return firstBy;
 		}
 	});
 });

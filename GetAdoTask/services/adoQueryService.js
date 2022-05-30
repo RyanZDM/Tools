@@ -5,7 +5,15 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 	 * @name adoQueryService
 	 * @description - service for querying info from ADO
 	 */
-	app.service("adoQueryService", ["$http", "$q", "adoRestApi", "utility", function ($http, q, adoRestApi, utility) {
+	app.service("adoQueryService", [
+		"$http",
+		"$q",
+		"adoRestApi",
+		"utility",
+		"modalityDefinition",
+		"catalogDefinition",
+
+		function ($http, q, adoRestApi, utility, modalityDefinition, catalogDefinition) {
 		/**
 		 * @name xhrGet
 		 * @description		Query to ADO via the typical way
@@ -416,7 +424,13 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 
 			returnType = returnType.toLowerCase();
 
-			var tools = { restApi: restApi, moment: moment, utility: utility };
+			var tools = {
+				restApi: restApi
+				, moment: moment
+				, utility: utility
+				, modalityDefinition: modalityDefinition
+				, catalogDefinition: catalogDefinition
+			};
 			if (returnType === "wit") return getWorkItems(itemArray, tools);
 			if (returnType === "feature") return getFeatures(restApi, itemArray);
 

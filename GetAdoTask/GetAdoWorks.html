@@ -159,7 +159,7 @@
 												<labeled-checkbox ng-hide="!Dev.QueryForOpenDefect" class="btn-info" uid="unassigned" label="Unassigned Only" ng-model="Dev.ShowUnassignedOnly" action="Dev.resetWorkloadStat()" title="Show unassigned only"></labeled-checkbox>
 												<labeled-checkbox ng-hide="Dev.QueryForOpenDefect" class="btn-default" uid="other" label="Other" ng-model="Dev.ShowOthers" action="resetWorkloadStat()"></labeled-checkbox>
 												<labeled-checkbox ng-hide="Dev.QueryForOpenDefect" class="btn-info" uid="secondRelease" label="{{Dev.SecondRelease}}" ng-model="Dev.Show2ndRelease" action="Dev.resetWorkloadStat()"></labeled-checkbox>
-												<labeled-checkbox ng-hide="Dev.QueryForOpenDefect" class="btn-primary" uid="CurrentRelease" label="{{CurrentRelease}}" ng-model="Dev.ShowCurrentRelease" action="Dev.resetWorkloadStat()"></labeled-checkbox>
+												<labeled-checkbox ng-hide="Dev.QueryForOpenDefect" class="btn-primary" uid="CurrentRelease" label="{{Dev.CurrentRelease}}" ng-model="Dev.ShowCurrentRelease" action="Dev.resetWorkloadStat()"></labeled-checkbox>
 												<labeled-checkbox class="btn-warning" uid="SDC" label="SDC Only" shortlabel="{{QueryForOpenDefect ? 'SDC Only' : 'SDC'}}" ng-model="Dev.SDCOnly" action="Dev.resetWorkloadStat()" title="Show tasks owned by SDC only"></labeled-checkbox>
 												<labeled-checkbox class="btn-success" uid="CurrentTeam" label="{{Dev.CurrentTeamShortName}} Only" shortlabel="{{Dev.QueryForOpenDefect ? Dev.CurrentTeamShortName + ' Only' : Dev.CurrentTeamShortName}}" ng-model="Dev.CurrentTeamOnly" action="Dev.resetWorkloadStat()" title="Show team {{Dev.CurrentTeamShortName}} task only"></labeled-checkbox>
 												<span>
@@ -352,15 +352,14 @@
 									<div class="row"></div>
 									<!-- Summary of developer's story points per the current filter' -->
 									<div class="table-bordered" style="border-color: lightblue; margin: 2px;">
-										<table-and-chart uid="DevWorkloadSummaryTableChart"
+										<table-and-chart uid="{{Dev.WorkloadStat.Name}}"
 														 label="Workload Summary"
 														 headers="Dev.WorkloadStat.Headers"
 														 columns="Dev.WorkloadStat.Columns"
 														 source-data="Dev.WorkloadStat.Workload"
-														 chart-data="Dev.WorkloadStat"
 														 action="Dev.collectWorkloadStatData()"
 														 export-data="exportData(Dev.WorkloadStat)"
-														 title="Working hours statistics by sprint & owner">
+														 tip="Working hours statistics by sprint & owner">
 										</table-and-chart>
 									</div>
 									<!-- End -->
@@ -555,15 +554,14 @@
 									<div class="row"></div>
 									<!-- Summary of developer's story points per the current filter' -->
 									<div class="table-bordered" style="border-color: lightblue; margin: 2px;">
-										<table-and-chart uid="CpeWorkloadSummaryTableChart"
+										<table-and-chart uid="{{CPE.WorkloadStat.Name}}"
 														 label="Workload Summary"
 														 headers="CPE.WorkloadStat.Headers"
-														 columns="CPE.WorkloadStat.Columns"
+														 columns="CPE.WorkloadStat.FullColumns"
 														 source-data="CPE.WorkloadStat.Workload"
-														 chart-data="CPE.WorkloadStat"
 														 action="CPE.collectWorkloadStatData()"
 														 export-data="exportData(workloadStat)"
-														 title="Working hours statistics by sprint & owner">
+														 tip="Working hours statistics by sprint & owner">
 										</table-and-chart>
 									</div>
 									<!-- End -->
@@ -571,16 +569,15 @@
 									<div class="row"></div>
 									<!-- CPE data statistics -->
 									<div class="table-bordered" style="border-color:lightblue; margin: 2px;">
-										<table-and-chart uid="CPEStatisticsByCatalog"
+										<table-and-chart uid="{{CPE.CatalogStat.Name}}"
 														 label="CPE statistics by catalog"
 														 headers="CPE.CatalogStat.Headers"
 														 columns="CPE.CatalogStat.Columns"
 														 source-data="CPE.CatalogStat.Workload"
-														 chart-data="CPE.CatalogStat"
 														 action="removeClass('#CPEStatisticsByCatalog', 'collapse'); CPE.getStatistics()"
 														 export-data="exportData(CPE.CatalogStat)"
 														 state="collapse"
-														 title="Gets CPE statistics">
+														 tip="Gets CPE statistics">
 										</table-and-chart>
 									</div>
 									<!-- End-->
