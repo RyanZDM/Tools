@@ -32,6 +32,7 @@ define(["app"], function (app) {
 							From workitems Where\
 							[System.WorkItemType] = 'User Story' \
 							AND [System.AreaPath] = 'Software\\CPE' \
+							AND [Custom.CSH_ProductFamily] = 'IV' \
 							AND [System.CreatedDate] >= '10/1/2021'\
 							AND [System.Title] CONTAINS '[' \
 							Order by [System.CreatedDate]";		// the title always contains [xxx] for an escalation issue us

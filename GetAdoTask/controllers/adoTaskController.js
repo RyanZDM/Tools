@@ -81,6 +81,7 @@ define(["app", "underscore", "jquery"],
 						Workload: [],
 						ChartData: []
 						, Name: "DevWorkLoadSummary"
+						, ChartName: "DevWorkLoadSummary_Chart"
 						, Headers: ["Name", "Count", "Story Points", "Completed Hours"]
 						, Columns: ["Owner", "Count", "Points", "CompletedHours"]
 						, ChartTitle: "Workload statistics by person"
@@ -402,9 +403,10 @@ define(["app", "underscore", "jquery"],
 					CatalogStat: {
 						Workload: [], ChartData: []
 						, Name: "CPEStatisticsByCatalog"
+						, ChartName: "CPEStatisticsByCatalog_Chart"
 						, Headers: ["Catalog", "Count"]
 						, Columns: ["catalog", "Count"]
-						, ChartTitle: "CPE Issue Group by Catalog"
+						, ChartTitle: "IV CPE Issue Group by Catalog"
 						, ChartSeries: ["<unspecified>", "Evo", "Revo", "Compass", "Ascend", "Transportable"]
 						, ChartOptions: {
 							scales: {
@@ -606,6 +608,20 @@ define(["app", "underscore", "jquery"],
 								$scope.CPE.CatalogStat.CatalogData = catalogStat;
 								//updateChart($scope.CPE.CatalogStat, catalogStat, "catalog", ["Count"]);
 								updateChart($scope.CPE.CatalogStat, catalogStat, "catalog", $scope.CPE.CatalogStat.ChartSeries.concat(["Others"]));
+
+								// Group by top 3 catalogs
+								var ignoreList = ["hw-fw", "detector"];
+								for (var i = 0, total = 0; total < 3; i++) {
+									var catalog = (catalogStat[i].catalog).toLowerCase();
+									if (ignoreList.findIndex((cat) => cat === catalog) === -1) {
+										total++;
+										let catalog = (catalogStat[i].catalog);
+										let chartName = $scope.CPE.CatalogStat.ChartName + "_" + total;
+										setTimeout(() => {
+											$scope.CPE.groupByModalityAndMonth(result, catalog, chartName);
+										}, 0);
+									}
+								}
 							},
 								function (error) {
 									reportError(error);
@@ -614,6 +630,80 @@ define(["app", "underscore", "jquery"],
 								$scope.InQuerying = false;
 								$scope.$apply();
 							});
+					},
+
+					groupByModalityAndMonth: function (result, catalog, chartName) {
+						var chart = {
+							Name: chartName,
+							ChartName: chartName,
+							ChartTitle: "[<catalog>] by Month & Product".replace("<catalog>", catalog),
+							ChartLabels: [],
+							ChartData: [],
+							ChartOptions: {
+								scales: {
+									yAxes: [{
+										stacked: true
+									}],
+									xAxes: [{
+										stacked: true
+									}]
+								}
+							}
+						};
+
+						var list = result.filter((row) => row.CPEInfo.catalog === catalog)
+						if (list.length > 0) {
+							chart.DateRange = {
+								Begin: list[0].CreatedDate.substr(0, 10),
+								End: list[list.length - 1].CreatedDate.substr(0, 10)
+							};
+						}
+
+						$scope.CPE.CatalogStat.DateRange = {
+							Begin: result[0].CreatedDate.substr(0, 10),
+							End: result[result.length - 1].CreatedDate.substr(0, 10)
+						}
+
+						list = utility.groupByMultiple(list,
+							[function (ceil) {
+								return ceil.Created.YearMonth;
+							}
+								, function (ceil) {
+									return ceil.CPEInfo.modality;
+								}]
+							, [], true, false);
+
+						list = Object.keys(list).map((month) => {
+							var row = list[month];
+							var ret = { Month: month, Count: row.__Count, Others: 0 };
+							$scope.CPE.CatalogStat.ChartSeries.forEach(series => {
+								ret[series] = 0;
+							})
+
+							Object.keys(row).forEach(key => {
+								if (key.startsWith("__")) { return; }
+
+								var found = false;
+								var lowerKey = key.toLowerCase();
+								$scope.CPE.CatalogStat.ChartSeries.forEach(series => {
+									if (lowerKey === series.toLowerCase()) {
+										ret[series] = row[key].__Count;
+										found = true;
+									}
+								})
+
+								if (!found) {
+									ret.Others += row[key].__Count;
+								}
+							})
+
+							return ret;
+						})
+							.sort((first, second) => {
+								return first.Month.localeCompare(second.Month);
+							});
+						
+						updateChart(chart, list, "Month", $scope.CPE.CatalogStat.ChartSeries.concat(["Others"]));
 					}
 				};
 
@@ -1088,7 +1178,6 @@ define(["app", "underscore", "jquery"],
 				}
 				*/	// *********************************************************************** /
 
-
 				function updateChart(chart, fullData, labelColumn, valueColumns, seriesLabels) {
 					var dataArrays = {};
 					valueColumns.forEach(function (col) {
@@ -1116,7 +1205,7 @@ define(["app", "underscore", "jquery"],
 					});
 
 					
-					chart.ChartObject = new Chart(chart.Name + "_Chart", {
+					chart.ChartObject = new Chart(chart.ChartName, {
 						type: "bar",
 						data: {
 							labels: chart.ChartLabels,
@@ -1155,7 +1244,7 @@ define(["app", "underscore", "jquery"],
 							list = _.flatten(_.pluck(list, "fields")).map(function (task) {
 								return {
 									Id: task["System.Id"],
-									Owner: task["System.AssignedTo"].displayName,
+									Owner: task["System.AssignedTo"] ? task["System.AssignedTo"].displayName : "",
 									Title: task["System.Title"],
 									State: task["System.State"],
 									Estimate: task["Microsoft.VSTS.Scheduling.OriginalEstimate"],
@@ -1163,12 +1252,7 @@ define(["app", "underscore", "jquery"],
 								};
 							});
 
-							// TODO: The change did not trigger the auto calculation
 							wit.Children = list;
-							//wit.Children.forEach(task => {
-							//	var data = list.find(item => item.Id == task.Id);
-							//	_.extend(task, data);
-							//})
 
 							deferred.resolve(wit.Children);
 						})
