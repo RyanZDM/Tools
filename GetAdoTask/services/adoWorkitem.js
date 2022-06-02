@@ -38,12 +38,30 @@ function adoWorkItem(jsonObj, tools) {
 		}
 	}
 
+	if (this["ResolvedDate"]) {
+		var resolvedDate = tools.moment.utc(this["ResolvedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
+		if (resolvedDate.isValid()) {
+			resolvedDate.local();
+			this["ResolvedDate"] = resolvedDate.format("YYYY-MM-DD");
+		}
+	}
+
 	if (this["ClosedDate"]) {
 		var closedtDate = tools.moment.utc(this["ClosedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
 		if (closedtDate.isValid()) {
 			closedtDate.local();
 			this["ClosedDate"] = closedtDate.format("YYYY-MM-DD");
 		}
+	}
+
+	switch (this.State) {
+		case "Resolved":
+			this.CompletedDate = this.ResolvedDate;
+			break;
+		case "Closed":
+			this.CompletedDate = this.ClosedDate;
+			break;
+		default:
 	}
 	//#endregion
 

@@ -62,16 +62,19 @@ define(["app", "underscore", "jquery"],
 					ShowRejectField: true,
 					ShowBlockReasonField: true,
 					ShowInvalidItemOnly: false,
+					ShowCompleteDate: true,
 
 					OrderByOptions: [{ value: 0, name: "Default" },
-					{ value: 1, name: "Priority" },
-					{ value: 2, name: "State" },
-					{ value: 3, name: "Feature" }
+						{ value: 1, name: "Priority" },
+						{ value: 2, name: "State" },
+						{ value: 3, name: "Feature" },
+						{ value: 4, name: "Completed Date" }
 					],
 					OrderByValues: [["Owner", "Iteration", "-State", "Priority"],
-					["Priority", "-State"],
-					["-State", "Priority"],
-					["Feature", "-State", "Priority"]
+						["Priority", "-State"],
+						["-State", "Priority"],
+						["Feature", "-State", "Priority"],
+						["-CompleteDate"]
 					],
 					OrderByOptionIndex: 0,
 					ProjectTeamList: ["Taiji", "Wudang", "Penglai", "Dunhuang", "CPE"],
@@ -377,13 +380,13 @@ define(["app", "underscore", "jquery"],
 					OrderByOptions: [{ value: 0, name: "Default" },
 						{ value: 1, name: "Priority" },
 						{ value: 2, name: "State" },
-						{ value: 3, name: "Open Days" }
-					],
+						{ value: 3, name: "Open Days" },
+						],
 
 					OrderByValues: [["Owner", "State", "Priority"],
 						["Priority", "State"],
 						["State", "Priority"],
-						["-CPEInfo.OpenWorkingDays", "State", "Priority"]
+						["-CPEInfo.OpenWorkingDays", "State", "Priority"],
 					],
 
 					Headers: ["ADO ID", "Site", "Title", "State", "Priority", "Created", "Assigned TO", "Blocked", "Closed", "Open Days", "Escalation Id", "Ver", "Product"],
@@ -397,7 +400,8 @@ define(["app", "underscore", "jquery"],
 						, Name: "CPEWorkloadSummaryByDays"
 						, Headers: ["Name", "Count", "Story Points"]
 						, Columns: ["Owner", "Count", "StoryPoints"]
-						, ChartTitle: "Worklad by person"
+						, ChartName: "CPEWorkloadSummaryByDays_Chart"
+						, ChartTitle: "Workload by Person"
 					},
 
 					CatalogStat: {
@@ -592,7 +596,7 @@ define(["app", "underscore", "jquery"],
 												ret.Others += row[key].__Count;
 											}
 										})
-										
+
 										return ret;
 									})
 									.sort(function (first, second) {
@@ -702,8 +706,17 @@ define(["app", "underscore", "jquery"],
 							.sort((first, second) => {
 								return first.Month.localeCompare(second.Month);
 							});
-						
-						updateChart(chart, list, "Month", $scope.CPE.CatalogStat.ChartSeries.concat(["Others"]));
+
+						var valueColumns = $scope.CPE.CatalogStat.ChartSeries.concat(["Others", "Count"]);
+						var seriesConfigs = $scope.CPE.CatalogStat.ChartSeries.concat(["Others"]);
+						seriesConfigs.push({
+							label: "Count"
+							, type: "line"
+							, fill: false
+							, borderWidth: 2
+							, borderColor: "#000000"
+						});
+						updateChart(chart, list, "Month", valueColumns, seriesConfigs);
 					}
 				};
 
@@ -727,7 +740,7 @@ define(["app", "underscore", "jquery"],
 
 				//#region Statistics
 				$scope.workingHoursStatOwner = {
-												Workload: [], ChartData: []
+					Workload: [], ChartData: []
 					, Headers: ["Name", "Completed Hours", "Task Count"]
 					, Columns: ["Owner", "CompletedWork", "Count"]
 				};
@@ -741,7 +754,7 @@ define(["app", "underscore", "jquery"],
 				//#endregion Statistics
 
 				$scope.currentTab = "FeatureTeam";
-				$scope.switchTab = function(tabName) {
+				$scope.switchTab = function (tabName) {
 					$scope.currentTab = tabName;
 				}
 
@@ -755,7 +768,7 @@ define(["app", "underscore", "jquery"],
 				 * @name	saveCurrentParameters()
 				 * @description	Saves the current parameters (owner, sprint, scope etc.) to browser local cache
 				 */
-				function saveCurrentParameters () {
+				function saveCurrentParameters() {
 					if (!$scope.CanUseLocalStorage) { return; }
 
 					var data = {
@@ -774,7 +787,8 @@ define(["app", "underscore", "jquery"],
 						ShowAssigned: $scope.Dev.ShowAssigned,
 						ShowActive: $scope.Dev.ShowActive,
 						ShowResolved: $scope.Dev.ShowResolved,
-						ShowClosed: $scope.Dev.ShowClosed
+						ShowClosed: $scope.Dev.ShowClosed,
+						ShowCompleteDate: $scope.Dev.ShowCompleteDate,
 					};
 
 					localStorage.setItem(LocalStorageKey.SAVED_PARAMETERS, JSON.stringify(data));
@@ -784,7 +798,7 @@ define(["app", "underscore", "jquery"],
 				 * @name	loadSavedParameters()
 				 * @description	Loads saved parameters from browser local cache
 				 */
-				function loadSavedParameters () {
+				function loadSavedParameters() {
 					if (!$scope.CanUseLocalStorage) { return; }
 
 					var savedParameters = localStorage.getItem(LocalStorageKey.SAVED_PARAMETERS);
@@ -808,6 +822,7 @@ define(["app", "underscore", "jquery"],
 						if (savedParameters["ShowActive"] !== undefined) { $scope.Dev.ShowActive = savedParameters.ShowActive; }
 						if (savedParameters["ShowResolved"] !== undefined) { $scope.Dev.ShowResolved = savedParameters.ShowResolved; }
 						if (savedParameters["ShowClosed"] !== undefined) { $scope.Dev.ShowClosed = savedParameters.ShowClosed; }
+						if (savedParameters["ShowCompleteDate"] !== undefined) { $scope.Dev.ShowCompleteDate = savedParameters.ShowCompleteDate; }
 
 						if ($scope.Dev.IfSaveOtherInfo2Local && $scope.Dev.TaskList.length > 0) {
 							var otherInfo = localStorage.getItem(LocalStorageKey.SAVED_OTHERINFO);
@@ -816,7 +831,7 @@ define(["app", "underscore", "jquery"],
 							}
 							otherInfo = JSON.parse(otherInfo);
 							_.each(_.keys(otherInfo),
-								function(key) {
+								function (key) {
 									updateOtherInfo($scope.Dev.TaskList, key, otherInfo[key]);
 								});
 						}
@@ -832,7 +847,7 @@ define(["app", "underscore", "jquery"],
 				 * @param id	The task ID
 				 * @param value	The message to be updated
 				 */
-				function updateOtherInfo (list, id, value) {
+				function updateOtherInfo(list, id, value) {
 					var index = _.findIndex(list, function (task) {
 						if (!id || !task["id"]) return false;
 
@@ -844,14 +859,14 @@ define(["app", "underscore", "jquery"],
 					}
 				};
 
-				function initBeforeQuery (callback) {
+				function initBeforeQuery(callback) {
 					if ($scope.FeatureList.length < 1) {
 						// Load feature list
 						adoQueryService.getFeatureList(adoAuthService.getAuthenticationToken())
-							.then(function(list) {
-									$scope.FeatureList = list;
-								},
-								function(e) {
+							.then(function (list) {
+								$scope.FeatureList = list;
+							},
+								function (e) {
 									reportError(e);
 								});
 					}
@@ -864,7 +879,7 @@ define(["app", "underscore", "jquery"],
 						callback();
 					}
 				};
-				
+
 				/**
 				 * @name	saveOtherInfo2Local()
 				 * @description Saves the comments recorded in "Other" field to the local storage
@@ -910,15 +925,15 @@ define(["app", "underscore", "jquery"],
 				$scope.importOtherInfo2Local = function () {
 					var input = document.createElement("input");
 					input.type = "file";
-					input.onchange = function(e) {
+					input.onchange = function (e) {
 						var file = e.target.files[0];
 						var reader = new FileReader();
-						reader.onload = function(e) {
+						reader.onload = function (e) {
 							var content = e.target.result;
 							var otherInfo = JSON.parse(content);
 
 							_.each(_.keys(otherInfo),
-								function(key) {
+								function (key) {
 									updateOtherInfo($scope.Dev.TaskList, key, otherInfo[key]);
 								});
 
@@ -933,7 +948,7 @@ define(["app", "underscore", "jquery"],
 				 * @name clearCache
 				 * @description Clear all cached info (except for the account info) from the local storage
 				 */
-				$scope.clearCache = function() {
+				$scope.clearCache = function () {
 					if (confirm("This will clear all ADO related cache from this machine, are you sure?")) {
 						localStorage.removeItem(LocalStorageKey.LOCAL_STORAGE_KEY);
 						localStorage.removeItem(LocalStorageKey.SAVED_PARAMETERS);
@@ -949,8 +964,8 @@ define(["app", "underscore", "jquery"],
 				 * @param callbackAfterQuery(result, token)	the callback function after data returned
 				 */
 				function getAdoTask(parameters, callbackBeforeQuery, callbackAfterQuery) {
-					initBeforeQuery(callbackBeforeQuery);					
-					
+					initBeforeQuery(callbackBeforeQuery);
+
 					var token = adoAuthService.getAuthenticationToken();
 					_.extend(parameters, { Token: token });
 					adoQueryService.getAdoTaskUsingWiql(parameters)
@@ -961,8 +976,8 @@ define(["app", "underscore", "jquery"],
 
 							// Load the other info from local storage
 							loadSavedParameters();
-							
-						}, function(error) {
+
+						}, function (error) {
 							console.error("refreshTaskList() failed");
 						})
 						.then(function () {
@@ -977,7 +992,7 @@ define(["app", "underscore", "jquery"],
 				* @description	Summarize the total estimation days, working hours and task count by engineer
 				* @returns	True if the workload stat data is generated successfully. False if no data.
 				*/
-				function collectWorkloadStatData (workladStat, filteredRecords, chartSeries) {
+				function collectWorkloadStatData(workladStat, filteredRecords, chartSeries) {
 					if (workladStat["Collected"] && workladStat.Collected) {
 						return true;
 					};
@@ -1048,7 +1063,7 @@ define(["app", "underscore", "jquery"],
 							return second.CompletedWork - first.CompletedWork;
 						});
 
-						refreshChart($scope.workingHoursStatOwner, groupByOwner, "Owner", ["Count", "CompletedWork"]);
+						updateChart($scope.workingHoursStatOwner, groupByOwner, "Owner", ["Count", "CompletedWork"]);
 
 						// For chart display (team)
 						var groupByTeam = utility.groupByMultiple(result, ["AreaPath"], ["OriginalEstimate", "CompletedWork"], false, false);
@@ -1059,7 +1074,7 @@ define(["app", "underscore", "jquery"],
 							return second.CompletedWork - first.CompletedWork;
 						});
 
-						refreshChart($scope.workingHoursStatTeam, groupByTeam, "Team", ["Count", "CompletedWork"]);
+						updateChart($scope.workingHoursStatTeam, groupByTeam, "Team", ["Count", "CompletedWork"]);
 					},
 						function (error) {
 							reportError(error);
@@ -1098,20 +1113,20 @@ define(["app", "underscore", "jquery"],
 				 */
 				function refreshChart1(chart, fullData, labelColumn, valueColumns) {
 					var dataArrays = {};
-					valueColumns.forEach(function(col) {
+					valueColumns.forEach(function (col) {
 						dataArrays[col] = [];
 					});
 
-					fullData.forEach(function(data) {
+					fullData.forEach(function (data) {
 						chart.ChartLabels.push(data[labelColumn]);
-						valueColumns.forEach(function(col) {
+						valueColumns.forEach(function (col) {
 							dataArrays[col].push(data[col]);
 						});
 					});
 
 					chart.Workload = fullData;
 					chart.ChartHeight = chart.ChartLabels.length * 10;
-					valueColumns.forEach(function(col) {
+					valueColumns.forEach(function (col) {
 						chart.ChartData.push(dataArrays[col]);
 					});
 				}
@@ -1178,7 +1193,61 @@ define(["app", "underscore", "jquery"],
 				}
 				*/	// *********************************************************************** /
 
-				function updateChart(chart, fullData, labelColumn, valueColumns, seriesLabels) {
+				/**
+				 * @name	updateSeriesConfigs
+				 * @description	Applys the pre-configured series settings
+				 * @param {any} configs	list of series setting. If passed in a string array, use the string as seris label
+				 * @param {any} valueColumns	The name list of value column, use it as label if the [label] is not defined in SeriesConfig
+				 */
+				function updateSeriesConfigs(configs, valueColumns) {
+					var backgroundColors = ["#5ec9db", "#dfc765", "#f27d51", "#6462cc", "#e6a0c4", "#c6cdf7", "#d8a499", "#7294d4", "#ffc900", "#595959", "#fe8c00", "#ff5338"];
+					var updatedSeriesConfigs = []
+
+					if (!configs || (Array.isArray(configs) && configs.length === 0)) {
+						for (var valIndex in valueColumns) {
+							updatedSeriesConfigs.push({
+								label: valueColumns[valIndex]
+								, backgroundColor: backgroundColors[valIndex]
+							});
+						}
+
+						return updatedSeriesConfigs;
+					}
+
+					if (configs) {
+						for (var seriesIndex in configs) {
+							var config = configs[seriesIndex];
+							if (typeof config  === "object") {
+								if (!config.label) {
+									config.label = (valueColumns && valueColumns[seriesIndex]) ? valueColumns[seriesIndex] : "";
+								}
+
+								if (!config.backgroundColor) {
+									config.backgroundColor = backgroundColors[seriesIndex];
+								}
+
+								updatedSeriesConfigs.push(config);
+							} else {
+								updatedSeriesConfigs.push({
+									label: config
+									, backgroundColor: backgroundColors[seriesIndex]
+								});
+							}
+						}
+					}
+
+					return updatedSeriesConfigs;
+				}
+
+				/**
+				 * @name	updateChart
+				 * @param {ChartObject} chart	The chart object
+				 * @param {Array} fullData	Array contains all data
+				 * @param {string} labelColumn	Gets value for this column and show as X axis label
+				 * @param {string array} valueColumns	Gets value of those columns as Series data
+				 * @param {object array} serieConfigs	List of Series Config
+				 */
+				function updateChart(chart, fullData, labelColumn, valueColumns, seriesConfigs) {
 					var dataArrays = {};
 					valueColumns.forEach(function (col) {
 						dataArrays[col] = [];
@@ -1191,19 +1260,16 @@ define(["app", "underscore", "jquery"],
 						});
 					});
 
+					seriesConfigs = updateSeriesConfigs(seriesConfigs, valueColumns);
+
 					chart.Workload = fullData;
-					var seriesLabelIndex = 0;
-					var backgroundColors = ["#5ec9db", "#dfc765", "#f27d51", "#6462cc", "#e6a0c4", "#c6cdf7", "#d8a499", "#7294d4", "#ffc900", "#595959", "#fe8c00", "#ff5338"];
-					valueColumns.forEach(function (col) {
-						chart.ChartData.push({
-							label: (seriesLabels && seriesLabels[seriesLabelIndex]) ? seriesLabels[seriesLabelIndex] : col,
-							data: dataArrays[col],
-							backgroundColor: backgroundColors[seriesLabelIndex]
-						});
+					for (var index in valueColumns) {
+						var col = valueColumns[index];
+						var config = seriesConfigs[index];
+						config.data = dataArrays[col];
 
-						seriesLabelIndex++;
-					});
-
+						chart.ChartData.push(config);
+					}
 					
 					chart.ChartObject = new Chart(chart.ChartName, {
 						type: "bar",
@@ -1344,10 +1410,10 @@ define(["app", "underscore", "jquery"],
 				 */
 				$scope.export = function () {
 					// TODO:
-					var data = "ID\tTitle\tPriority\tStoryPoints\tOwner\tIteration\tState";
+					var data = "ID\tTitle\tPriority\tStoryPoints\tOwner\tIteration\tState\t\CompletedDate";
 					//var data = "ID\tTitle\tPriority\tProduct\tOwner\tIteration\tState\tReject\t" + $scope.Dev.OtherInfoLabel;
 					_.each($scope.filteredRecords, function (record) {
-						data += "\r\n" + record.Id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.StoryPoints + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.State;
+						data += "\r\n" + record.Id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.StoryPoints + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.State + "\t" + record.CompletedDate;
 						//data += "\r\n" + record.id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.Product + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.ScheduleState + "\t" + record.Reject + "\t" + record.Other;
 					});
 

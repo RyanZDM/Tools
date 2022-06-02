@@ -234,6 +234,13 @@
 																</label>
 															</div>
 														</li>
+														<li>
+															<div class="checkbox">
+																<label>
+																	<input type="checkbox" ng-model="Dev.ShowCompleteDate" />CompleteDate
+																</label>
+															</div>
+														</li>
 													</ul>
 												</div>
 												<span class="input-group-addon">Order By:</span>
@@ -262,18 +269,18 @@
 											<table class="table table-hover table-bordered table-responsive" border="1" id="result">
 												<thead>
 													<tr>
-														<th>#</th>
-														<th data-toggle="tooltip" title="Highlight in bold means was changed today">ID</th>
-														<th data-toggle="tooltip">Description</th>
-														<th>Priority</th>
-														<th ng-show="Dev.ShowProductField" width="5%">Product</th>
-														<th data-toggle="tooltip" title="If show with underline style, means it has child task.">Points</th>
-														<th>Owner</th>
-														<th ng-show="Dev.ShowIterationField">Iteration</th>
-														<th data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
-														<th ng-show="Dev.ShowRejectField" ng-if="!Dev.QueryForOpenDefect">Reject</th>
-														<th ng-show="Dev.ShowFeatureField">Feature</th>
-														<!--<th ng-if="!Dev.QueryForOpenDefect'" data-toggle="tooltip" title="Show 'Missed' means that there is no label [UTYes] or [UTNo] specified in Root Cause Description field">UT Need</th>-->
+														<th style="vertical-align: middle; text-align: center">#</th>
+														<th style="vertical-align: middle; text-align: center" data-toggle="tooltip" title="Highlight in bold means was changed today">ID</th>
+														<th style="vertical-align: middle; text-align: center" data-toggle="tooltip">Description</th>
+														<th style="vertical-align: middle; text-align: center">Priority</th>
+														<th style="vertical-align: middle; text-align: center" ng-show="Dev.ShowProductField" width="5%">Product</th>
+														<th style="vertical-align: middle; text-align: center" data-toggle="tooltip" title="If show with underline style, means it has child task.">Points</th>
+														<th style="vertical-align: middle; text-align: center">Owner</th>
+														<th style="vertical-align: middle; text-align: center" ng-show="Dev.ShowIterationField">Iteration</th>
+														<th style="vertical-align: middle; text-align: center" data-toggle="tooltip" title="Highlight in bold means was changed today">State</th>
+														<th style="vertical-align: middle; text-align: center" ng-show="Dev.ShowCompleteDate" data-toggle="tooltip" title="The resolved or closed date">CompleteDate</th>
+														<th style="vertical-align: middle; text-align: center" ng-show="Dev.ShowRejectField" ng-if="!Dev.QueryForOpenDefect">Reject</th>
+														<th style="vertical-align: middle; text-align: center" ng-show="Dev.ShowFeatureField">Feature</th>
 														<th class="col-3" width="10%">
 															<div class="input-group">
 																<input type="checkbox" ng-model="Dev.IfSaveOtherInfo2Local" />
@@ -284,7 +291,7 @@
 																<input type="text" class="form-control" style="font-size:12px;" align="center" ng-model="Dev.OtherInfoLabel" placeholder="Custom Label" />
 															</div>
 														</th>
-														<th ng-show="Dev.ShowBlockReasonField" width="10%">BlockedReason</th>
+														<th style="vertical-align: middle; text-align: center" ng-show="Dev.ShowBlockReasonField" width="10%">BlockedReason</th>
 													</tr>
 												</thead>
 												<tbody>
@@ -332,6 +339,7 @@
 																{{task.State}}
 															</a>
 														</td>
+														<td ng-show="Dev.ShowCompleteDate" style="vertical-align: middle; text-align: center">{{task.CompletedDate}}</td>
 														<td ng-show="Dev.ShowRejectField" ng-if="!Dev.QueryForOpenDefect" style="vertical-align: middle; text-align: center">{{task.Rejected ? 'Y' : ''}}</td>
 														<td ng-show="Dev.ShowFeatureField" style="vertical-align: middle; text-align: center">
 															<a href="{{task.ParentLink}}" target="_blank"
@@ -557,10 +565,10 @@
 										<table-and-chart uid="{{CPE.WorkloadStat.Name}}"
 														 label="Workload Summary"
 														 headers="CPE.WorkloadStat.Headers"
-														 columns="CPE.WorkloadStat.FullColumns"
+														 columns="CPE.WorkloadStat.Columns"
 														 source-data="CPE.WorkloadStat.Workload"
 														 action="CPE.collectWorkloadStatData()"
-														 export-data="exportData(workloadStat)"
+														 export-data="exportData(CPE.workloadStat)"
 														 tip="Working hours statistics by sprint & owner">
 										</table-and-chart>
 									</div>
