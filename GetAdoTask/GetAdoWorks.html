@@ -383,12 +383,11 @@
 								<div class="panel-body">
 									<!-- Summary of developer's working hour by the sub task' -->
 									<div class="table-bordered" style="border-color:lightblue; margin: 2px;">
-										<table-and-chart uid="workingHoursStatOwnerTableChart"
+										<table-and-chart uid="{{workingHoursStatOwner.Name}}"
 														 label="Working hours statistics by owner"
 														 headers="workingHoursStatOwner.Headers"
 														 columns="workingHoursStatOwner.Columns"
 														 source-data="workingHoursStatOwner.Workload"
-														 chart-data="workingHoursStatOwner"
 														 action="removeClass('#workingHoursStatOwnerTableChart', 'collapse'); removeClass('#workingHoursStatTeamTableChart', 'collapse');calcWorkingHours()"
 														 export-data="exportData(workingHoursStatOwner)"
 														 state="collapse"
@@ -397,16 +396,15 @@
 									</div>
 									<!-- Summary of team's working hour by the sub task' -->
 									<div class="table-bordered" style="border-color:lightblue; margin: 2px;">
-										<table-and-chart uid="workingHoursStatTeamTableChart"
+										<table-and-chart uid="{{workingHoursStatTeam.Name}}"
 														 label="Working hours statistics by team"
 														 headers="workingHoursStatTeam.Headers"
 														 columns="workingHoursStatTeam.Columns"
 														 source-data="workingHoursStatTeam.Workload"
-														 chart-data="workingHoursStatTeam"
 														 export-data="exportData(workingHoursStatTeam)"
 														 disable-button="true"
 														 state="collapse"
-														 title="Working hours statistics by tea">
+														 title="Working hours statistics by team">
 										</table-and-chart>
 									</div>
 									<!-- End -->

@@ -741,14 +741,20 @@ define(["app", "underscore", "jquery"],
 				//#region Statistics
 				$scope.workingHoursStatOwner = {
 					Workload: [], ChartData: []
+					, Name: "workingHoursStatOwnerTableChart"
 					, Headers: ["Name", "Completed Hours", "Task Count"]
 					, Columns: ["Owner", "CompletedWork", "Count"]
+					, ChartName: "workingHoursStatOwnerTableChart_Chart"
+					, ChartTitle: "Working Hours Statistics by Owner"
 				};
 
 				$scope.workingHoursStatTeam = {
 					Workload: [], ChartData: []
 					, Headers: ["Team", "Completed Hours", "Task Count"]
 					, Columns: ["Team", "CompletedWork", "Count"]
+					, Name: "workingHoursStatTeamTableChart"
+					, ChartName: "workingHoursStatTeamTableChart_Chart"
+					, ChartTitle: "Working Hours Statistics by Team"
 				};
 
 				//#endregion Statistics
@@ -1055,10 +1061,10 @@ define(["app", "underscore", "jquery"],
 					var parameters = { WorkItemType: "Task", Sprint: $scope.Dev.Sprint, Teams: ["Taiji", "Wudang", "Dunhuang"] };
 					adoQueryService.calculateTaskSpentTime(parameters, token).then(function (result) {
 						// For chart display (owner)
-						var groupByOwner = utility.groupByMultiple(result, ["Owner"], ["OriginalEstimate", "CompletedWork"], false, false);
+						var groupByOwner = utility.groupByMultiple(result, ["Owner"], ["OriginalEstimate", "CompletedWork"], true, false);
 						groupByOwner = Object.keys(groupByOwner).map(function (owner) {
 							var obj = groupByOwner[owner];
-							return { Owner: owner, CompletedWork: obj.CompletedWork, Count: obj._Count };
+							return { Owner: owner, CompletedWork: obj.CompletedWork, Count: obj.__Count };
 						}).sort(function (first, second) {
 							return second.CompletedWork - first.CompletedWork;
 						});
@@ -1066,10 +1072,10 @@ define(["app", "underscore", "jquery"],
 						updateChart($scope.workingHoursStatOwner, groupByOwner, "Owner", ["Count", "CompletedWork"]);
 
 						// For chart display (team)
-						var groupByTeam = utility.groupByMultiple(result, ["AreaPath"], ["OriginalEstimate", "CompletedWork"], false, false);
+						var groupByTeam = utility.groupByMultiple(result, ["AreaPath"], ["OriginalEstimate", "CompletedWork"], true, false);
 						groupByTeam = Object.keys(groupByTeam).map(function (team) {
 							var obj = groupByTeam[team];
-							return { Team: team.split(" ").pop(), CompletedWork: obj.CompletedWork, Count: obj._Count };
+							return { Team: team.split(" ").pop(), CompletedWork: obj.CompletedWork, Count: obj.__Count };
 						}).sort(function (first, second) {
 							return second.CompletedWork - first.CompletedWork;
 						});
