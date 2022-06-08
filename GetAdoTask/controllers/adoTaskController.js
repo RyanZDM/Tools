@@ -306,7 +306,6 @@ define(["app", "underscore", "jquery"],
 					 * @returns	The accumulate result string.
 					 */
 					getWorkload: function (records) {
-						// TODO:
 						var result = "";
 						if (records && records.length > 0) {
 							var totalDays = 0, actualHours = 0;
@@ -412,6 +411,10 @@ define(["app", "underscore", "jquery"],
 						, Columns: ["catalog", "Count"]
 						, ChartTitle: "IV CPE Issue Group by Catalog"
 						, ChartSeries: ["<unspecified>", "Evo", "Revo", "Compass", "Ascend", "Transportable"]
+						, DateRange: {
+							Begin: adoRestApi.CPEStatisticsStartFrom,
+							End: new Date().toISOString().substr(0, 10)
+						}
 						, ChartOptions: {
 							scales: {
 								yAxes: [{
@@ -498,11 +501,15 @@ define(["app", "underscore", "jquery"],
 						return true;
 					},
 
+					callbackBeforeQuery: function() {
+						$scope.CPE.resetWorkloadStat();
+					},
+
 					query: function () {
 						$scope.CPE.QueryTypeString = " --- ALL CPE Tasks @" + new Date().toLocaleTimeString();
 
 						var parameters = { CreatedAfter: moment($scope.CPE.CreatedAfter).format("YYYY-MM-DD"), WorkItemType: "User Story", Teams: "CPE" };
-						getAdoTask(parameters, null, function (result, token) {
+						getAdoTask(parameters, $scope.CPE.callbackBeforeQuery, function (result, token) {
 							var hasCustomizedField = ($scope.CPE.ComputedFields.length > 0);
 
 							result.forEach(function (record) {
@@ -519,15 +526,15 @@ define(["app", "underscore", "jquery"],
 
 							$scope.CPE.TaskList = result;
 
-							// TODO: Calculate the working hours background
 							setTimeout(() => {
 								$scope.CPE.TaskList.forEach(wit => {
 									loadSubTaskState(wit, token).then(result => {
-										wit.ChildrenTooltip = generateHtmlFormatTableData(result, ["Estimate", "Completed"]);
+										wit.ChildrenTooltip =
+											generateHtmlFormatTableData(result, ["Estimate", "Completed"]);
 
 										$scope.$apply();
-									})
-								})
+									});
+								});
 							}, 0);
 						});
 					},
@@ -559,13 +566,6 @@ define(["app", "underscore", "jquery"],
 						var token = adoAuthService.getAuthenticationToken();
 						adoQueryService.getCpeStatistics({ Token: token })
 							.then(function (result) {
-								if (result.length > 0) {
-									$scope.CPE.CatalogStat.DateRange = {
-										Begin: result[0].CreatedDate.substr(0, 10),
-										End: result[result.length - 1].CreatedDate.substr(0, 10)
-									};
-								}
-
 								var catalogStat = utility.groupByMultiple(result, [function (ceil) {
 									return ceil.CPEInfo.catalog;
 								}, function (ceil) {
@@ -615,9 +615,9 @@ define(["app", "underscore", "jquery"],
 
 								// Group by top 3 catalogs
 								var ignoreList = ["hw-fw", "detector"];
-								for (var i = 0, total = 0; total < 3; i++) {
-									var catalog = (catalogStat[i].catalog).toLowerCase();
-									if (ignoreList.findIndex((cat) => cat === catalog) === -1) {
+								for (let i = 0, total = 0; total < 3; i++) {
+									var lowerCatalog = (catalogStat[i].catalog).toLowerCase();
+									if (ignoreList.findIndex((cat) => cat === lowerCatalog) === -1) {
 										total++;
 										let catalog = (catalogStat[i].catalog);
 										let chartName = $scope.CPE.CatalogStat.ChartName + "_" + total;
@@ -655,17 +655,12 @@ define(["app", "underscore", "jquery"],
 							}
 						};
 
-						var list = result.filter((row) => row.CPEInfo.catalog === catalog)
+						var list = result.filter((row) => row.CPEInfo.catalog === catalog);
 						if (list.length > 0) {
 							chart.DateRange = {
-								Begin: list[0].CreatedDate.substr(0, 10),
-								End: list[list.length - 1].CreatedDate.substr(0, 10)
+								Begin: adoRestApi.CPEStatisticsStartFrom,
+								End: new Date().toISOString().substr(0, 10)
 							};
-						}
-
-						$scope.CPE.CatalogStat.DateRange = {
-							Begin: result[0].CreatedDate.substr(0, 10),
-							End: result[result.length - 1].CreatedDate.substr(0, 10)
 						}
 
 						list = utility.groupByMultiple(list,
@@ -1111,33 +1106,6 @@ define(["app", "underscore", "jquery"],
 				}
 
 				/**
-				 * @name refreshChart (internal use)
-				 * @param {any} chart	reference to the chart object
-				 * @param {any} fullData	The data list
-				 * @param {any} labelColumn	The array contains all label to be shown on chart
-				 * @param {any} valueColumns	The array contains all value to be shown on chart
-				 */
-				function refreshChart1(chart, fullData, labelColumn, valueColumns) {
-					var dataArrays = {};
-					valueColumns.forEach(function (col) {
-						dataArrays[col] = [];
-					});
-
-					fullData.forEach(function (data) {
-						chart.ChartLabels.push(data[labelColumn]);
-						valueColumns.forEach(function (col) {
-							dataArrays[col].push(data[col]);
-						});
-					});
-
-					chart.Workload = fullData;
-					chart.ChartHeight = chart.ChartLabels.length * 10;
-					valueColumns.forEach(function (col) {
-						chart.ChartData.push(dataArrays[col]);
-					});
-				}
-
-				/**
 				 * The data structure for a Chart bar **************************************** /
 				 */
 				/*
@@ -1329,7 +1297,7 @@ define(["app", "underscore", "jquery"],
 							deferred.resolve(wit.Children);
 						})
 						.catch(function (err) {
-							deferred(err);
+							deferred.reject(err);
 						});
 
 					return deferred.promise();
@@ -1415,12 +1383,9 @@ define(["app", "underscore", "jquery"],
 				 * @description	Copy the current filtered data to clipboard
 				 */
 				$scope.export = function () {
-					// TODO:
-					var data = "ID\tTitle\tPriority\tStoryPoints\tOwner\tIteration\tState\t\CompletedDate";
-					//var data = "ID\tTitle\tPriority\tProduct\tOwner\tIteration\tState\tReject\t" + $scope.Dev.OtherInfoLabel;
+					var data = "ID\tTitle\tPriority\tStoryPoints\tOwner\tIteration\tState\tCompletedDate";
 					_.each($scope.filteredRecords, function (record) {
 						data += "\r\n" + record.Id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.StoryPoints + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.State + "\t" + record.CompletedDate;
-						//data += "\r\n" + record.id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.Product + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.ScheduleState + "\t" + record.Reject + "\t" + record.Other;
 					});
 
 					window.alert(utility.copyToClipboard(data) ? "Data get copied to clipboard." : "Copy to clipboard failed.");

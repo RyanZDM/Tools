@@ -12,10 +12,9 @@ define(["app", "underscore", "jquery"],
 			"adoRestApi",
 			"utility",
 			"currentSettings",
-			"LocalStorageKey",
 			"adoComputedFiledService",
 
-			function ($scope, $rootScope, $http, $q, adoAuthService, adoQueryService, adoRestApi, utility, currentSettings, LocalStorageKey, adoComputedFiledService) {
+			function ($scope, $rootScope, $http, $q, adoAuthService, adoQueryService, adoRestApi, utility, currentSettings, adoComputedFiledService) {
 				$scope.CanUseLocalStorage = adoAuthService.CanUseLocalStorage;
 				$scope.SAVED_PARAMETERS = "Params_QryByWiql";
 				$scope.QueryType = "flat";	// flat/tree/oneHop
@@ -154,10 +153,10 @@ define(["app", "underscore", "jquery"],
 				function getColumns() {
 					var select = $scope.Select.trimStart().trimEnd();
 					var regex = new RegExp("^Select", "i");
-					if (!regex.test(select)) return [];
+					if (!regex.test(select)) return;
 
 					var pos = select.toLowerCase().indexOf("from");
-					if (pos === -1) return [];
+					if (pos === -1) return;
 					
 					var columns = select.substr(7, pos - 7)
 										.replace(/\[|\]/gi, "")

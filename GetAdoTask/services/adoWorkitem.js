@@ -202,7 +202,7 @@ function adoWorkItem(jsonObj, tools) {
 	}
 
 	// Monitor on the children record change and calculate the children summary data
-	tools.utility.monitorOnArrayChnage(this._children, updateChildrenSummary);
+	tools.utility.monitorOnArrayChange(this._children, updateChildrenSummary);
 	// Monitor on the whole children array change and calculate the children summary data
 	Object.defineProperty(this, "Children", {
 		//writable: true,

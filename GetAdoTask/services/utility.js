@@ -14,7 +14,7 @@ define(["app", "underscore"], function (app, _) {
 			sendEmail: sendEmail,
 			getRowData: getRowData,
 			setRowData: setRowData,
-			monitorOnArrayChnage: monitorOnArrayChnage,
+			monitorOnArrayChange: monitorOnArrayChange,
 			getPureNameString: getPureNameString
 		}
 
@@ -47,7 +47,7 @@ define(["app", "underscore"], function (app, _) {
 			document.body.removeChild(textarea);
 			currentFocus.focus();
 			return flag;
-		};
+		}
 
 		/**
 		 * @name	groupByMultiple
@@ -71,24 +71,24 @@ define(["app", "underscore"], function (app, _) {
 			var groupByColPrefix = "_groupby_col_";
 			var uniqueKeyMappings = [];
 			var newIteratee = [];
-			for (var index in iteratee) {
+			for (let index in iteratee) {
 				newIteratee.push(groupByColPrefix + index);
 				uniqueKeyMappings.push({});
 			}
 
 			var newData = [];
-			for (index in array) {
+			for (let index in array) {
 				var row = array[index];
 
 				var newRow = {};
 
 				// re-calculate the value of group by columns
-				for (var iterIndex in iteratee) {
+				for (let iterIndex in iteratee) {
 					var ite = iteratee[iterIndex];
 
 					var value = (typeof ite === "string") ? getRowData(row, ite) : ite(row);
 					if (!value) {
-						value = "<unspecified>"
+						value = "<unspecified>";
 					} else {
 						if ( value.match(/^(unspec|unknow)/i)) {
 							value = "<unspecified>";
@@ -110,7 +110,7 @@ define(["app", "underscore"], function (app, _) {
 				// get the columns to be cumulated
 				cumulativeItems.forEach(item => {
 					newRow[item] = getRowData(row, item);
-				})
+				});
 
 				newData.push(newRow);
 			}
@@ -132,7 +132,7 @@ define(["app", "underscore"], function (app, _) {
 			link.download = filename;
 			link.href = URL.createObjectURL(file);
 			link.click();
-		};
+		}
 
 		/**
 		 * @name html2PlainText
@@ -151,7 +151,7 @@ define(["app", "underscore"], function (app, _) {
 				, ['&gt;', '>']
 			];
 
-			for (var index in keywords) {
+			for (let index in keywords) {
 				html = html.replaceAll(keywords[index][0], keywords[index][1]);
 			}
 
@@ -162,7 +162,7 @@ define(["app", "underscore"], function (app, _) {
 			}
 
 			return html;
-		};
+		}
 
 		/**
 		 * @name sendEmail
@@ -180,7 +180,7 @@ define(["app", "underscore"], function (app, _) {
 			var ccString = (cc && cc.trim() !== "") ? ("cc=" + cc + "&") : "";
 			var attach = (attachment && attachment.trim() !== "") ? '&attach="' + attachment + '"' : "";
 			window.open("mailto:" + to + "?" + ccString + "subject=" + subject + "&body=" + body + attach);
-		};
+		}
 
 		/**
 		 * @name	getPureNameString
@@ -196,7 +196,7 @@ define(["app", "underscore"], function (app, _) {
 			}
 
 			return newCol;
-		};
+		}
 
 		/**
 		 * @name getRowData 
@@ -205,7 +205,7 @@ define(["app", "underscore"], function (app, _) {
 		 *				e.g. "CPE.Property1.Property11
 		 */
 		function getRowData(row, colName) {
-			if (!row || !colName || colName === "") return "";
+			if (!row || !colName) return "";
 
 			var val = row[colName];
 			if (!val) {
@@ -218,7 +218,7 @@ define(["app", "underscore"], function (app, _) {
 			}
 
 			return val;
-		};
+		}
 
 		/**
 		 * @name setRowData
@@ -229,7 +229,7 @@ define(["app", "underscore"], function (app, _) {
 		 * @param {any} val	The value
 		 */
 		function setRowData(row, colName, val) {
-			if (!row || !colName || colName === "") return false;
+			if (!row || !colName) return false;
 
 			if (row[colName]) {
 				// Found the column, directly set value
@@ -252,21 +252,23 @@ define(["app", "underscore"], function (app, _) {
 
 				tempProperty[realCol] = val;
 			}
-		};
+
+			return true;
+		}
 
 		/**
-		 * @name monitorOnArrayChnage
+		 * @name monitorOnArrayChange
 		 * @param {any} arr
 		 * @param {any} callback
 		 */
-		function monitorOnArrayChnage(arr, callback) {
+		function monitorOnArrayChange(arr, callback) {
 			["pop", "push", "shift", "unshift", "splice"].forEach(method => {
-				arr[method] = function () {
+				arr[method] = function() {
 					var ret = Array.prototype[method].apply(arr, arguments);
 					callback.apply(arr, arguments);
 					return ret;
 				}
-			})
+			});
 		}
 
 		/**
@@ -283,7 +285,7 @@ define(["app", "underscore"], function (app, _) {
 			var firstBy = _.groupBy(array, iteratee[0]);
 			var next = iteratee.slice(1);
 			if (next.length > 0) {
-				for (var prop in firstBy) {
+				for (let prop in firstBy) {
 					var cnt = firstBy[prop].length;
 					firstBy[prop] = internalGroupByMultiple(firstBy[prop], next, cumulativeItems, caseSensitive, ignoreNonAlphanumericChar);
 					firstBy[prop].__Count = cnt;
@@ -297,7 +299,7 @@ define(["app", "underscore"], function (app, _) {
 				}
 
 				var cumulatedRecords = {};
-				for (var lastGroupItem in firstBy) {
+				for (let lastGroupItem in firstBy) {
 					var cumulatedRecord = {};
 					if (cumulatedRecords[lastGroupItem]) {
 						cumulatedRecord = cumulatedRecords[lastGroupItem];

@@ -1,6 +1,6 @@
 "use strict";
 
-define(["app", "underscore"], function (app, _) {
+define(["app"], function (app) {
 
 	app.service("adoComputedFiledService", ["utility", function (utility) {
 		function updateCustomizedFields(wit, computedFields) {
@@ -16,15 +16,15 @@ define(["app", "underscore"], function (app, _) {
 
 		/**
 		 * name	getCompuedFields
-		 * @param {string} comptedFieldList	The string contains all computed fields separated by ^. 
+		 * @param {string} computedFieldList	The string contains all computed fields separated by ^. 
 		 */
-		function getComputedFields(comptedFieldList) {
-			if (!comptedFieldList || comptedFieldList.trim() === "") {
+		function getComputedFields(computedFieldList) {
+			if (!computedFieldList || computedFieldList.trim() === "") {
 				return [];
 			}
 
 			var computedFields = [];
-			var defineList = comptedFieldList.trim().split("^");
+			var defineList = computedFieldList.trim().split("^");
 			defineList.forEach(function (define) {
 				var field = getComputedField(define);
 				if (field) {

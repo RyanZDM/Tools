@@ -216,7 +216,7 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 		/**
 		 * name getAdoTaskUsingWiql
 		* @param {string} authToken	The token string to be sent to ADO for the authentication
- 		 * @param {string} url			url to the REST API of ADO
+		 * @param {string} url			url to the REST API of ADO
 		 * @param {string} wiql			WIQL string
 		 */
 		function getAdoTaskUsingWiql(authToken, url, wiql) {
@@ -254,18 +254,17 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 		function calculateTaskSpentTime(parameters, authToken) {
 			var url = adoRestApi.TemplateWiqlQuery;
 			var wiql =  adoRestApi.getTaskSpentTimeUrl(parameters);
-			var returnFields = ["[System.Id]"
-								,"[System.AssignedTo]"
-								,"[System.State]"
-								,"[System.AreaPath]"
-								,"[System.IterationPath]"
-								,"[Microsoft.VSTS.Scheduling.OriginalEstimate]"
-								,"[Microsoft.VSTS.Scheduling.CompletedWork]"];
+			//var returnFields = ["[System.Id]"
+			//					,"[System.AssignedTo]"
+			//					,"[System.State]"
+			//					,"[System.AreaPath]"
+			//					,"[System.IterationPath]"
+			//					,"[Microsoft.VSTS.Scheduling.OriginalEstimate]"
+			//					,"[Microsoft.VSTS.Scheduling.CompletedWork]"];
 
 			var deferred = $.Deferred();
 			queryUsingWiql(authToken, url, wiql, "WIT", /*returnFields*/ null).then(function(result) {
 					deferred.resolve(result);
-					//var tasks = _.pluck
 				},
 				function(error) {
 					deferred.reject(error);
@@ -342,7 +341,7 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 		 * @param {string} returnType	The type of return list, "Feature" or "WIT" (Bug/US/Task)
 		 * @param {string or Array<string>} returnFields	[] means specify by SELECT clause, null means return all fields
 		 */
-		function queryUsingWiql(authToken, url, wiql, returnType, returnFields, queryType) {
+		function queryUsingWiql(authToken, url, wiql, returnType, returnFields) {
 			var deferred = $.Deferred();
 			jQueryPost(url, authToken, JSON.stringify({ "query": wiql }))
 				.then(function (result) {
@@ -399,19 +398,19 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 		 * @return			The ADO record collection
 		 */
 		function getList(restApi, itemArray, returnType) {
-			if (!returnType || returnType === "") {
-				var list = _.pluck(itemArray, "fields")
+			if (!returnType) {
+				var list = _.pluck(itemArray, "fields");
 				var witList = [];
 
 				var fieldMapping = {};
-				for (var propertyName in list[0]) {
+				for (let propertyName in list[0]) {
 					var newProp = propertyName.split(".").pop();
 					fieldMapping[propertyName] = newProp;
 				}
 
 				list.forEach(function (item) {
 					var wit = {};
-					for (var propertyName in item) {
+					for (let propertyName in item) {
 						var newProp = propertyName.split(".").pop();
 						wit[newProp] = item[propertyName];
 					}
@@ -460,7 +459,7 @@ define(["jquery", "underscore", "moment", "app", "moment-business-days"], functi
 		 * @description		Analyze the JSON object and return the work item list against on the target type. Call by other methods internally
 		 * @param itemArray	The json object contains records get from ADO
 		 * @param tools	The restApi object and moment
- 		 * @return			The ADO record collection
+		 * @return			The ADO record collection
 		 */
 		function getWorkItems(itemArray, tools) {
 			if (!itemArray || itemArray.length === 0) return [];

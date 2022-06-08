@@ -28,14 +28,16 @@ define(["app"], function (app) {
 																From workitems ";
 																	//[System.WorkItemType] = 'Task' ";
 
+		var cpeStatisticsStartFrom = "10/1/2021";
 		var wiqlCpeStat = "Select [System.Id],[System.State],[System.WorkItemType],[Custom.CSH_Notes],[Microsoft.VSTS.Common.Priority],[Custom.CSH_ProductFamily],[System.AreaPath],[System.CreatedDate]\
 							From workitems Where\
 							[System.WorkItemType] = 'User Story' \
 							AND [System.AreaPath] = 'Software\\CPE' \
 							AND [Custom.CSH_ProductFamily] = 'IV' \
-							AND [System.CreatedDate] >= '10/1/2021'\
+							AND [System.CreatedDate] >= '<StartDate>'\
 							AND [System.Title] CONTAINS '[' \
-							Order by [System.CreatedDate]";		// the title always contains [xxx] for an escalation issue us
+							Order by [System.CreatedDate]"
+						.replace("<StartDate>", cpeStatisticsStartFrom);		// the title always contains [xxx] for an escalation issue us
 
 		function formatQuery(url) {
 			return url.replace(/\t/g, "");
@@ -225,6 +227,8 @@ define(["app"], function (app) {
 
 		return {
 			MaxRecordsEveryQuery: 200,
+
+			CPEStatisticsStartFrom: cpeStatisticsStartFrom,
 
 			// The id 88538884208ud means ImageView Software project
 			// The id 278792303760ud means Software project in new workspace
