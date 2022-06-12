@@ -238,6 +238,9 @@ define(["app", "underscore", "jquery"],
 					});
 
 					if (wiql) {
+						if (wiql.CpeRelated) {
+							$scope.CpeRelated = wiql.CpeRelated;
+						}
 						$scope.Select = wiql.Select;
 						$scope.Where = wiql.Where;
 						$scope.CustomizedWhere = wiql.CustomizedWhere;

@@ -105,11 +105,12 @@ define(["app", "underscore", "jquery"],
 							setTimeout(() => {
 								$scope.Dev.TaskList.forEach(wit => {
 									loadSubTaskState(wit, token).then(result => {
-										wit.ChildrenTooltip = generateHtmlFormatTableData(result, ["Estimate", "Completed"]);
+										wit.ChildrenTooltip =
+											generateHtmlFormatTableData(result, ["Estimate", "Completed"]);
 
 										$scope.$apply();
-									})
-								})
+									});
+								});
 							}, 0);
 						});
 					},
@@ -155,7 +156,7 @@ define(["app", "underscore", "jquery"],
 						$scope.Dev.QueryTypeString = " --- ALL " + project.Name + " open tasks @" + new Date().toLocaleTimeString();
 
 						var parameters = { Token: token, States: ["Submitted", "New", "Assigned", "Active"] };
-						_.extend(parameters, project.Parameters)
+						_.extend(parameters, project.Parameters);
 						adoQueryService.getAdoTaskUsingWiql(parameters).then(function (list) {
 							$scope.Dev.TaskList = project.process(list);
 
@@ -545,7 +546,7 @@ define(["app", "underscore", "jquery"],
 					 * @returns	True if the workload stat data is generated successfully. False if no data.
 					 */
 					collectWorkloadStatData: function () {
-						return collectWorkloadStatData($scope.CPE.WorkloadStat, $scope.filteredCpeRecords, ["Points", "Tasks Total"])
+						return collectWorkloadStatData($scope.CPE.WorkloadStat, $scope.filteredCpeRecords, ["Points", "Tasks Total"]);
 					},
 
 					resetWorkloadStat: function () {
@@ -578,10 +579,12 @@ define(["app", "underscore", "jquery"],
 										var ret = { catalog: catalog, Count: row.__Count, Others: 0 };
 										$scope.CPE.CatalogStat.ChartSeries.forEach(series => {
 											ret[series] = 0;
-										})
+										});
 
 										Object.keys(row).forEach(key => {
-											if (key.startsWith("__")) { return; }
+											if (key.startsWith("__")) {
+												return;
+											}
 
 											var found = false;
 											var lowerKey = key.toLowerCase();
@@ -590,12 +593,12 @@ define(["app", "underscore", "jquery"],
 													ret[series] = row[key].__Count;
 													found = true;
 												}
-											})
+											});
 
 											if (!found) {
 												ret.Others += row[key].__Count;
 											}
-										})
+										});
 
 										return ret;
 									})
@@ -619,11 +622,13 @@ define(["app", "underscore", "jquery"],
 									var lowerCatalog = (catalogStat[i].catalog).toLowerCase();
 									if (ignoreList.findIndex((cat) => cat === lowerCatalog) === -1) {
 										total++;
-										let catalog = (catalogStat[i].catalog);
-										let chartName = $scope.CPE.CatalogStat.ChartName + "_" + total;
-										setTimeout(() => {
-											$scope.CPE.groupByModalityAndMonth(result, catalog, chartName);
-										}, 0);
+										(function() {
+											var catalog = (catalogStat[i].catalog);
+											var chartName = $scope.CPE.CatalogStat.ChartName + "_" + total;
+											setTimeout(() => {
+												$scope.CPE.groupByModalityAndMonth(result, catalog, chartName);
+											}, 0);
+										})();
 									}
 								}
 							},
@@ -677,10 +682,12 @@ define(["app", "underscore", "jquery"],
 							var ret = { Month: month, Count: row.__Count, Others: 0 };
 							$scope.CPE.CatalogStat.ChartSeries.forEach(series => {
 								ret[series] = 0;
-							})
+							});
 
 							Object.keys(row).forEach(key => {
-								if (key.startsWith("__")) { return; }
+								if (key.startsWith("__")) {
+									return;
+								}
 
 								var found = false;
 								var lowerKey = key.toLowerCase();
@@ -689,12 +696,12 @@ define(["app", "underscore", "jquery"],
 										ret[series] = row[key].__Count;
 										found = true;
 									}
-								})
+								});
 
 								if (!found) {
 									ret.Others += row[key].__Count;
 								}
-							})
+							});
 
 							return ret;
 						})
@@ -979,7 +986,7 @@ define(["app", "underscore", "jquery"],
 							loadSavedParameters();
 
 						}, function (error) {
-							console.error("refreshTaskList() failed");
+							reportError(error);
 						})
 						.then(function () {
 							$scope.InQuerying = false;
@@ -1175,7 +1182,7 @@ define(["app", "underscore", "jquery"],
 				 */
 				function updateSeriesConfigs(configs, valueColumns) {
 					var backgroundColors = ["#5ec9db", "#dfc765", "#f27d51", "#6462cc", "#e6a0c4", "#c6cdf7", "#d8a499", "#7294d4", "#ffc900", "#595959", "#fe8c00", "#ff5338"];
-					var updatedSeriesConfigs = []
+					var updatedSeriesConfigs = [];
 
 					if (!configs || (Array.isArray(configs) && configs.length === 0)) {
 						for (var valIndex in valueColumns) {
@@ -1188,25 +1195,24 @@ define(["app", "underscore", "jquery"],
 						return updatedSeriesConfigs;
 					}
 
-					if (configs) {
-						for (var seriesIndex in configs) {
-							var config = configs[seriesIndex];
-							if (typeof config  === "object") {
-								if (!config.label) {
-									config.label = (valueColumns && valueColumns[seriesIndex]) ? valueColumns[seriesIndex] : "";
-								}
 
-								if (!config.backgroundColor) {
-									config.backgroundColor = backgroundColors[seriesIndex];
-								}
-
-								updatedSeriesConfigs.push(config);
-							} else {
-								updatedSeriesConfigs.push({
-									label: config
-									, backgroundColor: backgroundColors[seriesIndex]
-								});
+					for (var seriesIndex in configs) {
+						var config = configs[seriesIndex];
+						if (typeof config  === "object") {
+							if (!config.label) {
+								config.label = (valueColumns && valueColumns[seriesIndex]) ? valueColumns[seriesIndex] : "";
 							}
+
+							if (!config.backgroundColor) {
+								config.backgroundColor = backgroundColors[seriesIndex];
+							}
+
+							updatedSeriesConfigs.push(config);
+						} else {
+							updatedSeriesConfigs.push({
+								label: config
+								, backgroundColor: backgroundColors[seriesIndex]
+							});
 						}
 					}
 
@@ -1346,7 +1352,7 @@ define(["app", "underscore", "jquery"],
 									summaryData[header] += row[header];
 								}
 							}
-						})
+						});
 
 						rowsData = rowsData + "<tr>" + tr + "</tr>";
 					});
@@ -1355,7 +1361,7 @@ define(["app", "underscore", "jquery"],
 						var summary = [""];
 						headers.forEach(header => {
 							summary.push(((summaryData[header] !== 0) ? summaryData[header] : ""));
-						})
+						});
 
 						footData = footData.replace("<summary-data>", summary.join("</th><th>"));
 					}
@@ -1383,12 +1389,11 @@ define(["app", "underscore", "jquery"],
 				 * @description	Copy the current filtered data to clipboard
 				 */
 				$scope.export = function () {
-					var data = "ID\tTitle\tPriority\tStoryPoints\tOwner\tIteration\tState\tCompletedDate";
-					_.each($scope.filteredRecords, function (record) {
-						data += "\r\n" + record.Id + "\t" + record.Title + "\t" + record.Priority + "\t" + record.StoryPoints + "\t" + record.Owner + "\t" + record.Iteration + "\t" + record.State + "\t" + record.CompletedDate;
-					});
+					var result = utility.exportDataToClipboard($scope.filteredRecords,
+																null,
+																["Id", "Title", "Priority", "StoryPoints", "Owner", "Iteration", "State", "CompletedDate"]);
 
-					window.alert(utility.copyToClipboard(data) ? "Data get copied to clipboard." : "Copy to clipboard failed.");
+					window.alert(result ? "Data get copied to clipboard." : "Copy to clipboard failed.");
 				};
 
 				$scope.exportData = function (data, columns) {
@@ -1402,30 +1407,7 @@ define(["app", "underscore", "jquery"],
 						records = data;
 					}
 
-					if (columns.length < 1 || records.length < 1) return;
-
-					var header = "";
-					columns.forEach(function(col) {
-						header = header + col + "\t";
-					});
-
-					header = header.substr(0, header.length - 1);
-					var rows = "";
-					records.forEach(function(record) {
-						var row = "";
-						columns.forEach(function (col) {
-							var value = utility.getRowData(record, col);
-							row = row + (value ? value : "") + "\t";
-						});
-
-						// remove last tab
-						row = row.substr(0, row.length - 1);
-
-						rows = rows + row + "\r\n";
-					});
-
-					var exportTxt = header + "\r\n" + rows;
-					window.alert(utility.copyToClipboard(exportTxt) ? "Data get copied to clipboard." : "Copy to clipboard failed.");
+					window.alert(utility.exportDataToClipboard(records, null, columns) ? "Data get copied to clipboard." : "Copy to clipboard failed.");
 				};
 
 				$scope.getFeatureName = function(featureId) {
@@ -1461,6 +1443,7 @@ define(["app", "underscore", "jquery"],
 				 * @param	error	The error object.
 				 */
 				function reportError(error) {
+					error = adoQueryService.getErrorMessage(error);
 					console.error(error);
 					$scope.ErrorMsg = error;
 				};

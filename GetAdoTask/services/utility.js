@@ -15,7 +15,8 @@ define(["app", "underscore"], function (app, _) {
 			getRowData: getRowData,
 			setRowData: setRowData,
 			monitorOnArrayChange: monitorOnArrayChange,
-			getPureNameString: getPureNameString
+			getPureNameString: getPureNameString,
+			exportDataToClipboard: exportDataToClipboard
 		}
 
 		/**
@@ -329,6 +330,41 @@ define(["app", "underscore"], function (app, _) {
 			}
 
 			return firstBy;
+		}
+
+		function exportDataToClipboard(rows, headers, columns) {
+			if (!rows || rows.length === 0 || !columns || columns.length === 0) return false;
+
+			if (!headers) {
+				headers = columns;
+			}
+
+			if (headers.length < columns.length) {
+				var start = headers.length;
+				for (var index = start; index < columns.length; index++) {
+					headers.push(columns[index]);
+				}
+			}
+
+			var headerLabel = headers.join("\t");
+
+			var rowData = "";
+			rows.forEach(row => {
+				var line = "\r\n";
+				columns.forEach(col => {
+					var value = getRowData(row, col);
+					line = line + (value ? value : "") + "\t";
+				});
+
+				// remove last tab
+				line = line.substr(0, line.length - 1);
+
+				rowData = rowData + line;
+			});
+
+			var exportText = headerLabel + rowData;
+
+			return copyToClipboard(exportText);
 		}
 	});
 });

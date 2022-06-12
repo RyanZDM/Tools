@@ -222,6 +222,14 @@ define(["app"], function (app) {
 					CustomizedWhere: "wit['Parent'] == <parent id>",
 					CustomizedScript: ""
 				}
+				, {
+					CpeRelated: true,
+					Name: "Gets CPE completed tasks with Catalog & Modality",
+					Select: "SELECT [System.Id],[System.Title], [System.CreatedDate] FROM workitems",
+					Where: "([System.State] = 'Closed' and [System.AreaPath] = 'Software\\CPE' and [System.WorkItemType] = 'User Story' and [Custom.CSH_ProductFamily] <> 'IS') ",
+					CustomizedWhere: "wit.CPEInfo['modality'] == 'Compass'",
+					CustomizedScript: "Catalog=wit.CPEInfo['catalog']^Product=wit.CPEInfo['modality']"
+				}
 			];
 		}
 
