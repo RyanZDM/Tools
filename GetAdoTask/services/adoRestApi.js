@@ -226,9 +226,25 @@ define(["app"], function (app) {
 					CpeRelated: true,
 					Name: "Gets CPE completed tasks with Catalog & Modality",
 					Select: "SELECT [System.Id],[System.Title], [System.CreatedDate] FROM workitems",
-					Where: "([System.State] = 'Closed' and [System.AreaPath] = 'Software\\CPE' and [System.WorkItemType] = 'User Story' and [Custom.CSH_ProductFamily] <> 'IS') ",
+					Where: "([System.State] = 'Closed' and [System.AreaPath] = 'Software\\CPE' and [System.WorkItemType] = 'User Story' and [Custom.CSH_ProductFamily] <> 'IS' and [System.CreatedDate] >= '10/1/2021' and [System.Title] Contains '[') ",
 					CustomizedWhere: "wit.CPEInfo['modality'] == 'Compass'",
-					CustomizedScript: "Catalog=wit.CPEInfo['catalog']^Product=wit.CPEInfo['modality']"
+					CustomizedScript: "Catalog=wit.CPEInfo['catalog']^Product=wit.CPEInfo['modality']^Reason=wit.CPEInfo['closereason']"
+				}
+				, {
+					CpeRelated: true,
+					Name: "Escalation came within 1 week",
+					Select: "SELECT [System.Title], [Custom.CSH_ProductFamily], [Custom.CSHSoftwareVersion],[System.AssignedTo], [System.CreatedDate], [System.State],[Microsoft.VSTS.Common.Priority] FROM workitems",
+					Where: "([System.AreaPath] = 'Software\\CPE' and [System.WorkItemType] = 'User Story' and [System.CreatedDate] >@StartOfDay('-7d') and [System.Title] Contains '[')",
+					CustomizedWhere: "",
+					CustomizedScript: "Site=wit.CPEInfo['site']^C4C=wit.EscalationId"
+				}
+				, {
+					CpeRelated: true,
+					Name: "Escalation data analysis",
+					Select: "SELECT [System.Id], [System.Title], [Custom.CSH_ProductFamily], [System.CreatedDate], [Custom.CSHSoftwareVersion] FROM workitems",
+					Where: "([System.AreaPath] = 'Software\\CPE' and [System.WorkItemType] = 'User Story' and [System.Title] Contains '[' and [Custom.CSH_ProductFamily] not contains 'IS' and [System.State] = 'Closed' and [System.CreatedDate] >'6/14/2022')",
+					CustomizedWhere: "",
+					CustomizedScript: "Feature=wit.CPEInfo['feature']^Catalog=wit.CPEInfo['catalog']^InvestigationResult=wit.CPEInfo['closereason']^EscalationID=wit.EscalationId"
 				}
 			];
 		}

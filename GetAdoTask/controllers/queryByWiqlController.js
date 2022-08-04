@@ -274,7 +274,11 @@ define(["app", "underscore", "jquery"],
 					$scope.Data.forEach(function(record) {
 						var row = "";
 						$scope.FullColumns.forEach(function(col) {
-							row = row + (record[col] ? record[col] : "") + "\t";
+							var val = record[col] ? record[col] : "";
+							if (col.toLowerCase().indexOf("version") !== -1) {
+								val = "'" + val;
+							}
+							row = row + val + "\t";
 						});
 
 						// remove last tab

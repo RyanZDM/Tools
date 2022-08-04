@@ -29,7 +29,7 @@ function adoWorkItem(jsonObj, tools) {
 		this.Iteration = -1;
 	}
 
-	//#region Conver UTC date to local date
+	//#region Convert UTC date to local date
 	if (this["CreatedDate"]) {
 		var startDate = tools.moment.utc(this["CreatedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
 		if (startDate.isValid()) {
@@ -47,10 +47,10 @@ function adoWorkItem(jsonObj, tools) {
 	}
 
 	if (this["ClosedDate"]) {
-		var closedtDate = tools.moment.utc(this["ClosedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
-		if (closedtDate.isValid()) {
-			closedtDate.local();
-			this["ClosedDate"] = closedtDate.format("YYYY-MM-DD");
+		var closedDate = tools.moment.utc(this["ClosedDate"], "YYYY-MM-DDTHH:mm:ss.SSS");
+		if (closedDate.isValid()) {
+			closedDate.local();
+			this["ClosedDate"] = closedDate.format("YYYY-MM-DD");
 		}
 	}
 
@@ -204,65 +204,71 @@ function adoWorkItem(jsonObj, tools) {
 	// Monitor on the children record change and calculate the children summary data
 	tools.utility.monitorOnArrayChange(this._children, updateChildrenSummary);
 	// Monitor on the whole children array change and calculate the children summary data
-	Object.defineProperty(this, "Children", {
-		//writable: true,
-		get() { return this._children; },
-		set(newValue) {
-			this._children = newValue;
-			if (this._children && this._children.length > 0) {
-				var count = 0;
-				var estimate = 0;
-				var completed = 0;
-				var otherEstimate = 0;
-				var otherCompleted = 0;
-				this._children.forEach(child => {
-					count++;
-					var val = child["Estimate"] ? child["Estimate"] : "";
-					if ((val !== "") && !isNaN(val)) {
-						if (child["Owner"] && child["Owner"] === this.Owner) {
-							estimate += child["Estimate"];
-						} else {
-							otherEstimate += child["Estimate"];
-						}
-						
-					}
+	Object.defineProperty(this,
+		"Children",
+		{
+			//writable: true,
+			get() { return this._children; },
+			set(newValue) {
+				this._children = newValue;
+				if (this._children && this._children.length > 0) {
+					var count = 0;
+					var estimate = 0;
+					var completed = 0;
+					var otherEstimate = 0;
+					var otherCompleted = 0;
+					this._children.forEach(child => {
+						count++;
+						var val = child["Estimate"] ? child["Estimate"] : "";
+						if ((val !== "") && !isNaN(val)) {
+							if (child["Owner"] && child["Owner"] === this.Owner) {
+								estimate += child["Estimate"];
+							} else {
+								otherEstimate += child["Estimate"];
+							}
 
-					val = child["Completed"] ? child["Completed"] : "";
-					if ((val !== "") && !isNaN(val)) {
-						if (child["Owner"] && child["Owner"] === this.Owner) {
-							completed += child["Completed"];
-						} else {
-							otherCompleted += child["Completed"];
 						}
-					}
-				})
 
-				this.ChildrenSummary = {
-					Count: count,
-					Estimate: estimate,
-					Completed: completed,
-					OtherEstimate: otherEstimate,
-					OtherCompleted: otherCompleted
-				}
-			} else {
-				this.ChildrenSummary = {
-					Count: 0,
-					Estimate: 0,
-					Completed: 0,
-					OtherEstimate: 0,
-					OtherCompleted: 0
+						val = child["Completed"] ? child["Completed"] : "";
+						if ((val !== "") && !isNaN(val)) {
+							if (child["Owner"] && child["Owner"] === this.Owner) {
+								completed += child["Completed"];
+							} else {
+								otherCompleted += child["Completed"];
+							}
+						}
+					})
+
+					this.ChildrenSummary = {
+						Count: count,
+						Estimate: estimate,
+						Completed: completed,
+						OtherEstimate: otherEstimate,
+						OtherCompleted: otherCompleted
+					}
+				} else {
+					this.ChildrenSummary = {
+						Count: 0,
+						Estimate: 0,
+						Completed: 0,
+						OtherEstimate: 0,
+						OtherCompleted: 0
+					}
 				}
 			}
-		}
-	})
+		});
 
-	Object.defineProperty(this, "CompletedHours", {
-		get() { return this.ChildrenSummary.Completed; }
-	})
+	Object.defineProperty(this,
+		"CompletedHours",
+		{
+			get() { return this.ChildrenSummary.Completed; }
+		});
 
-	Object.defineProperty(this, "EstimateHours", {
-		get() { return this.ChildrenSummary.Estimate; }
-	})
+	Object.defineProperty(this,
+		"EstimateHours",
+		{
+			get() { return this.ChildrenSummary.Estimate; }
+		});
 	//#endregion
 
 	this.clone = function (exclude) {
@@ -299,7 +305,7 @@ function adoWorkItem(jsonObj, tools) {
 			}
 		}
 
-		// Gets info dictionary from "Notes" field		
+		// Gets info dictionary from "Notes" field
 		if (wit.CSH_Notes && wit.CSH_Notes.trim() !== "") {
 
 			var cpeInfo = html2PlainText(wit.CSH_Notes).trim().replaceAll(";;", ";");
@@ -318,7 +324,7 @@ function adoWorkItem(jsonObj, tools) {
 				if (infoList[index].length > 0) {
 					var dict = infoList[index].split("=");
 					var key = dict[0].replaceAll('"', '').replaceAll(' ', '').toLowerCase();
-					var value = (dict[1] && dict[1].length > 0) ? dict[1].trimStart().trimEnd() : "<unspecified>";
+					var value = (dict[1] && dict[1].length > 0) ? dict[1].trimStart().trimEnd().replace("<", "[").replace(">", "]") : "<unspecified>";
 					cpeInfoDict[key] = value.replaceAll('"', '');
 				}
 			}
@@ -329,7 +335,7 @@ function adoWorkItem(jsonObj, tools) {
 					// Means has not recognized the catalog, uses the default template which contains all catalog items
 					cpeInfoDict["catalog"] = "<unspecified>";
 				} else {
-					// Gets the uique display name
+					// Gets the unique display name
 					var pureCatalogName = tools.utility.getPureNameString(cpeInfoDict["catalog"], false, true);
 					if (tools.catalogDefinition[pureCatalogName]) {
 						cpeInfoDict["catalog"] = tools.catalogDefinition[pureCatalogName];
@@ -342,7 +348,7 @@ function adoWorkItem(jsonObj, tools) {
 				if (cpeInfoDict["modality"].length === 0) {
 					cpeInfoDict["modality"] = "<unspecified>";
 				} else {
-					// Gets the uique display name
+					// Gets the unique display name
 					var pureModalityName = tools.utility.getPureNameString(cpeInfoDict["modality"], false, true);
 					if (tools.modalityDefinition[pureModalityName]) {
 						cpeInfoDict["modality"] = tools.modalityDefinition[pureModalityName];
@@ -467,7 +473,7 @@ function adoWorkItem(jsonObj, tools) {
 		} else if (wit["WorkItemType"] === "User Story") {
 			wit.AcMissed = false;
 
-			// No neet to check the AC field since it is not testable
+			// No need to check the AC field since it is not testable
 			if (wit.Testable) {
 				if (resolved || closed) {
 					if (!wit["AcceptanceCriteria"] ||
